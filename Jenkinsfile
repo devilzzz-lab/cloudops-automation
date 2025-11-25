@@ -1,7 +1,7 @@
 pipeline {
   agent any
   environment {
-    REGISTRY = "your-dockerhub-username"
+    REGISTRY = "devilzz"
     IMAGE_NAME = "cloudops-sample-app"
     TAG = "${env.BUILD_NUMBER}"
   }
