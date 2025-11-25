@@ -6,4 +6,3 @@ docker build -t <dockerhub-user>/cloudops-sample-app:latest .
 
 ## Jenkins
 Contains Jenkinsfile for pipeline stages: Checkout → Build → Test → Docker Build → Push.
-MD
