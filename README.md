@@ -1,5 +1,5 @@
 # CloudOps Automation — CI/CD & Monitoring System (sample)
-Simple Flask app used for Phase-3 CI/CD demo for ngrok testing
+Simple Flask app used for Phase-3 CI/CD demo for ngrok testing purpose
 
 ## Build locally
 docker build -t <dockerhub-user>/cloudops-sample-app:latest
