@@ -46,7 +46,7 @@ Developer (Local Machine)
             v
           Jenkins
   --------------------------------------------
-  | Checkout | Build | Test | Docker Build | Push |
+| Checkout | Build | Test | Docker Build | Push |
   --------------------------------------------
             |
             v
@@ -143,6 +143,7 @@ cloudops-automation/
 
 <p>Sample <code>app.py</code>:</p>
 <pre>
+```python
 from flask import Flask
 import os
 
@@ -150,7 +151,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return f"<h1>CloudOps Sample App</h1><p>Build: {os.getenv('BUILD_NUMBER', 'local')}</p>"
+    return f"&lt;h1&gt;CloudOps Sample App&lt;/h1&gt;&lt;p&gt;Build: {os.getenv('BUILD_NUMBER', 'local')}&lt;/p&gt;"
 
 @app.route('/health')
 def health():
@@ -158,6 +159,7 @@ def health():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
+```
 </pre>
 
 <p><strong>requirements.txt</strong></p>
@@ -214,7 +216,7 @@ CMD ["python","app.py"]
 #!/bin/bash
 set -e
 
-REGISTRY="devilzz"
+REGISTRY="docker-hub-username"
 IMAGE="cloudops-sample-app"
 TAG="build-${BUILD_NUMBER}"
 
@@ -275,7 +277,7 @@ git push origin main</pre>
   </li>
 
   <li>Verify images on Docker Hub:
-    <p>https://hub.docker.com/r/devilzz/cloudops-sample-app</p>
+    <p>https://hub.docker.com/r/doccker-hub-username/cloudops-sample-app</p>
   </li>
 
   <li>Pull &amp; run container locally:
