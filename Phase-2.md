@@ -204,15 +204,8 @@ def lambda_handler(event, context):
 <p>Go to DynamoDB → Tables → <strong>cloudops_events</strong> → Items</p>
 
 <p>You should see entries like:</p>
-
-<pre>
-{
-  "event_id": "uuid",
-  "bucket": "cloudops-event-bucket",
-  "object_key": "test.jpg",
-  "timestamp": "...."
-}
-</pre>
+<p><strong>S3 Trigger Screenshot:</strong></p>
+<img src="screenshots/lambda-s3-trigger.png" alt="Lambda S3 Trigger Screenshot">
 
 <h3>Step 4: Verify SNS</h3>
 <p>Check your email inbox for alert message.</p>
