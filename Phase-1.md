@@ -144,6 +144,9 @@ aws iam list-attached-role-policies --role-name CloudOpsLambdaRole
   <li>Create bucket</li>
 </ol>
 
+<p><strong>S3 Bucket Screenshot:</strong></p>
+<img src="screenshots/S3-bucket-creation.png" alt="S3 Bucket Creation">
+
 <hr/>
 
 <h2>🔶 5. Create DynamoDB Table (cloudops_events)</h2>
@@ -154,6 +157,9 @@ aws iam list-attached-role-policies --role-name CloudOpsLambdaRole
   <li>Settings: Default</li>
   <li>Create table</li>
 </ol>
+
+<p><strong>DynamoDB Table Screenshot:</strong></p>
+<img src="screenshots/dynamodb-table.png" alt="DynamoDB Table">
 
 <hr/>
 
