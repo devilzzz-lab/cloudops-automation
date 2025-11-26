@@ -1,16 +1,19 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phase 3 - CloudOps CI/CD Pipeline</title>
 </head>
 <body>
 
 <h1>🟩 PHASE-3 CloudOps Automation: CI/CD Pipeline (Jenkins + GitHub + Docker) (README.md)</h1>
 
-<p><strong>Version:</strong> Phase 3<br/>
-<strong>Module:</strong> CI/CD &amp; Container Build Automation<br/>
+<p><strong>Version:</strong> Phase 3<br>
+<strong>Module:</strong> CI/CD &amp; Container Build Automation<br>
 <strong>Project:</strong> CloudOps Automation, CI/CD &amp; Monitoring System</p>
 
-<hr/>
+<hr>
 
 <h2>📌 1. Overview</h2>
 <p>Phase-3 focuses on building a complete CI/CD pipeline for the CloudOps Automation System using:</p>
@@ -31,7 +34,7 @@
   <li>✔ Full build → test → containerize → push sequence</li>
 </ul>
 
-<hr/>
+<hr>
 
 <h2>🧩 2. Architecture Diagram</h2>
 
@@ -57,7 +60,7 @@ Developer (Local Machine)
       Deployment Target (Local/K8s-Phase4)
 </pre>
 
-<hr/>
+<hr>
 
 <h2>🏗 3. Jenkins Setup (Docker-Based Installation)</h2>
 
@@ -84,10 +87,10 @@ docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 </pre>
 
 <p>Open in browser:</p>
-<p>http://localhost:8080</p>
+<p><a href="http://localhost:8080">http://localhost:8080</a></p>
 <p>Install Suggested Plugins.</p>
 
-<hr/>
+<hr>
 
 <h2>🔌 4. Required Plugins</h2>
 <p>Install these plugins:</p>
@@ -102,7 +105,7 @@ docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
   <li>Blue Ocean (optional UI)</li>
 </ul>
 
-<hr/>
+<hr>
 
 <h2>🔑 5. Configure Jenkins Credentials</h2>
 
@@ -122,7 +125,7 @@ docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
   <li>ID: <strong>dockerhub-creds</strong></li>
 </ul>
 
-<hr/>
+<hr>
 
 <h2>🐳 6. Project Repository Setup</h2>
 
@@ -141,9 +144,8 @@ cloudops-automation/
  └── tests/   (optional)
 </pre>
 
-<p>Sample <code>app.py</code>:</p>
+<p>Sample de>app.py</code>:</p>
 <pre>
-```python
 from flask import Flask
 import os
 
@@ -159,7 +161,6 @@ def health():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
-```
 </pre>
 
 <p><strong>requirements.txt</strong></p>
@@ -178,7 +179,7 @@ EXPOSE 8080
 CMD ["python","app.py"]
 </pre>
 
-<hr/>
+<hr>
 
 <h2>🟦 7. Jenkins Freestyle Job Setup (Manual UI Method)</h2>
 
@@ -192,9 +193,9 @@ CMD ["python","app.py"]
 <h3>7.2 Configure Source Code Management</h3>
 <p>Under Source Code Management → Git:</p>
 <ul>
-  <li>Repository URL: <code>https://github.com/&lt;username&gt;/cloudops-automation.git</code></li>
+  <li>Repository URL: de>https://github.com/&lt;username&gt;/cloudops-automation.git</code></li>
   <li>Credentials: <strong>github-token</strong></li>
-  <li>Branch: <code>*/main</code></li>
+  <li>Branch: de>*/main</code></li>
 </ul>
 
 <h3>7.3 Build Triggers</h3>
@@ -207,8 +208,8 @@ CMD ["python","app.py"]
 <p>Enable <em>Use secret text(s) or file(s)</em>. Add:</p>
 <ul>
   <li>Credentials: <strong>dockerhub-creds</strong></li>
-  <li>Username Variable: <code>DOCKER_USER</code></li>
-  <li>Password Variable: <code>DOCKER_PASS</code></li>
+  <li>Username Variable: de>DOCKER_USER</code></li>
+  <li>Password Variable: de>DOCKER_PASS</code></li>
 </ul>
 
 <h3>7.5 Build Step (Execute Shell)</h3>
@@ -236,7 +237,7 @@ echo "DONE: Image pushed to Docker Hub."
 
 <p>Click Save.</p>
 
-<hr/>
+<hr>
 
 <h2>🌐 8. Configure GitHub Webhook (Push Trigger)</h2>
 
@@ -246,28 +247,32 @@ ngrok http 8080
 </pre>
 
 <p>Copy ngrok public URL:</p>
-<p><code>https://&lt;subdomain&gt;.ngrok.io</code></p>
+<p>de>https://&lt;subdomain&gt;.ngrok.io</code></p>
 
 <p>Go to GitHub Repo → Settings → Webhooks → Add Webhook</p>
 <ul>
-  <li>Payload URL: <code>https://&lt;ngrok-url&gt;/github-webhook/</code></li>
-  <li>Content Type: <code>application/json</code></li>
+  <li>Payload URL: de>https://&lt;ngrok-url&gt;/github-webhook/</code></li>
+  <li>Content Type: de>application/json</code></li>
   <li>Event: Just the push event</li>
 </ul>
 
 <p>Webhook should show ✓ 200 OK after you push code.</p>
 
-<hr/>
+<hr>
 
 <h2>🚀 9. Verification Steps</h2>
 
 <ol>
-  <li>Push a commit:
-    <pre>git commit --allow-empty -m "CI/CD Test"
-git push origin main</pre>
+  <li>
+    <p>Push a commit:</p>
+    <pre>
+git commit --allow-empty -m "CI/CD Test"
+git push origin main
+    </pre>
   </li>
 
-  <li>Jenkins should trigger automatically. Console Output should show:
+  <li>
+    <p>Jenkins should trigger automatically. Console Output should show:</p>
     <ul>
       <li>Git checkout ✔</li>
       <li>Docker build ✔</li>
@@ -276,37 +281,94 @@ git push origin main</pre>
     </ul>
   </li>
 
-  <li>Verify images on Docker Hub:
-    <p>https://hub.docker.com/r/doccker-hub-username/cloudops-sample-app</p>
+  <li>
+    <p>Verify images on Docker Hub:</p>
+    <p><a href="https://hub.docker.com/r/docker-hub-username/cloudops-sample-app">https://hub.docker.com/r/docker-hub-username/cloudops-sample-app</a></p>
   </li>
 
-  <li>Pull &amp; run container locally:
-    <pre>docker pull devilzz/cloudops-sample-app:latest
-docker run -p 9090:8080 devilzz/cloudops-sample-app:latest</pre>
+  <li>
+    <p>Pull &amp; run container locally:</p>
+    <pre>
+docker pull devilzz/cloudops-sample-app:latest
+docker run -p 9090:8080 devilzz/cloudops-sample-app:latest
+    </pre>
     <p>Open: <a href="http://localhost:9090">http://localhost:9090</a> — You should see your app running.</p>
   </li>
 </ol>
 
-<hr/>
+<hr>
 
 <h2>🏁 10. Completion Checklist</h2>
 
-<ul>
-  <li>Jenkins server setup — ✅ Done — http://localhost:8080</li>
-  <li>Install plugins — ✅ Done — Manage Plugins</li>
-  <li>Configure Docker socket — ✅ Done — docker --version inside container</li>
-  <li>GitHub repo created — ✅ Done — Repo visible</li>
-  <li>Dockerfile added — ✅ Done — File exists</li>
-  <li>Jenkins connected to GitHub — ✅ Done — Webhook 200</li>
-  <li>DockerHub credentials configured — ✅ Done — dockerhub-creds visible</li>
-  <li>Jenkins job created — ✅ Done — Job visible</li>
-  <li>Jenkins builds on push — ✅ Done — Auto-trigger success</li>
-  <li>Docker image built — ✅ Done — Build logs</li>
-  <li>Docker image pushed — ✅ Done — Docker Hub tags visible</li>
-  <li>App deployable — ✅ Done — docker run works</li>
-</ul>
+<table border="1">
+  <tr>
+    <th>Step</th>
+    <th>Status</th>
+    <th>Verification</th>
+  </tr>
+  <tr>
+    <td>Jenkins server setup</td>
+    <td>✅ Done</td>
+    <td>http://localhost:8080</td>
+  </tr>
+  <tr>
+    <td>Install plugins</td>
+    <td>✅ Done</td>
+    <td>Manage Plugins</td>
+  </tr>
+  <tr>
+    <td>Configure Docker socket</td>
+    <td>✅ Done</td>
+    <td>docker --version inside container</td>
+  </tr>
+  <tr>
+    <td>GitHub repo created</td>
+    <td>✅ Done</td>
+    <td>Repo visible</td>
+  </tr>
+  <tr>
+    <td>Dockerfile added</td>
+    <td>✅ Done</td>
+    <td>File exists</td>
+  </tr>
+  <tr>
+    <td>Jenkins connected to GitHub</td>
+    <td>✅ Done</td>
+    <td>Webhook 200</td>
+  </tr>
+  <tr>
+    <td>DockerHub credentials configured</td>
+    <td>✅ Done</td>
+    <td>dockerhub-creds visible</td>
+  </tr>
+  <tr>
+    <td>Jenkins job created</td>
+    <td>✅ Done</td>
+    <td>Job visible</td>
+  </tr>
+  <tr>
+    <td>Jenkins builds on push</td>
+    <td>✅ Done</td>
+    <td>Auto-trigger success</td>
+  </tr>
+  <tr>
+    <td>Docker image built</td>
+    <td>✅ Done</td>
+    <td>Build logs</td>
+  </tr>
+  <tr>
+    <td>Docker image pushed</td>
+    <td>✅ Done</td>
+    <td>Docker Hub tags visible</td>
+  </tr>
+  <tr>
+    <td>App deployable</td>
+    <td>✅ Done</td>
+    <td>docker run works</td>
+  </tr>
+</table>
 
-<hr/>
+<hr>
 
 <h2>🎉 Phase-3 Complete</h2>
 <p>Your CI/CD pipeline is fully automated &amp; operational. You now have a production-style build system exactly like real DevOps workflows.</p>
