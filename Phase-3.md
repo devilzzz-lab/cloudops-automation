@@ -257,6 +257,9 @@ ngrok http 8080
 <p>Copy ngrok public URL (example):</p>
 <p><code>https://&lt;subdomain&gt;.ngrok.io</code></p>
 
+<p><strong>ngrok Public URL Screenshot:</strong></p>
+<img src="screenshots/ngrok-success.png" alt="ngrok Success">
+
 <p>Go to GitHub Repo → Settings → Webhooks → Add Webhook</p>
 <ul>
   <li>Payload URL: <code>https://&lt;ngrok-url&gt;/github-webhook/</code></li>
@@ -267,8 +270,6 @@ ngrok http 8080
 <p><strong>Webhooks Success Screenshot:</strong></p>
 <img src="screenshots/webhooks-success.png" alt="Webhooks Success">
 
-<p><strong>ngrok Public URL Screenshot:</strong></p>
-<img src="screenshots/ngrok-success.png" alt="ngrok Success">
 
 <p>Webhook should show ✓ 200 OK after you push code.</p>
 
