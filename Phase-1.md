@@ -158,9 +158,6 @@ aws iam list-attached-role-policies --role-name CloudOpsLambdaRole
   <li>Create table</li>
 </ol>
 
-<p><strong>DynamoDB Table Screenshot:</strong></p>
-<img src="screenshots/dynamodb-table.png" alt="DynamoDB Table">
-
 <hr/>
 
 <h2>📬 6. Create SQS Queue (cloudops-job-queue)</h2>
