@@ -205,7 +205,7 @@ def lambda_handler(event, context):
 
 <p>You should see entries like:</p>
 <p><strong>S3 Trigger Screenshot:</strong></p>
-<img src="screenshots/lambda-s3-trigger.png" alt="Lambda S3 Trigger Screenshot">
+<img src="screenshots/dynamodb-table.png" alt="Dynamo Table Screenshot">
 
 <h3>Step 4: Verify SNS</h3>
 <p>Check your email inbox for alert message.</p>
