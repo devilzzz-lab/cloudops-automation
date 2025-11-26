@@ -1,8 +1,6 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>PHASE 2 – Lambda Event Automation</title>
 </head>
 <body>
 
@@ -204,7 +202,7 @@ def lambda_handler(event, context):
 <p>Go to DynamoDB → Tables → <strong>cloudops_events</strong> → Items</p>
 
 <p>You should see entries like:</p>
-<p><strong>S3 Trigger Screenshot:</strong></p>
+<p><strong>Dynamo Table Screenshot:</strong></p>
 <img src="screenshots/dynamodb-table.png" alt="Dynamo Table Screenshot">
 
 <h3>Step 4: Verify SNS</h3>
