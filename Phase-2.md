@@ -1,8 +1,6 @@
-<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>PHASE 2 – Lambda Event Automation</title>
 </head>
 <body>
 
