@@ -72,8 +72,8 @@ When a file is uploaded to S3, Lambda will:</p>
 <table border="1" cellpadding="4" cellspacing="0">
   <tr><th>Key</th><th>Value</th></tr>
   <tr><td>DDB_TABLE</td><td>cloudops_events</td></tr>
-  <tr><td>SNS_TOPIC_ARN</td><td>arn:aws:sns:us-east-1:784154679353:cloudops-alerts</td></tr>
-  <tr><td>SQS_QUEUE_URL</td><td>https://sqs.us-east-1.amazonaws.com/784154679353/cloudops-job-queue</td></tr>
+  <tr><td>SNS_TOPIC_ARN</td><td>arn:aws:sns:us-east-1:784153:cloudops-alerts (example)</td></tr>
+  <tr><td>SQS_QUEUE_URL</td><td>https://sqs.us-east-1.amazonaws.com/784154/cloudops-job-queue (example) </td></tr>
 </table>
 
 <p>(Environment variables allow easy updates without editing code.)</p>
