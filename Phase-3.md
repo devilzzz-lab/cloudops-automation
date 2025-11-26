@@ -88,6 +88,9 @@ docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 <p><a href="http://localhost:8080">http://localhost:8080</a></p>
 <p>Install Suggested Plugins.</p>
 
+<p><strong>Jenkins Environment Screenshot:</strong></p>
+<img src="screenshots/jenkins-job-environment.png" alt="Jenkins Job Environment">
+
 <hr>
 
 <h2>🔌 4. Required Plugins</h2>
@@ -142,7 +145,7 @@ cloudops-automation/
  └── tests/   (optional)
 </pre>
 
-<p>Sample de>app.py</code>:</p>
+<p>Sample <code>app.py</code>:</p>
 <pre>
 from flask import Flask
 import os
@@ -191,9 +194,9 @@ CMD ["python","app.py"]
 <h3>7.2 Configure Source Code Management</h3>
 <p>Under Source Code Management → Git:</p>
 <ul>
-  <li>Repository URL: de>https://github.com/&lt;username&gt;/cloudops-automation.git</code></li>
+  <li>Repository URL: <code>https://github.com/&lt;username&gt;/cloudops-automation.git</code></li>
   <li>Credentials: <strong>github-token</strong></li>
-  <li>Branch: de>*/main</code></li>
+  <li>Branch: <code>*/main</code></li>
 </ul>
 
 <h3>7.3 Build Triggers</h3>
@@ -206,8 +209,8 @@ CMD ["python","app.py"]
 <p>Enable <em>Use secret text(s) or file(s)</em>. Add:</p>
 <ul>
   <li>Credentials: <strong>dockerhub-creds</strong></li>
-  <li>Username Variable: de>DOCKER_USER</code></li>
-  <li>Password Variable: de>DOCKER_PASS</code></li>
+  <li>Username Variable: <code>DOCKER_USER</code></li>
+  <li>Password Variable: <code>DOCKER_PASS</code></li>
 </ul>
 
 <h3>7.5 Build Step (Execute Shell)</h3>
@@ -233,7 +236,14 @@ docker push ${REGISTRY}/${IMAGE}:latest || true
 echo "DONE: Image pushed to Docker Hub."
 </pre>
 
-<p>Click Save.</p>
+<p><strong>Execute Shell Screenshot:</strong></p>
+<img src="screenshots/jenkins-execute-shell.png" alt="Jenkins Execute Shell">
+
+<p><strong>Console Output Screenshot (build logs):</strong></p>
+<img src="screenshots/jenkins-console-output.png" alt="Jenkins Console Output">
+
+<p><strong>Job Success Screenshot:</strong></p>
+<img src="screenshots/jenkins-job-success.png" alt="Jenkins Job Success">
 
 <hr>
 
@@ -244,15 +254,21 @@ echo "DONE: Image pushed to Docker Hub."
 ngrok http 8080
 </pre>
 
-<p>Copy ngrok public URL:</p>
-<p>de>https://&lt;subdomain&gt;.ngrok.io</code></p>
+<p>Copy ngrok public URL (example):</p>
+<p><code>https://&lt;subdomain&gt;.ngrok.io</code></p>
 
 <p>Go to GitHub Repo → Settings → Webhooks → Add Webhook</p>
 <ul>
-  <li>Payload URL: de>https://&lt;ngrok-url&gt;/github-webhook/</code></li>
-  <li>Content Type: de>application/json</code></li>
+  <li>Payload URL: <code>https://&lt;ngrok-url&gt;/github-webhook/</code></li>
+  <li>Content Type: <code>application/json</code></li>
   <li>Event: Just the push event</li>
 </ul>
+
+<p><strong>Webhooks Success Screenshot:</strong></p>
+<img src="screenshots/webhooks-success.png" alt="Webhooks Success">
+
+<p><strong>ngrok Public URL Screenshot:</strong></p>
+<img src="screenshots/ngrok-success.png" alt="ngrok Success">
 
 <p>Webhook should show ✓ 200 OK after you push code.</p>
 
