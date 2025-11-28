@@ -4,7 +4,7 @@
 </head>
 <body>
 
-  <h1>CloudOps Automation — Project Update</h1>
+  <h1>CloudOps Automation — Project</h1>
 
   <p><strong>Status:</strong> <em>Phase 3 (CI/CD Pipeline)</em> <strong>completed</strong>. Remaining Phases 4, 5, 6 are in progress.</p>
 
