@@ -148,7 +148,7 @@ Developer (Git Push)
 <ul>
   <li>Select: <strong>EKS API and ConfigMap</strong></li>
 </ul>
-<p><img src="screenshots/phase4/eks-05-cluster-access.png" alt="EKS Cluster Access"></p>
+<p><img src="screenshots/phase4/eks-03-specify-networking.png" alt="EKS Specify Networking"></p>
 
 <hr>
 
@@ -182,7 +182,7 @@ Developer (Git Push)
 <ul>
   <li>Select <strong>Default VPC Security Group</strong></li>
 </ul>
-<p><img src="screenshots/phase4/eks-03-specify-networking.png" alt="EKS Specify Networking"></p>
+<p><img src="screenshots/phase4/eks-05-cluster-access.png" alt="EKS Cluster Access"></p>
 
 <hr>
 
