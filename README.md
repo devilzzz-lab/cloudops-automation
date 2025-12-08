@@ -98,6 +98,7 @@
     <li><a href="./Phase-1.md">Phase-1.md</a></li>
     <li><a href="./Phase-2.md">Phase-2.md</a></li>
     <li><a href="./Phase-3.md">Phase-3.md</a></li>
+    <li><a href="./Phase-4.md">Phase-4.md</a></li>
   </ul>
 
   <h2>Next Steps</h2>
