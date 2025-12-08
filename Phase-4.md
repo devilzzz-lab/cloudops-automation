@@ -310,7 +310,7 @@ Developer (Git Push)
   <li>Name: <code>cloudops-eks</code></li>
   <li>Kubernetes version: <code>1.34</code></li>
   <li>EKS Auto Mode: Disabled</li>
-  <li>Cluster IAM role: <code>arn:aws:iam::784154679353:role/cloudops-eks</code></li>
+  <li>Cluster IAM role: <code>arn:aws:iam::784154:role/cloudops-eks</code></li>
   <li>Authentication mode: EKS API and ConfigMap</li>
   <li>Upgrade policy: Standard support</li>
   <li>Control plane scaling tier: Standard</li>
@@ -324,7 +324,7 @@ Developer (Git Push)
 <ul>
   <li>VPC: <code>vpc-03b1eee6cc16b8c2b</code></li>
   <li>Subnets: 5 subnets selected across multiple AZs</li>
-  <li>Security groups: <code>sg-03462d031279f9296</code></li>
+  <li>Security groups: <code>sg-03462d31279296</code></li>
   <li>Cluster IP address family: IPv4</li>
   <li>API server endpoint access: Public and private</li>
   <li>Public access source allowlist: <code>0.0.0.0/0</code></li>
@@ -373,11 +373,11 @@ Developer (Git Push)
 
 <p><strong>Details visible:</strong></p>
 <ul>
-  <li>API server endpoint: <code>https://FBD4C15CFA17E996A1AC5CA04B935F44.gr7.us-east-1.eks.amazonaws.com</code></li>
+  <li>API server endpoint: <code>https://FBD4C15CF35F44.gr7.us-east-1.eks.amazonaws.com</code></li>
   <li>OpenID Connect provider URL: Generated</li>
   <li>Certificate authority: Displayed</li>
-  <li>Cluster IAM role ARN: <code>arn:aws:iam::784154679353:role/cloudops-eks</code></li>
-  <li>Cluster ARN: <code>arn:aws:eks:us-east-1:784154679353:cluster/cloudops-eks</code></li>
+  <li>Cluster IAM role ARN: <code>arn:aws:iam::7841549353:role/cloudops-eks</code></li>
+  <li>Cluster ARN: <code>arn:aws:eks:us-east-1:78446353:cluster/cloudops-eks</code></li>
   <li>Platform version: <code>eks.9</code></li>
   <li>Created: 14 minutes ago</li>
 </ul>
