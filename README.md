@@ -64,71 +64,16 @@
 
 
   <h3>🟧 PHASE 4 – Kubernetes Deployment on AWS EKS</h3>
-  <p><strong>Objective:</strong> Deploy Dockerized CloudOps application to a managed Kubernetes cluster (Amazon EKS) and automate rollout from Jenkins.</p>
-  <ul>
-    <li>Create and configure Amazon EKS cluster (control plane + node group) with:
-      <ul>
-        <li>Kubernetes version 1.34 with Standard support</li>
-        <li>Custom configuration (not Auto Mode)</li>
-        <li>IAM roles for cluster and nodes</li>
-        <li>VPC networking across multiple Availability Zones</li>
-        <li>Public and private API endpoint access</li>
-        <li>Default add-ons: CoreDNS, kube-proxy, VPC CNI, node-monitoring-agent</li>
-      </ul>
-    </li>
-    <li>Connect <code>kubectl</code> to EKS cluster using <code>aws eks update-kubeconfig</code></li>
-    <li>Create Kubernetes manifests under <code>/k8s</code> folder:
-      <ul>
-        <li><code>namespace.yaml</code> - Isolate cloudops resources</li>
-        <li><code>deployment.yaml</code> - Application deployment with 2 replicas, readiness/liveness probes</li>
-        <li><code>service.yaml</code> - LoadBalancer service for external access</li>
-        <li><code>configmap.yaml</code> - Environment configuration (APP_ENV, LOG_LEVEL)</li>
-        <li><code>secret.yaml</code> - Sensitive data (DB passwords, API keys)</li>
-        <li><code>storageclass-gp3.yaml</code> - EBS gp3 storage provisioner with WaitForFirstConsumer binding</li>
-        <li><code>pvc.yaml</code> - Persistent volume claims (5Gi)</li>
-        <li><code>statefulset-db.yaml</code> - PostgreSQL database with persistent storage</li>
-        <li><code>daemonset-logs.yaml</code> - Fluent-bit logging agent on each node</li>
-        <li><code>ingress.yaml</code> - (Optional) ALB ingress controller</li>
-      </ul>
-    </li>
-    <li>Update Jenkins Freestyle jobs (Dev / Test / Prod) to:
-      <ul>
-        <li>Pull code from GitHub</li>
-        <li>Build Docker image with build number tag</li>
-        <li>Push to Docker Hub (both tagged and latest)</li>
-        <li>Configure kubeconfig for EKS using AWS CLI</li>
-        <li>Deploy to EKS using <code>kubectl apply -f k8s/</code></li>
-        <li>Verify rollout status with <code>kubectl rollout status</code></li>
-      </ul>
-    </li>
-    <li>Implement environment-safe rollout patterns:
-      <ul>
-        <li>Separate Dev/Test/Prod Jenkins jobs for isolated environments</li>
-        <li>Option to extend to Blue-Green deployment (multiple deployments + services)</li>
-        <li>Option to extend to Canary deployment (weighted traffic splitting)</li>
-      </ul>
-    </li>
-    <li>Validate Kubernetes resources and application accessibility:
-      <ul>
-        <li>Verify all pods are Running</li>
-        <li>Confirm Service has external LoadBalancer endpoint</li>
-        <li>Test application via LoadBalancer DNS/IP</li>
-        <li>Verify StatefulSet DB is healthy with PVC bound</li>
-        <li>Confirm DaemonSet logging agent runs on all nodes</li>
-      </ul>
-    </li>
-  </ul>
-  <p><strong>Deliverable:</strong> ⏳ In Progress (70% complete)
-    <ul>
-      <li>✅ EKS cluster control plane created (Status: Active)</li>
-      <li>✅ IAM roles configured (cluster + node roles)</li>
-      <li>✅ VPC networking with 5 subnets across AZs</li>
-      <li>✅ All Kubernetes manifests created</li>
-      <li>⏳ Node group creation pending</li>
-      <li>⏳ Jenkins EKS deployment jobs configuration pending</li>
-      <li>⏳ End-to-end deployment testing pending</li>
-    </ul>
-  </p>
+<p><strong>Objective:</strong> Deploy the Dockerized CloudOps application to a managed Kubernetes cluster (Amazon EKS) with automated rollout from Jenkins.</p>
+<ul>
+  <li>Create Amazon EKS cluster (control plane + node group) and connect with <code>kubectl</code>.</li>
+  <li>Create Kubernetes manifests in <code>/k8s</code>:
+    <code>namespace.yaml</code>, <code>deployment.yaml</code>, <code>service.yaml</code>, <code>configmap.yaml</code>, <code>secret.yaml</code>, <code>pvc.yaml</code>, and optional <code>ingress.yaml</code>.</li>
+  <li>Update Jenkins jobs (Dev / Test / Prod) to build Docker images, push to Docker Hub, and run <code>kubectl apply -f k8s/</code> against EKS.</li>
+  <li>Validate that pods are running, Service has a LoadBalancer endpoint, and the app is reachable from the browser.</li>
+</ul>
+<p><strong>Deliverable:</strong> ⏳ Automated deployment of the containerized app to AWS EKS via Jenkins pipeline.</p>
+
 
 
   <h3>🟥 PHASE 5 – Monitoring & Observability</h3>
