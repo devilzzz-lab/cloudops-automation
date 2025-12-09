@@ -63,7 +63,7 @@
   <p><strong>Deliverable:</strong> ✅ Jenkins pipeline automatically builds & pushes container images on every GitHub commit</p>
 
 
-  <h3>🟧 PHASE 4 – Kubernetes Deployment on AWS EKS</h3>
+  <h3>🟧 PHASE 4 – Kubernetes Deployment on EKS</h3>
 <p><strong>Objective:</strong> Deploy the Dockerized CloudOps application to a managed Kubernetes cluster (Amazon EKS) with automated rollout from Jenkins.</p>
 <ul>
   <li>Create Amazon EKS cluster (control plane + node group) and connect with <code>kubectl</code>.</li>
