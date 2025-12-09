@@ -1,0 +1,9 @@
+# k8s/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudops-config
+  namespace: cloudops
+data:
+  APP_ENV: "production"
+  LOG_LEVEL: "info"

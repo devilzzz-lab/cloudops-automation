@@ -1,0 +1,40 @@
+# k8s/statefulset-db.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cloudops-db
+  namespace: cloudops
+spec:
+  serviceName: "cloudops-db"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudops-db
+  template:
+    metadata:
+      labels:
+        app: cloudops-db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: cloudops-secret
+                  key: DB_PASSWORD
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: gp3
+        resources:
+          requests:
+            storage: 5Gi

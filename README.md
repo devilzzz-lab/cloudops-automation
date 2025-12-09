@@ -72,7 +72,7 @@
   <li>Update Jenkins jobs (Dev / Test / Prod) to build Docker images, push to Docker Hub, and run <code>kubectl apply -f k8s/</code> against EKS.</li>
   <li>Validate that pods are running, Service has a LoadBalancer endpoint, and the app is reachable from the browser.</li>
 </ul>
-<p><strong>Deliverable:</strong> ⏳ Automated deployment of the containerized app to AWS EKS via Jenkins pipeline.</p>
+<p><strong>Deliverable:</strong>Automated deployment of the containerized app to AWS EKS via Jenkins pipeline.</p>
 
 
 

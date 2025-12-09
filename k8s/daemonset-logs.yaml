@@ -1,0 +1,18 @@
+# k8s/daemonset-logs.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cloudops-logs
+  namespace: cloudops
+spec:
+  selector:
+    matchLabels:
+      app: cloudops-logs
+  template:
+    metadata:
+      labels:
+        app: cloudops-logs
+    spec:
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:latest
