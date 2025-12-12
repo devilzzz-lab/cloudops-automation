@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CloudOps Automation Project</title>
 </head>
 <body>
 
@@ -71,13 +70,6 @@
         <li>Build Docker images</li>
         <li>Push images to Docker Hub</li>
         <li>Deploy to the local Kubernetes cluster using <code>kubectl apply -f k8s/</code></li>
-      </ul>
-    </li>
-    <li>Validate that:
-      <ul>
-        <li>Pods are running successfully (<code>kubectl get pods -n cloudops</code>)</li>
-        <li>Service is created and reachable via NodePort / port-forwarding</li>
-        <li>Ingress (if configured) routes traffic correctly at <code>http://localhost</code></li>
       </ul>
     </li>
   </ul>
