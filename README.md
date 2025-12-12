@@ -65,8 +65,8 @@
   <h3>🟧 PHASE 4 – Kubernetes Deployment using Docker Desktop</h3>
   <p><strong>Objective:</strong> Deploy the Dockerized CloudOps application to a local Kubernetes cluster (Docker Desktop Kubernetes) with automated rollout from Jenkins.</p>
   <ul>
-    <li>Enable Kubernetes inside Docker Desktop and verify using <code>kubectl get nodes</code>.</li>
-    <li>Create Kubernetes manifests in <code>/k8s</code>: <code>namespace.yaml</code>, <code>deployment.yaml</code>, <code>service.yaml</code>, <code>configmap.yaml</code>, <code>secret.yaml</code>, <code>pvc.yaml</code> (optional), and <code>ingress.yaml</code> (optional).</li>
+    <li>Enable Kubernetes inside Docker Desktop</li>
+    <li>Create Kubernetes manifests inside <code>/k8s</code>
     <li>Update Jenkins jobs (Dev / Test / Prod) to:
       <ul>
         <li>Build Docker images</li>
