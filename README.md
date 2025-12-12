@@ -71,7 +71,7 @@
       <ul>
         <li>Build Docker images</li>
         <li>Push images to Docker Hub</li>
-        <li>Deploy to the local Kubernetes cluster using <code>kubectl apply -f k8s/</code></li>
+        <li>Deploy to the local Kubernetes cluster</li>
       </ul>
     </li>
   </ul>
