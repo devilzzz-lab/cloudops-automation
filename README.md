@@ -8,9 +8,9 @@
 
   <h1>CloudOps Automation — Project</h1>
 
-  <p><strong>Status:</strong> <em>Phase 4 (Kubernetes Deployment on AWS EKS)</em> <strong>in progress</strong>. Phases 1-3 completed. Remaining Phases 5-6 pending.</p>
+  <p><strong>Status:</strong> <em>Phase 4 (Kubernetes Deployment on Docker Desktop Kubernetes)</em> <strong>in progress</strong>. Phases 1-3 completed. Remaining Phases 5-6 pending.</p>
 
-  <p>I have completed CI/CD automation using <strong>Jenkins</strong>, <strong>GitHub</strong>, <strong>Docker</strong>, and <strong>Docker Hub</strong>. Every commit to GitHub now triggers a fully automated build, test, containerization, and image push pipeline. Currently deploying to <strong>Amazon EKS</strong> with Kubernetes orchestration.</p>
+  <p>I have completed CI/CD automation using <strong>Jenkins</strong>, <strong>GitHub</strong>, <strong>Docker</strong>, and <strong>Docker Hub</strong>. Every commit to GitHub now triggers a fully automated build, test, containerization, and image push pipeline. Currently deploying to <strong>Docker Desktop Kubernetes</strong> with Kubernetes orchestration.</p>
 
   <hr>
 
@@ -21,8 +21,10 @@
     <li>Freestyle job + automated Docker Build + Push</li>
     <li>Images pushed and verified in Docker Hub</li>
     <li>Local container deployment tested successfully</li>
-    <li><strong>NEW:</strong> AWS EKS cluster created with Kubernetes 1.34</li>
+    <li><strong>NEW:</strong> Docker Desktop Kubernetes cluster created with Kubernetes 1.34</li>
     <li><strong>NEW:</strong> Kubernetes manifests for production-grade deployments</li>
+    <li><strong>NEW:</strong> Prometheus collects metrics and logs from the cluster and exposes them to Grafana for visualization</li>
+    <li><strong>NEW:</strong> Grafana dashboards configured for log and metrics monitoring using Prometheus as the data source</li>
   </ul>
 
   <hr>
@@ -34,7 +36,7 @@
   <ul>
     <li>Create AWS account, IAM roles, and policies</li>
     <li>Setup AWS services: S3, DynamoDB, SQS, SNS, CloudWatch</li>
-    <li>Local setup: AWS CLI, Docker, kubectl, Minikube/EKS</li>
+    <li>Local setup: AWS CLI, Docker, kubectl</li>
     <li>Verify AWS connectivity via CLI</li>
   </ul>
   <p><strong>Deliverable:</strong> ✅ AWS infrastructure &amp; local DevOps environment ready</p>
@@ -80,7 +82,7 @@
   <ul>
     <li>Prometheus setup inside K8s</li>
     <li>Node Exporter, cAdvisor, CloudWatch Exporter</li>
-    <li>Grafana dashboards (EC2, Lambda, K8s, App Health)</li>
+    <li>Grafana dashboards (Lambda, K8s, App Health)</li>
     <li>CloudWatch Alarms + SNS alerts</li>
   </ul>
   <p><strong>Deliverable:</strong> ⏳ Pending</p>
@@ -128,8 +130,8 @@
       </tr>
       <tr>
         <td><strong>Phase 4</strong></td>
-        <td>Orchestration — Kubernetes Deployment on AWS EKS</td>
-        <td>EKS, kubectl, Kubernetes manifests, gp3 EBS</td>
+        <td>Orchestration — Kubernetes Deployment on Docker Desktop</td>
+        <td>Docker Desktop Kubernetes, kubectl, Kubernetes manifests</td>
         <td>⏳ In Progress (70%)</td>
       </tr>
       <tr>
@@ -155,8 +157,7 @@
     <li><a href="./Phase-1.md">Phase-1.md</a> — AWS Foundation &amp; Setup</li>
     <li><a href="./Phase-2.md">Phase-2.md</a> — Lambda Event Automation</li>
     <li><a href="./Phase-3.md">Phase-3.md</a> — CI/CD Pipeline (Jenkins + Docker)</li>
-    <li><a href="./Phase-4.md">Phase-4.md</a> — Kubernetes Deployment on AWS EKS (In Progress)</li>
-    <li><a href="./screenshots/phase4/">screenshots/phase4/</a> — EKS cluster creation screenshots</li>
+    <li><a href="./Phase-4.md">Phase-4.md</a> — Kubernetes Deployment on Docker Desktop (In Progress)</li>
   </ul>
 
   <hr>
@@ -164,8 +165,8 @@
   <h2>Next Steps</h2>
   <p>Currently working on:</p>
   <ul>
-    <li><strong>Phase 4:</strong> Complete node group creation with gp3 volumes, configure Jenkins EKS deployment jobs, test end-to-end Kubernetes deployment</li>
-    <li><strong>Phase 5:</strong> Setup Prometheus + Grafana monitoring stack inside EKS cluster with CloudWatch integration</li>
+    <li><strong>Phase 4:</strong> Finalize Docker Desktop Kubernetes deployment and Jenkins integration for Dev/Test/Prod</li>
+    <li><strong>Phase 5:</strong> Setup Prometheus + Grafana monitoring stack inside the Kubernetes cluster</li>
     <li><strong>Phase 6:</strong> Create architecture diagrams, finalize documentation with screenshots, prepare demo recording</li>
   </ul>
 
@@ -173,12 +174,12 @@
 
   <h2>Technical Stack</h2>
   <ul>
-    <li><strong>Cloud:</strong> AWS (EKS, EC2, S3, Lambda, DynamoDB, SNS, SQS, CloudWatch, IAM, EBS gp3)</li>
+    <li><strong>Cloud:</strong> AWS (S3, Lambda, DynamoDB, SNS, SQS, CloudWatch, IAM)</li>
     <li><strong>Containerization:</strong> Docker, Docker Hub</li>
-    <li><strong>Orchestration:</strong> Kubernetes 1.34 (AWS EKS), kubectl</li>
+    <li><strong>Orchestration:</strong> Kubernetes 1.34 (Docker Desktop Kubernetes), kubectl</li>
     <li><strong>CI/CD:</strong> Jenkins (Dockerized), GitHub Webhooks</li>
-    <li><strong>Storage:</strong> EBS gp3 volumes, Persistent Volume Claims</li>
-    <li><strong>Networking:</strong> VPC, LoadBalancer, Security Groups, Multi-AZ deployment</li>
+    <li><strong>Storage:</strong> Local volumes / PVCs</li>
+    <li><strong>Networking:</strong> NodePort / Ingress (for local cluster), LoadBalancer (planned for future when moved to cloud)</li>
     <li><strong>Monitoring:</strong> Prometheus, Grafana, CloudWatch (Planned)</li>
     <li><strong>Languages:</strong> Python, Bash, YAML</li>
   </ul>
