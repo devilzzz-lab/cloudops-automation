@@ -1,11 +1,10 @@
-# k8s/statefulset-db.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: cloudops-db
   namespace: cloudops
 spec:
-  serviceName: "cloudops-db"
+  serviceName: cloudops-db
   replicas: 1
   selector:
     matchLabels:
@@ -33,8 +32,8 @@ spec:
     - metadata:
         name: data
       spec:
-        accessModes: ["ReadWriteOnce"]
-        storageClassName: gp3
+        accessModes:
+          - ReadWriteOnce
         resources:
           requests:
             storage: 5Gi

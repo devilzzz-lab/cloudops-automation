@@ -1,11 +1,10 @@
-# k8s/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cloudops-app
   namespace: cloudops
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: cloudops-app
@@ -16,7 +15,8 @@ spec:
     spec:
       containers:
         - name: cloudops-app
-          image: devilzz/cloudops-app:latest
+          image: devilzz/cloudops-sample-app:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           envFrom:
@@ -24,3 +24,10 @@ spec:
                 name: cloudops-config
             - secretRef:
                 name: cloudops-secret
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

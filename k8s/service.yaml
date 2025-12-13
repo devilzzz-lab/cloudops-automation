@@ -1,14 +1,13 @@
-# k8s/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: cloudops-service
   namespace: cloudops
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: cloudops-app
   ports:
     - port: 80
       targetPort: 8080
-      protocol: TCP
+      nodePort: 30080
