@@ -186,7 +186,7 @@
 
   <hr>
 
-  <p><strong>— CloudOps Automation Project</strong></p>
+  <p><strong>--- CloudOps Automation Project</strong></p>
 
 </body>
 </html>
