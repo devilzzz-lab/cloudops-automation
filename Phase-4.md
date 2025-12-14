@@ -247,15 +247,6 @@ cloudops-control-plane   Ready
 
 <hr>
 
-<h2>🧠 Interview-Ready Explanation</h2>
-
-<blockquote>
-Jenkins runs as a Docker container and deploys applications to a KIND Kubernetes
-cluster using an internal kubeconfig. Docker builds, image pushes, and Kubernetes
-rollouts are fully automated through CI/CD jobs.
-</blockquote>
-
-<hr>
 
 <p><strong>— CloudOps Automation Project</strong></p>
 
