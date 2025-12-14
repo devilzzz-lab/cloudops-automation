@@ -517,7 +517,7 @@ exit
 
 <hr>
 
-<h2>📚 Quick Reference Summary</h2>
+<h2>Quick Reference Summary</h2>
 
 <table border="1">
   <tr>
