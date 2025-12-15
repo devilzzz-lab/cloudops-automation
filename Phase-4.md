@@ -386,7 +386,7 @@ echo "📍 Access app at: http://localhost:30080"
 <img src="screenshots/phase4/jenkins-prod-console-output.png" alt="Jenkins Prod Console Output">
 
 <p><strong>Jenkins Prod Job Success:</strong></p>
-<img src="screenshots/phase4/jenkins-prod-success.png" alt="Jenkins Prod Success">
+<img src="screenshots/phase4/jenkins-prod-success-job.png" alt="Jenkins Prod Success">
 
 <hr>
 
