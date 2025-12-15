@@ -57,7 +57,7 @@
   </ul>
   <p><strong>Deliverable:</strong> ✅ Automated event-driven workflow deployed</p>
 
-  <h3>🟦 PHASE 3 – CI/CD Pipeline (Jenkins + GitHub + Docker)</h3>
+  <h3>🟦 PHASE 3 – CI/CD Pipeline (Jenkins + GitHub + Docker) Setup </h3>
   <p><strong>Objective:</strong> Build CI/CD pipeline for automated containerization.</p>
   <ul>
     <li>Setup Jenkins inside Docker container</li>

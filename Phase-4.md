@@ -393,7 +393,7 @@ echo "📍 Access app at: http://localhost:30080"
 <h2>🌐 6. Setup ngrok for Webhook Access</h2>
 
 <h3>Step 6.1: Install ngrok</h3>
-<p>Download from: <code>https://ngrok.com/download</code></p>
+<p>Download from: <code>https://ngrok.com/download</code></p> 
 
 <p>Or install via Homebrew:</p>
 <pre>
