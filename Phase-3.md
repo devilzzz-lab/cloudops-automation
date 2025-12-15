@@ -258,7 +258,7 @@ docker exec -u root -it jenkins bash
 
 <h3>Step 8.2: Move kubeconfig to kubectl's Default Path</h3>
 
-<p><strong>Option 1 (BEST & SIMPLEST):</strong></p>
+<p><strong>Setup kubectl access inside Jenkins:</strong></p>
 <p>Move kubeconfig to kubectl's default path:</p>
 
 <pre>
@@ -281,10 +281,110 @@ docker exec -it jenkins kubectl get nodes
 <li>Copying it to <code>/root/.kube/config</code> makes it accessible to kubectl</li>
 </ul>
 
-<h3>Step 8.3: Exit Container</h3>
+<h3>Step 8.3: Verify kubectl Configuration Architecture</h3>
+
+<p><strong>🔍 Understanding the Two-Kubeconfig Architecture</strong></p>
+
+<p>In production DevOps environments, we maintain <strong>separate kubeconfigs</strong> for different access points:</p>
+
+<table border="1">
+<tr>
+<th>Environment</th>
+<th>Kubeconfig Location</th>
+<th>Server Endpoint</th>
+<th>Purpose</th>
+</tr>
+<tr>
+<td><strong>Mac (Host)</strong></td>
+<td><code>~/.kube/config</code></td>
+<td><code>https://127.0.0.1:&lt;port&gt;</code></td>
+<td>External access for development</td>
+</tr>
+<tr>
+<td><strong>Jenkins (Container)</strong></td>
+<td><code>/root/.kube/config</code></td>
+<td><code>https://cloudops-control-plane:6443</code></td>
+<td>Internal access for CI/CD automation</td>
+</tr>
+</table>
+
+<p><strong>Why Two Different Endpoints?</strong></p>
+<ul>
+<li><code>cloudops-control-plane</code> is Docker-internal DNS (only accessible inside containers)</li>
+<li><code>127.0.0.1:&lt;port&gt;</code> is external localhost address (accessible from Mac)</li>
+<li>Both point to the <strong>same Kubernetes cluster</strong>, just different access paths</li>
+</ul>
+
+<h3>Step 8.4: Verify Mac (Host) kubectl Configuration</h3>
+
+<p><strong>Check your Mac's kubeconfig server endpoint:</strong></p>
 <pre>
-exit
+kubectl config view --minify
 </pre>
+
+<p><strong>✅ Correct result for Mac:</strong></p>
+<pre>
+server: https://127.0.0.1:xxxxx
+</pre>
+
+<p>or</p>
+<pre>
+server: https://localhost:xxxxx
+</pre>
+
+<p><strong>❌ If you see this (WRONG for Mac):</strong></p>
+<pre>
+server: https://cloudops-control-plane:6443
+</pre>
+
+<p><strong>🔧 Fix Mac kubeconfig:</strong></p>
+<pre>
+kind get kubeconfig --name cloudops > ~/.kube/config
+</pre>
+
+<p>Then verify again:</p>
+<pre>
+kubectl get nodes
+</pre>
+
+<p><strong>Expected:</strong> Should now work on Mac without DNS errors.</p>
+
+<h3>Step 8.5: Verify Jenkins kubectl Configuration</h3>
+
+<p><strong>Check Jenkins kubeconfig (must use internal DNS):</strong></p>
+<pre>
+docker exec -it jenkins kubectl config view --minify
+</pre>
+
+<p><strong>✅ Correct result for Jenkins:</strong></p>
+<pre>
+server: https://cloudops-control-plane:6443
+</pre>
+
+<p><strong>Why This Architecture is Important:</strong></p>
+<ul>
+<li>✅ Jenkins uses Docker-internal DNS for cluster access</li>
+<li>✅ Mac uses localhost for direct cluster access</li>
+<li>✅ Both configurations remain independent</li>
+<li>✅ Jenkins CI/CD automation unaffected by Mac config changes</li>
+<li>✅ This mirrors real-world production DevOps setups</li>
+</ul>
+
+<h3>Step 8.6: Final Verification of Both Environments</h3>
+
+<p><strong>Test Mac kubectl:</strong></p>
+<pre>
+kubectl get nodes
+kubectl get pods -A
+</pre>
+
+<p><strong>Test Jenkins kubectl:</strong></p>
+<pre>
+docker exec -it jenkins kubectl get nodes
+docker exec -it jenkins kubectl get pods -A
+</pre>
+
+<p><strong>✅ Both should work successfully with their respective endpoints.</strong></p>
 
 <hr>
 
@@ -336,7 +436,18 @@ docker exec -it jenkins kubectl cluster-info
 Kubernetes control plane is running at https://cloudops-control-plane:6443
 </pre>
 
-<p><strong>✅ If all four tests pass, your environment is ready!</strong></p>
+<h3>Test 5: Mac Can Access KIND Cluster</h3>
+<pre>
+kubectl get nodes
+</pre>
+
+<p><strong>Expected output:</strong></p>
+<pre>
+NAME                     STATUS   ROLES           AGE   VERSION
+cloudops-control-plane   Ready    control-plane   XXm   vX.XX.X
+</pre>
+
+<p><strong>✅ If all five tests pass, your environment is ready!</strong></p>
 
 <hr>
 
@@ -501,6 +612,11 @@ http://localhost:8080
 <td><code>docker exec jenkins kubectl get pods -A</code></td>
 </tr>
 <tr>
+<td>Mac kubectl works</td>
+<td>✅</td>
+<td><code>kubectl get nodes</code> (on Mac)</td>
+</tr>
+<tr>
 <td>Jenkins UI accessible</td>
 <td>✅</td>
 <td><code>http://localhost:8080</code></td>
@@ -533,6 +649,7 @@ http://localhost:8080
 <li>✅ Jenkins with Docker and kubectl installed</li>
 <li>✅ All necessary network and volume mounts</li>
 <li>✅ Credentials configured for GitHub and Docker Hub</li>
+<li>✅ Proper kubeconfig architecture for both Mac and Jenkins</li>
 </ul>
 
 <p><strong>In Phase-4, you will:</strong></p>
