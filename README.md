@@ -59,61 +59,25 @@
   <p><strong>Deliverable:</strong> ✅ Automated event-driven workflow deployed</p>
 
   <h3>🟦 PHASE 3 – Complete Development Environment Setup</h3>
-  <p><strong>Objective:</strong> Build complete local CI/CD development environment with Docker, Kubernetes, and Jenkins.</p>
-  <ul>
-    <li>Install Docker Desktop on macOS</li>
-    <li>Install and configure KIND (Kubernetes IN Docker)</li>
-    <li>Create local Kubernetes cluster using KIND</li>
-    <li>Setup Jenkins container with proper volume mounts and network configuration</li>
-    <li>Install Docker CLI inside Jenkins container for image building</li>
-    <li>Install kubectl inside Jenkins container for Kubernetes management</li>
-    <li>Configure Jenkins access to KIND cluster via internal kubeconfig</li>
-    <li>Connect Jenkins to KIND Docker network for cluster communication</li>
-    <li>Configure GitHub and Docker Hub credentials in Jenkins</li>
-    <li>Install required Jenkins plugins (Git, GitHub, Credentials, Pipeline)</li>
-  </ul>
-  <p><strong>Deliverable:</strong> ✅ Fully configured development environment with Docker + KIND + Jenkins integration</p>
+<p><strong>Objective:</strong> Build local CI/CD environment with Docker, Kubernetes and Jenkins.</p>
+<ul>
+  <li>Install Docker Desktop and KIND (Kubernetes IN Docker)</li>
+  <li>Create local Kubernetes cluster and verify access</li>
+  <li>Run Jenkins in Docker with Docker CLI and kubectl installed</li>
+  <li>Connect Jenkins container to KIND network and kubeconfig</li>
+  <li>Configure GitHub and Docker Hub credentials plus required plugins</li>
+</ul>
+<p><strong>Deliverable:</strong> ✅ Local Docker + KIND + Jenkins environment ready for CI/CD</p>
 
-  <h3>🟧 PHASE 4 – CI/CD Pipeline &amp; Kubernetes Deployment Automation</h3>
-  <p><strong>Objective:</strong> Build end-to-end CI/CD pipeline with automated Docker builds and Kubernetes deployments.</p>
-  <ul>
-    <li>Create GitHub repository with application code and Kubernetes manifests</li>
-    <li>Create CI build job (<code>cloudops-ci-build</code>) in Jenkins:
-      <ul>
-        <li>Checkout code from GitHub</li>
-        <li>Build Docker image with versioned tags (build-${BUILD_NUMBER})</li>
-        <li>Push images to Docker Hub (versioned + latest)</li>
-        <li>Triggered automatically via GitHub webhook</li>
-      </ul>
-    </li>
-    <li>Create CD deployment job (<code>cloudops-prod-deploy</code>) in Jenkins:
-      <ul>
-        <li>Parameterized build with IMAGE_TAG selection</li>
-        <li>Apply Kubernetes manifests to KIND cluster</li>
-        <li>Update deployment with specific image version</li>
-        <li>Wait for rollout completion with timeout</li>
-        <li>Verify pod status and service endpoints</li>
-        <li>Triggered automatically after successful CI build</li>
-      </ul>
-    </li>
-    <li>Setup ngrok for GitHub webhook access to local Jenkins</li>
-    <li>Configure GitHub webhook for automatic pipeline triggering</li>
-    <li>Implement production-grade Kubernetes manifests:
-      <ul>
-        <li>Namespace isolation</li>
-        <li>Deployment with multiple replicas</li>
-        <li>NodePort Service for external access</li>
-        <li>StatefulSet for database with persistent storage</li>
-        <li>DaemonSet for log collection</li>
-        <li>ConfigMap for configuration management</li>
-        <li>Secret for sensitive data</li>
-        <li>PersistentVolumeClaim for storage</li>
-      </ul>
-    </li>
-    <li>Test complete workflow: Git Push → Webhook → CI Build → CD Deploy → Live App</li>
-    <li>Verify zero-downtime rolling updates</li>
-    <li>Debug and troubleshoot using kubectl commands via Jenkins container</li>
-  </ul>
+<h3>🟧 PHASE 4 – CI/CD Pipeline &amp; Kubernetes Deployment Automation</h3>
+<p><strong>Objective:</strong> Implement end-to-end CI/CD from GitHub to Kubernetes using Jenkins.</p>
+<ul>
+  <li>Create GitHub repo with app code and Kubernetes manifests</li>
+  <li>CI job: build Docker image on each commit and push to Docker Hub (versioned tags)</li>
+  <li>CD job: parameterized deployment (IMAGE_TAG) to KIND cluster using kubectl</li>
+  <li>Integrate GitHub webhooks via ngrok for automatic pipeline triggers</li>
+  <li>Validate rolling updates, pod status and service access on KIND</li>
+</ul>
   <p><strong>Deliverable:</strong> ✅ Production-ready CI/CD pipeline with automated Kubernetes deployment to KIND cluster</p>
 
   <h3>🟥 PHASE 5 – Monitoring &amp; Observability</h3>
