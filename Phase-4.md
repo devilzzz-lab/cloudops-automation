@@ -76,16 +76,29 @@ Developer (Local Machine)
 <h3>Step 3.2: Project Structure</h3>
 <pre>
 cloudops-automation/
-├── app.py
-├── requirements.txt
-├── Dockerfile
+├── k8s/
+│   ├── configmap.yaml
+│   ├── daemonset-logs.yaml
+│   ├── db-service.yaml
+│   ├── deployment.yaml
+│   ├── namespace.yaml
+│   ├── pvc.yaml
+│   ├── secret.yaml
+│   ├── service.yaml
+│   └── statefulset-db.yaml
+├── screenshots/
 ├── .dockerignore
+├── app.py
+├── Dockerfile
+├── jen-kub-doc-setup.md
+├── Jenkinsfile
+├── LOG-COMMANDS.md
+├── Phase-1.md
+├── Phase-2.md
+├── Phase-3.md
+├── Phase-4.md
 ├── README.md
-└── k8s/
-    ├── namespace.yaml
-    ├── configmap.yaml
-    ├── deployment.yaml
-    └── service.yaml
+└── requirements.txt
 </pre>
 
 <h3>Step 3.3: Application Code (app.py)</h3>
@@ -123,89 +136,25 @@ EXPOSE 8080
 CMD ["python", "app.py"]
 </pre>
 
-<hr>
+<h3>Step 3.6: Create Kubernetes Manifests</h3>
 
-<h2>📁 4. Create Kubernetes Manifests</h2>
+<p>Create the following files inside <code>k8s/</code> folder:</p>
 
-<h3>4.1 Namespace (k8s/namespace.yaml)</h3>
-<pre>
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: cloudops
-  labels:
-    name: cloudops
-</pre>
+<ul>
+<li><code>namespace.yaml</code> - Namespace for the application</li>
+<li><code>configmap.yaml</code> - Configuration data</li>
+<li><code>secret.yaml</code> - Sensitive data (passwords, tokens)</li>
+<li><code>deployment.yaml</code> - Application deployment</li>
+<li><code>service.yaml</code> - Service to expose the application</li>
+<li><code>db-service.yaml</code> - Database service</li>
+<li><code>statefulset-db.yaml</code> - StatefulSet for database</li>
+<li><code>pvc.yaml</code> - Persistent Volume Claim</li>
+<li><code>daemonset-logs.yaml</code> - DaemonSet for log collection</li>
+</ul>
 
-<h3>4.2 ConfigMap (k8s/configmap.yaml)</h3>
-<pre>
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cloudops-config
-  namespace: cloudops
-data:
-  APP_ENV: "production"
-  LOG_LEVEL: "info"
-</pre>
+<p><strong>Note:</strong> Refer to the <code>k8s/</code> folder in your repository for actual manifest content.</p>
 
-<h3>4.3 Deployment (k8s/deployment.yaml)</h3>
-<pre>
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cloudops-app
-  namespace: cloudops
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: cloudops-app
-  template:
-    metadata:
-      labels:
-        app: cloudops-app
-    spec:
-      containers:
-      - name: cloudops-app
-        image: devilzz/cloudops-sample-app:latest
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 8080
-        env:
-        - name: APP_ENV
-          valueFrom:
-            configMapKeyRef:
-              name: cloudops-config
-              key: APP_ENV
-        - name: LOG_LEVEL
-          valueFrom:
-            configMapKeyRef:
-              name: cloudops-config
-              key: LOG_LEVEL
-</pre>
-
-<p><strong>Replace <code>devilzz</code> with your Docker Hub username!</strong></p>
-
-<h3>4.4 Service (k8s/service.yaml)</h3>
-<pre>
-apiVersion: v1
-kind: Service
-metadata:
-  name: cloudops-service
-  namespace: cloudops
-spec:
-  type: NodePort
-  selector:
-    app: cloudops-app
-  ports:
-  - port: 80
-    targetPort: 8080
-    nodePort: 30080
-    protocol: TCP
-</pre>
-
-<h3>Step 4.5: Commit and Push to GitHub</h3>
+<h3>Step 3.7: Commit and Push to GitHub</h3>
 <pre>
 git init
 git add .
@@ -217,9 +166,9 @@ git push -u origin main
 
 <hr>
 
-<h2>🟦 5. Create CI Build Job (cloudops-ci-build)</h2>
+<h2>🟦 4. Create CI Build Job (cloudops-ci-build)</h2>
 
-<h3>5.1 Create New Job</h3>
+<h3>4.1 Create New Job</h3>
 <ol>
 <li>Go to Jenkins Dashboard</li>
 <li>Click <strong>New Item</strong></li>
@@ -228,7 +177,7 @@ git push -u origin main
 <li>Click <strong>OK</strong></li>
 </ol>
 
-<h3>5.2 Configure Source Code Management</h3>
+<h3>4.2 Configure Source Code Management</h3>
 <p><strong>Source Code Management → Git:</strong></p>
 
 <table border="1">
@@ -250,13 +199,13 @@ git push -u origin main
 </tr>
 </table>
 
-<h3>5.3 Configure Build Triggers</h3>
+<h3>4.3 Configure Build Triggers</h3>
 <p>Enable:</p>
 <ul>
 <li>☑ <strong>GitHub hook trigger for GITScm polling</strong></li>
 </ul>
 
-<h3>5.4 Configure Build Environment</h3>
+<h3>4.4 Configure Build Environment</h3>
 <p>Enable:</p>
 <ul>
 <li>☑ <strong>Use secret text(s) or file(s)</strong></li>
@@ -286,7 +235,7 @@ git push -u origin main
 </tr>
 </table>
 
-<h3>5.5 Add Build Step (Execute Shell)</h3>
+<h3>4.5 Add Build Step (Execute Shell)</h3>
 <p>Click <strong>Add build step → Execute shell</strong> and paste:</p>
 
 <pre>
@@ -326,14 +275,14 @@ echo "📦 Image: ${FULL_IMAGE}:latest"
 
 <p><strong>Replace <code>devilzz</code> with your Docker Hub username!</strong></p>
 
-<h3>5.6 Save the Job</h3>
+<h3>4.6 Save the Job</h3>
 <p>Click <strong>Save</strong>.</p>
 
 <hr>
 
-<h2>🟩 6. Create CD Deployment Job (cloudops-prod-deploy)</h2>
+<h2>🟩 5. Create CD Deployment Job (cloudops-prod-deploy)</h2>
 
-<h3>6.1 Create New Job</h3>
+<h3>5.1 Create New Job</h3>
 <ol>
 <li>Go to Jenkins Dashboard</li>
 <li>Click <strong>New Item</strong></li>
@@ -342,7 +291,7 @@ echo "📦 Image: ${FULL_IMAGE}:latest"
 <li>Click <strong>OK</strong></li>
 </ol>
 
-<h3>6.2 Configure Source Code Management</h3>
+<h3>5.2 Configure Source Code Management</h3>
 <p><strong>Source Code Management → Git:</strong></p>
 
 <table border="1">
@@ -364,7 +313,7 @@ echo "📦 Image: ${FULL_IMAGE}:latest"
 </tr>
 </table>
 
-<h3>6.3 Configure Build Triggers</h3>
+<h3>5.3 Configure Build Triggers</h3>
 <p>Enable:</p>
 <ul>
 <li>☑ <strong>Build after other projects are built</strong></li>
@@ -372,7 +321,7 @@ echo "📦 Image: ${FULL_IMAGE}:latest"
 <li>Trigger only if build is stable</li>
 </ul>
 
-<h3>6.4 Add Build Step (Execute Shell)</h3>
+<h3>5.4 Add Build Step (Execute Shell)</h3>
 <p>Click <strong>Add build step → Execute shell</strong> and paste:</p>
 
 <pre>
@@ -403,14 +352,14 @@ echo "✅ Deployment completed successfully!"
 echo "📍 Access app at: http://localhost:30080"
 </pre>
 
-<h3>6.5 Save the Job</h3>
+<h3>5.5 Save the Job</h3>
 <p>Click <strong>Save</strong>.</p>
 
 <hr>
 
-<h2>🌐 7. Setup ngrok for Webhook Access</h2>
+<h2>🌐 6. Setup ngrok for Webhook Access</h2>
 
-<h3>Step 7.1: Install ngrok</h3>
+<h3>Step 6.1: Install ngrok</h3>
 <p>Download from: <code>https://ngrok.com/download</code></p>
 
 <p>Or install via Homebrew:</p>
@@ -418,12 +367,12 @@ echo "📍 Access app at: http://localhost:30080"
 brew install ngrok
 </pre>
 
-<h3>Step 7.2: Start ngrok</h3>
+<h3>Step 6.2: Start ngrok</h3>
 <pre>
 ngrok http 8080
 </pre>
 
-<h3>Step 7.3: Copy Public URL</h3>
+<h3>Step 6.3: Copy Public URL</h3>
 <p>ngrok will display a public URL like:</p>
 <pre>
 https://abc123.ngrok.io
@@ -433,15 +382,15 @@ https://abc123.ngrok.io
 
 <hr>
 
-<h2>🔗 8. Configure GitHub Webhook</h2>
+<h2>🔗 7. Configure GitHub Webhook</h2>
 
-<h3>Step 8.1: Go to GitHub Repository Settings</h3>
+<h3>Step 7.1: Go to GitHub Repository Settings</h3>
 <ol>
 <li>Open your <code>cloudops-automation</code> repository</li>
 <li>Click <strong>Settings → Webhooks → Add webhook</strong></li>
 </ol>
 
-<h3>Step 8.2: Configure Webhook</h3>
+<h3>Step 7.2: Configure Webhook</h3>
 <table border="1">
 <tr>
 <th>Field</th>
@@ -467,12 +416,12 @@ https://abc123.ngrok.io
 
 <p>Click <strong>Add webhook</strong>.</p>
 
-<h3>Step 8.3: Verify Webhook</h3>
+<h3>Step 7.3: Verify Webhook</h3>
 <p>After saving, webhook should show <strong>✓</strong> with a green checkmark.</p>
 
 <hr>
 
-<h2>🚀 9. Test CI/CD Pipeline</h2>
+<h2>🚀 8. Test CI/CD Pipeline</h2>
 
 <h3>Test 1: Manual Build</h3>
 <ol>
@@ -529,7 +478,7 @@ git push origin main
 
 <hr>
 
-<h2>🏁 10. Completion Checklist</h2>
+<h2>🏁 9. Completion Checklist</h2>
 
 <table border="1">
 <tr>
@@ -550,7 +499,7 @@ git push origin main
 <tr>
 <td>K8s manifests created</td>
 <td>✅</td>
-<td><code>k8s/</code> folder exists</td>
+<td><code>k8s/</code> folder exists with all YAML files</td>
 </tr>
 <tr>
 <td>CI build job created</td>
@@ -596,7 +545,7 @@ git push origin main
 
 <hr>
 
-<h2>🎉 11. Phase-4 Complete</h2>
+<h2>🎉 10. Phase-4 Complete</h2>
 
 <p>Congratulations! You now have a complete CI/CD pipeline with:</p>
 <ul>
