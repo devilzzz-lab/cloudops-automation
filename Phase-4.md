@@ -101,42 +101,16 @@ cloudops-automation/
 └── requirements.txt
 </pre>
 
-<h3>Step 3.3: Application Code (app.py)</h3>
-<pre>
-from flask import Flask
-import os
+<h3>Step 3.3: Application Files</h3>
 
-app = Flask(__name__)
+<p><strong>📄 app.py</strong> - Flask application code</p>
+<p><strong>📄 requirements.txt</strong> - Python dependencies</p>
+<p><strong>📄 Dockerfile</strong> - Container image definition</p>
+<p><strong>📄 .dockerignore</strong> - Files to exclude from Docker build</p>
 
-@app.route('/')
-def hello():
-    return f"&lt;h1&gt;CloudOps Sample App&lt;/h1&gt;&lt;p&gt;Build: {os.getenv('BUILD_NUMBER', 'local')}&lt;/p&gt;"
+<p><strong>Note:</strong> Refer to these files in your repository for actual content.</p>
 
-@app.route('/health')
-def health():
-    return {"status": "healthy"}, 200
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
-</pre>
-
-<h3>Step 3.4: requirements.txt</h3>
-<pre>
-Flask==3.0.0
-</pre>
-
-<h3>Step 3.5: Dockerfile</h3>
-<pre>
-FROM python:3.10-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-EXPOSE 8080
-CMD ["python", "app.py"]
-</pre>
-
-<h3>Step 3.6: Create Kubernetes Manifests</h3>
+<h3>Step 3.4: Create Kubernetes Manifests</h3>
 
 <p>Create the following files inside <code>k8s/</code> folder:</p>
 
@@ -154,7 +128,7 @@ CMD ["python", "app.py"]
 
 <p><strong>Note:</strong> Refer to the <code>k8s/</code> folder in your repository for actual manifest content.</p>
 
-<h3>Step 3.7: Commit and Push to GitHub</h3>
+<h3>Step 3.5: Commit and Push to GitHub</h3>
 <pre>
 git init
 git add .
