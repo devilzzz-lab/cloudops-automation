@@ -217,153 +217,78 @@ docker ps | grep jenkins
 
 <hr>
 
-<h2>🔨 7. Install Docker CLI Inside Jenkins</h2>
+<h2>🔨 7. Install Docker CLI Inside Jenkins Container</h2>
 
 <h3>Step 7.1: Enter Jenkins Container</h3>
 <pre>
 docker exec -u root -it jenkins bash
 </pre>
 
-<h3>Step 7.2: Update Package Manager</h3>
+<h3>Step 7.2: Install Docker CLI</h3>
+<p>Run the following commands inside the Jenkins container:</p>
+
 <pre>
 apt-get update
+apt-get install -y docker.io
 </pre>
 
-<h3>Step 7.3: Install Docker and curl</h3>
-<pre>
-apt-get install -y docker.io curl
-</pre>
-
-<h3>Step 7.4: Verify Docker Installation</h3>
+<h3>Step 7.3: Verify Docker Installation</h3>
 <pre>
 docker --version
 </pre>
 
 <p><strong>Expected output:</strong></p>
 <pre>
-Docker version XX.X.X
+Docker version xx.xx
 </pre>
 
-<h3>Step 7.5: Test Docker Access</h3>
-<pre>
-docker ps
-</pre>
-
-<p><strong>Expected:</strong> Should list running containers (including Jenkins itself).</p>
-
-<h3>Step 7.6: Exit Container</h3>
+<h3>Step 7.4: Exit Container</h3>
 <pre>
 exit
 </pre>
 
 <hr>
 
-<h2>☸️ 8. Install kubectl Inside Jenkins</h2>
+<h2>☸️ 8. Install kubectl Inside Jenkins Container</h2>
 
 <h3>Step 8.1: Enter Jenkins Container</h3>
 <pre>
 docker exec -u root -it jenkins bash
 </pre>
 
-<h3>Step 8.2: Download kubectl</h3>
-<pre>
-curl -LO https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
-</pre>
+<h3>Step 8.2: Move kubeconfig to kubectl's Default Path</h3>
 
-<h3>Step 8.3: Make kubectl Executable</h3>
-<pre>
-chmod +x kubectl
-</pre>
+<p><strong>Option 1 (BEST & SIMPLEST):</strong></p>
+<p>Move kubeconfig to kubectl's default path:</p>
 
-<h3>Step 8.4: Move kubectl to PATH</h3>
-<pre>
-mv kubectl /usr/local/bin/
-</pre>
-
-<h3>Step 8.5: Verify kubectl Installation</h3>
-<pre>
-kubectl version --client
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-Client Version: vX.XX.X
-</pre>
-
-<h3>Step 8.6: Exit Container</h3>
-<pre>
-exit
-</pre>
-
-<hr>
-
-<h2>🔐 9. Configure KIND Kubeconfig for Jenkins</h2>
-
-<h3>Step 9.1: Generate Internal Kubeconfig</h3>
-
-<p><strong>On your Mac (host machine):</strong></p>
-
-<pre>
-kind get kubeconfig --name cloudops --internal &gt; /tmp/kind-internal-config
-</pre>
-
-<p><strong>Why internal?</strong> Jenkins runs inside Docker and needs Docker DNS (<code>cloudops-control-plane</code>) instead of <code>localhost</code>.</p>
-
-<h3>Step 9.2: Verify Internal Kubeconfig</h3>
-<pre>
-cat /tmp/kind-internal-config | grep server
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-server: https://cloudops-control-plane:6443
-</pre>
-
-<h3>Step 9.3: Copy to Jenkins Container</h3>
-<pre>
-docker cp /tmp/kind-internal-config jenkins:/var/jenkins_home/.kube/config
-</pre>
-
-<h3>Step 9.4: Set Default kubectl Path in Jenkins</h3>
-
-<p>Enter Jenkins container:</p>
-<pre>
-docker exec -u root -it jenkins bash
-</pre>
-
-<p>Create .kube directory for root user:</p>
 <pre>
 mkdir -p /root/.kube
-</pre>
-
-<p>Copy config to default path:</p>
-<pre>
 cp /var/jenkins_home/.kube/config /root/.kube/config
+exit
 </pre>
 
-<p>Set proper permissions:</p>
+<p>Then test:</p>
 <pre>
-chmod 600 /root/.kube/config
+docker exec -it jenkins kubectl get nodes
 </pre>
 
-<p>Verify file exists:</p>
-<pre>
-ls -l /root/.kube/config
-</pre>
+<p><strong>✅ It will WORK.</strong></p>
 
-<p><strong>Expected output:</strong></p>
-<pre>
--rw------- 1 root root XXXX /root/.kube/config
-</pre>
+<p><strong>Why?</strong></p>
+<ul>
+<li>kubectl looks for config at <code>/root/.kube/config</code> by default</li>
+<li>You mounted <code>~/.kube</code> to <code>/var/jenkins_home/.kube</code></li>
+<li>Copying it to <code>/root/.kube/config</code> makes it accessible to kubectl</li>
+</ul>
 
-<p>Exit container:</p>
+<h3>Step 8.3: Exit Container</h3>
 <pre>
 exit
 </pre>
 
 <hr>
 
-<h2>✅ 10. Final Verification</h2>
+<h2>✅ 9. Final Verification</h2>
 
 <h3>Test 1: Docker Works in Jenkins</h3>
 <pre>
@@ -383,7 +308,25 @@ NAME                     STATUS   ROLES           AGE   VERSION
 cloudops-control-plane   Ready    control-plane   XXm   vX.XX.X
 </pre>
 
-<h3>Test 3: Jenkins Can Access KIND Cluster</h3>
+<h3>Test 3: kubectl get pods Works</h3>
+<pre>
+docker exec -it jenkins kubectl get pods -A
+</pre>
+
+<p><strong>Expected output:</strong></p>
+<pre>
+NAMESPACE            NAME                                         READY   STATUS    RESTARTS   AGE
+kube-system          coredns-xxxxxxxx-xxxxx                      1/1     Running   0          XXm
+kube-system          etcd-cloudops-control-plane                 1/1     Running   0          XXm
+kube-system          kindnet-xxxxx                               1/1     Running   0          XXm
+kube-system          kube-apiserver-cloudops-control-plane       1/1     Running   0          XXm
+kube-system          kube-controller-manager-cloudops-control... 1/1     Running   0          XXm
+kube-system          kube-proxy-xxxxx                            1/1     Running   0          XXm
+kube-system          kube-scheduler-cloudops-control-plane       1/1     Running   0          XXm
+local-path-storage   local-path-provisioner-xxxxxxxx-xxxxx       1/1     Running   0          XXm
+</pre>
+
+<h3>Test 4: Jenkins Can Access KIND Cluster</h3>
 <pre>
 docker exec -it jenkins kubectl cluster-info
 </pre>
@@ -393,19 +336,19 @@ docker exec -it jenkins kubectl cluster-info
 Kubernetes control plane is running at https://cloudops-control-plane:6443
 </pre>
 
-<p><strong>✅ If all three tests pass, your environment is ready!</strong></p>
+<p><strong>✅ If all four tests pass, your environment is ready!</strong></p>
 
 <hr>
 
-<h2>🔧 11. Initial Jenkins Configuration</h2>
+<h2>🔧 10. Initial Jenkins Configuration</h2>
 
-<h3>Step 11.1: Unlock Jenkins</h3>
+<h3>Step 10.1: Unlock Jenkins</h3>
 <p>Get initial admin password:</p>
 <pre>
 docker exec -it jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 </pre>
 
-<h3>Step 11.2: Access Jenkins UI</h3>
+<h3>Step 10.2: Access Jenkins UI</h3>
 <p>Open in browser:</p>
 <pre>
 http://localhost:8080
@@ -413,12 +356,12 @@ http://localhost:8080
 
 <p>Enter the password and click <strong>Install Suggested Plugins</strong>.</p>
 
-<h3>Step 11.3: Create Admin User</h3>
+<h3>Step 10.3: Create Admin User</h3>
 <p>Fill in the admin user details and click <strong>Save and Continue</strong>.</p>
 
 <hr>
 
-<h2>🔌 12. Install Required Jenkins Plugins</h2>
+<h2>🔌 11. Install Required Jenkins Plugins</h2>
 
 <p>Navigate: <strong>Manage Jenkins → Plugins → Available plugins</strong></p>
 
@@ -436,9 +379,9 @@ http://localhost:8080
 
 <hr>
 
-<h2>🔑 13. Configure Jenkins Credentials</h2>
+<h2>🔑 12. Configure Jenkins Credentials</h2>
 
-<h3>13.1 GitHub Token (for private repo)</h3>
+<h3>12.1 GitHub Token (for private repo)</h3>
 <p>Navigate: <strong>Manage Jenkins → Credentials → System → Global credentials → Add Credentials</strong></p>
 
 <table border="1">
@@ -468,7 +411,7 @@ http://localhost:8080
 </tr>
 </table>
 
-<h3>13.2 Docker Hub Credentials</h3>
+<h3>12.2 Docker Hub Credentials</h3>
 <p>Navigate: <strong>Manage Jenkins → Credentials → System → Global credentials → Add Credentials</strong></p>
 
 <table border="1">
@@ -504,7 +447,7 @@ http://localhost:8080
 
 <hr>
 
-<h2>🏁 14. Completion Checklist</h2>
+<h2>🏁 13. Completion Checklist</h2>
 
 <table border="1">
 <tr>
@@ -553,6 +496,11 @@ http://localhost:8080
 <td><code>docker exec jenkins kubectl get nodes</code></td>
 </tr>
 <tr>
+<td>Jenkins can list pods</td>
+<td>✅</td>
+<td><code>docker exec jenkins kubectl get pods -A</code></td>
+</tr>
+<tr>
 <td>Jenkins UI accessible</td>
 <td>✅</td>
 <td><code>http://localhost:8080</code></td>
@@ -576,7 +524,7 @@ http://localhost:8080
 
 <hr>
 
-<h2>🎯 15. What's Next?</h2>
+<h2>🎯 14. What's Next?</h2>
 
 <p>Phase-3 is complete! You now have a fully configured development environment with:</p>
 <ul>
