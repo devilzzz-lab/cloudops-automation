@@ -210,8 +210,8 @@ git push -u origin main
 </tr>
 </table>
 
-<p><strong>Jenkins Job Environment Configuration:</strong></p>
-<img src="screenshots/phase4/jenkins-job-environment.png" alt="Jenkins Job Environment">
+<p><strong>Jenkins Build Environment Configuration:</strong></p>
+<img src="screenshots/phase4/jenkins-build-environment.png" alt="Jenkins Build Environment">
 
 <h3>4.5 Add Build Step (Execute Shell)</h3>
 <p>Click <strong>Add build step → Execute shell</strong> and paste:</p>
@@ -254,10 +254,16 @@ echo "📦 Image: ${FULL_IMAGE}:latest"
 <p><strong>Replace <code>devilzz</code> with your Docker Hub username!</strong></p>
 
 <p><strong>Jenkins Execute Shell Configuration:</strong></p>
-<img src="screenshots/phase4/jenkins-execute-shell.png" alt="Jenkins Execute Shell">
+<img src="screenshots/phase4/jenkins-build-execute-shell.png" alt="Jenkins Build Execute Shell">
 
 <h3>4.6 Save the Job</h3>
 <p>Click <strong>Save</strong>.</p>
+
+<p><strong>Jenkins Build Console Output:</strong></p>
+<img src="screenshots/phase4/jenkins-build-console-output.png" alt="Jenkins Build Console Output">
+
+<p><strong>Jenkins Build Job Success:</strong></p>
+<img src="screenshots/phase4/jenkins-build-success.png" alt="Jenkins Build Success">
 
 <hr>
 
@@ -272,7 +278,37 @@ echo "📦 Image: ${FULL_IMAGE}:latest"
 <li>Click <strong>OK</strong></li>
 </ol>
 
-<h3>5.2 Configure Source Code Management</h3>
+<h3>5.2 Configure General Settings (Parameterized Build)</h3>
+<p>Enable:</p>
+<ul>
+<li>☑ <strong>This project is parameterized</strong></li>
+</ul>
+
+<p>Click <strong>Add Parameter → String Parameter</strong></p>
+
+<table border="1">
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Name</td>
+<td><code>IMAGE_TAG</code></td>
+</tr>
+<tr>
+<td>Default Value</td>
+<td><code>build-23</code></td>
+</tr>
+<tr>
+<td>Description</td>
+<td>Docker image tag to deploy (e.g., build-23, latest)</td>
+</tr>
+</table>
+
+<p><strong>Jenkins Prod Parameter Configuration:</strong></p>
+<img src="screenshots/phase4/jenkins-prod-parameter-prod.png" alt="Jenkins Prod Parameter">
+
+<h3>5.3 Configure Source Code Management</h3>
 <p><strong>Source Code Management → Git:</strong></p>
 
 <table border="1">
@@ -294,7 +330,7 @@ echo "📦 Image: ${FULL_IMAGE}:latest"
 </tr>
 </table>
 
-<h3>5.3 Configure Build Triggers</h3>
+<h3>5.4 Configure Build Triggers</h3>
 <p>Enable:</p>
 <ul>
 <li>☑ <strong>Build after other projects are built</strong></li>
@@ -302,7 +338,7 @@ echo "📦 Image: ${FULL_IMAGE}:latest"
 <li>Trigger only if build is stable</li>
 </ul>
 
-<h3>5.4 Add Build Step (Execute Shell)</h3>
+<h3>5.5 Add Build Step (Execute Shell)</h3>
 <p>Click <strong>Add build step → Execute shell</strong> and paste:</p>
 
 <pre>
@@ -311,11 +347,16 @@ set -e
 
 echo "===================================="
 echo "🚀 CD JOB – Kubernetes Deployment"
+echo "Image Tag: ${IMAGE_TAG}"
 echo "===================================="
 
 # Apply Kubernetes manifests
 echo "📦 Applying Kubernetes manifests..."
 kubectl apply -f k8s/
+
+# Update deployment with specific image tag
+echo "🔄 Updating deployment with image tag: ${IMAGE_TAG}"
+kubectl set image deployment/cloudops-app cloudops-app=devilzz/cloudops-sample-app:${IMAGE_TAG} -n cloudops
 
 # Wait for deployment rollout
 echo "⏳ Waiting for deployment rollout..."
@@ -333,8 +374,19 @@ echo "✅ Deployment completed successfully!"
 echo "📍 Access app at: http://localhost:30080"
 </pre>
 
-<h3>5.5 Save the Job</h3>
+<p><strong>Replace <code>devilzz</code> with your Docker Hub username!</strong></p>
+
+<p><strong>Jenkins Prod Execute Shell Configuration:</strong></p>
+<img src="screenshots/phase4/jenkins-prod-execute-shell.png" alt="Jenkins Prod Execute Shell">
+
+<h3>5.6 Save the Job</h3>
 <p>Click <strong>Save</strong>.</p>
+
+<p><strong>Jenkins Prod Console Output:</strong></p>
+<img src="screenshots/phase4/jenkins-prod-console-output.png" alt="Jenkins Prod Console Output">
+
+<p><strong>Jenkins Prod Job Success:</strong></p>
+<img src="screenshots/phase4/jenkins-prod-success.png" alt="Jenkins Prod Success">
 
 <hr>
 
@@ -410,7 +462,7 @@ https://abc123.ngrok.io
 
 <h2>🚀 8. Test CI/CD Pipeline</h2>
 
-<h3>Test 1: Manual Build</h3>
+<h3>Test 1: Manual Build (CI Job)</h3>
 <ol>
 <li>Go to Jenkins → <strong>cloudops-ci-build</strong></li>
 <li>Click <strong>Build Now</strong></li>
@@ -419,13 +471,16 @@ https://abc123.ngrok.io
 <li><strong>cloudops-prod-deploy</strong> should trigger automatically</li>
 </ol>
 
-<p><strong>Jenkins Console Output:</strong></p>
-<img src="screenshots/phase4/jenkins-console-output.png" alt="Jenkins Console Output">
+<h3>Test 2: Manual Deployment with Specific Image Tag</h3>
+<ol>
+<li>Go to Jenkins → <strong>cloudops-prod-deploy</strong></li>
+<li>Click <strong>Build with Parameters</strong></li>
+<li>Enter <code>IMAGE_TAG</code> value (e.g., <code>build-23</code> or <code>latest</code>)</li>
+<li>Click <strong>Build</strong></li>
+<li>Check Console Output</li>
+</ol>
 
-<p><strong>Jenkins Job Success:</strong></p>
-<img src="screenshots/phase4/jenkins-job-success.png" alt="Jenkins Job Success">
-
-<h3>Test 2: Verify Deployment</h3>
+<h3>Test 3: Verify Deployment</h3>
 <pre>
 kubectl get all -n cloudops
 </pre>
@@ -442,7 +497,7 @@ NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/cloudops-app   3/3     3            3           XXs
 </pre>
 
-<h3>Test 3: Access Application</h3>
+<h3>Test 4: Access Application</h3>
 <p>Open browser:</p>
 <pre>
 http://localhost:30080
@@ -450,12 +505,12 @@ http://localhost:30080
 
 <p><strong>Expected:</strong> You should see "CloudOps Sample App" with build number!</p>
 
-<h3>Test 4: Docker Image Build</h3>
+<h3>Test 5: Docker Image Build</h3>
 
 <p><strong>Docker Image Build Success:</strong></p>
 <img src="screenshots/phase4/docker-image-build.png" alt="Docker Image Build">
 
-<h3>Test 5: Automatic Trigger (Git Push)</h3>
+<h3>Test 6: Automatic Trigger (Git Push)</h3>
 <p>Make a change and push:</p>
 <pre>
 echo "# CI/CD Test" &gt;&gt; README.md
@@ -468,7 +523,7 @@ git push origin main
 <ol>
 <li>GitHub sends webhook to Jenkins (via ngrok)</li>
 <li><strong>cloudops-ci-build</strong> triggers automatically</li>
-<li>Docker image built and pushed</li>
+<li>Docker image built and pushed with tag <code>build-${BUILD_NUMBER}</code></li>
 <li><strong>cloudops-prod-deploy</strong> triggers after CI success</li>
 <li>Kubernetes updates pods with new image</li>
 <li>Application updated automatically!</li>
@@ -510,6 +565,11 @@ git push origin main
 <td>Job <strong>cloudops-prod-deploy</strong> visible</td>
 </tr>
 <tr>
+<td>Parameterized build configured</td>
+<td>✅</td>
+<td><code>IMAGE_TAG</code> parameter available</td>
+</tr>
+<tr>
 <td>ngrok running</td>
 <td>✅</td>
 <td>Public URL active</td>
@@ -523,6 +583,11 @@ git push origin main
 <td>Manual build works</td>
 <td>✅</td>
 <td>Build Now succeeds</td>
+</tr>
+<tr>
+<td>Parameterized deployment works</td>
+<td>✅</td>
+<td>Build with Parameters succeeds</td>
 </tr>
 <tr>
 <td>Auto deployment works</td>
@@ -549,6 +614,7 @@ git push origin main
 <ul>
 <li>✅ Automated Docker image builds on every commit</li>
 <li>✅ Automated Kubernetes deployments</li>
+<li>✅ Parameterized deployments for specific image tags</li>
 <li>✅ GitHub webhook integration</li>
 <li>✅ Zero-downtime rolling updates</li>
 <li>✅ Production-ready DevOps workflow</li>
