@@ -386,14 +386,14 @@ echo "📍 Access app at: http://localhost:30080"
 <img src="screenshots/phase4/jenkins-prod-console-output.png" alt="Jenkins Prod Console Output">
 
 <p><strong>Jenkins Prod Job Success:</strong></p>
-<img src="screenshots/phase4/jenkins-prod-success-job.png" alt="Jenkins Prod Success">
+<img src="screenshots/phase4/jenkins-prod-success.png" alt="Jenkins Prod Success">
 
 <hr>
 
 <h2>🌐 6. Setup ngrok for Webhook Access</h2>
 
 <h3>Step 6.1: Install ngrok</h3>
-<p>Download from: <code>https://ngrok.com/download</code></p> 
+<p>Download from: <code>https://ngrok.com/download</code></p>
 
 <p>Or install via Homebrew:</p>
 <pre>
@@ -482,7 +482,7 @@ https://abc123.ngrok.io
 
 <h3>Test 3: Verify Deployment</h3>
 <pre>
-kubectl get all -n cloudops
+docker exec -it jenkins kubectl get all -n cloudops
 </pre>
 
 <p><strong>Expected output:</strong></p>
@@ -497,7 +497,20 @@ NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/cloudops-app   3/3     3            3           XXs
 </pre>
 
-<h3>Test 4: Access Application</h3>
+<h3>Test 4: Verify Pods Status</h3>
+<pre>
+docker exec -it jenkins kubectl get pods -n cloudops
+</pre>
+
+<p><strong>Expected output:</strong></p>
+<pre>
+NAME                            READY   STATUS    RESTARTS   AGE
+cloudops-app-xxxxxxxxxx-xxxxx   1/1     Running   0          XXs
+cloudops-app-xxxxxxxxxx-xxxxx   1/1     Running   0          XXs
+cloudops-app-xxxxxxxxxx-xxxxx   1/1     Running   0          XXs
+</pre>
+
+<h3>Test 5: Access Application</h3>
 <p>Open browser:</p>
 <pre>
 http://localhost:30080
@@ -505,12 +518,12 @@ http://localhost:30080
 
 <p><strong>Expected:</strong> You should see "CloudOps Sample App" with build number!</p>
 
-<h3>Test 5: Docker Image Build</h3>
+<h3>Test 6: Docker Image Build</h3>
 
 <p><strong>Docker Image Build Success:</strong></p>
 <img src="screenshots/phase4/docker-image-build.png" alt="Docker Image Build">
 
-<h3>Test 6: Automatic Trigger (Git Push)</h3>
+<h3>Test 7: Automatic Trigger (Git Push)</h3>
 <p>Make a change and push:</p>
 <pre>
 echo "# CI/CD Test" &gt;&gt; README.md
@@ -528,6 +541,27 @@ git push origin main
 <li>Kubernetes updates pods with new image</li>
 <li>Application updated automatically!</li>
 </ol>
+
+<h3>Test 8: Verify Rollout Status</h3>
+<pre>
+docker exec -it jenkins kubectl rollout status deployment/cloudops-app -n cloudops
+</pre>
+
+<p><strong>Expected output:</strong></p>
+<pre>
+deployment "cloudops-app" successfully rolled out
+</pre>
+
+<h3>Test 9: Check Service Endpoint</h3>
+<pre>
+docker exec -it jenkins kubectl get svc cloudops-service -n cloudops
+</pre>
+
+<p><strong>Expected output:</strong></p>
+<pre>
+NAME               TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+cloudops-service   NodePort   10.XX.XXX.XXX   &lt;none&gt;        80:30080/TCP   XXm
+</pre>
 
 <hr>
 
