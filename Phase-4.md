@@ -6,35 +6,34 @@
 </head>
 <body>
 
-<h1>🟧 PHASE 4 – Kubernetes Deployment using KIND (README.md)</h1>
+<h1>🟧 PHASE-4: CI/CD Pipeline & Automation (README.md)</h1>
 
 <p><strong>Version:</strong> Phase 4<br>
-<strong>Module:</strong> Kubernetes Deployment & Continuous Deployment (CD)<br>
+<strong>Module:</strong> CI/CD Jobs, Webhooks & Automated Deployment<br>
 <strong>Project:</strong> CloudOps Automation, CI/CD &amp; Monitoring System</p>
 
 <hr>
 
 <h2>📌 1. Overview</h2>
 
-<p>Phase-4 focuses on deploying the Dockerized CloudOps application (built in Phase-3) to a local Kubernetes cluster using <strong>KIND (Kubernetes IN Docker)</strong>.</p>
-
-<p><strong>Important:</strong> KIND and all Kubernetes tooling are installed <strong>only in Phase-4</strong>. Phase-3 handled CI (Continuous Integration) without any Kubernetes cluster.</p>
+<p>Phase-4 focuses on creating a complete CI/CD automation pipeline using the environment set up in Phase-3.</p>
 
 <p>This phase covers:</p>
 <ul>
-<li>✔ Installing KIND on macOS</li>
-<li>✔ Creating a local Kubernetes cluster</li>
-<li>✔ Writing Kubernetes manifests for deployment</li>
-<li>✔ Reconfiguring Jenkins to connect to KIND cluster</li>
-<li>✔ Installing kubectl inside Jenkins</li>
-<li>✔ Creating CD job (<strong>cloudops-prod-deploy</strong>) for automated deployment</li>
+<li>✔ Creating GitHub repository with application code</li>
+<li>✔ Writing Kubernetes manifests</li>
+<li>✔ Creating CI job for Docker build and push</li>
+<li>✔ Creating CD job for Kubernetes deployment</li>
+<li>✔ Setting up ngrok for webhook access</li>
+<li>✔ Configuring GitHub webhooks</li>
+<li>✔ Testing complete automation</li>
 </ul>
 
-<p><strong>Prerequisites:</strong> Phase-3 must be completed (Jenkins + Docker + CI build job working).</p>
+<p><strong>Prerequisites:</strong> Phase-3 must be completed (Docker + KIND + Jenkins fully configured).</p>
 
 <hr>
 
-<h2>🧩 2. Architecture Diagram</h2>
+<h2>🧩 2. CI/CD Pipeline Architecture</h2>
 
 <pre>
 Developer (Local Machine)
@@ -43,15 +42,19 @@ Developer (Local Machine)
         v
   GitHub Repository
         |
-        | Webhook
+        | Webhook (via ngrok)
         v
       Jenkins
         |
-        |-- Job 1: cloudops-ci-build (Phase-3)
-        |   └── Builds & pushes Docker image
+        |-- Job 1: cloudops-ci-build
+        |   ├── Checkout code
+        |   ├── Build Docker image
+        |   └── Push to Docker Hub
         |
-        |-- Job 2: cloudops-prod-deploy (Phase-4)
-        |   └── Deploys to Kubernetes
+        |-- Job 2: cloudops-prod-deploy
+        |   ├── Apply K8s manifests
+        |   ├── Wait for rollout
+        |   └── Verify deployment
         |
         v
     Docker Hub
@@ -60,254 +63,24 @@ Developer (Local Machine)
         v
   KIND Kubernetes Cluster
         |
-        └── Namespace: cloudops
-            ├── Deployment
-            ├── Service
-            └── ConfigMap
+        └── Running Application
 </pre>
 
 <hr>
 
-<h2>🧰 3. Install KIND on macOS</h2>
+<h2>🐳 3. Project Repository Setup</h2>
 
-<h3>Step 3.1: Install KIND</h3>
-<pre>
-brew install kind
-</pre>
+<h3>Step 3.1: Create GitHub Repository</h3>
+<p>Create a new repository named: <code>cloudops-automation</code></p>
 
-<h3>Step 3.2: Verify Installation</h3>
-<pre>
-kind version
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-kind v0.20.0 go1.21.0 darwin/arm64
-</pre>
-
-<hr>
-
-<h2>🛰 4. Create Kubernetes Cluster using KIND</h2>
-
-<h3>Step 4.1: Create Cluster</h3>
-<pre>
-kind create cluster --name cloudops
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-Creating cluster "cloudops" ...
- ✓ Ensuring node image
- ✓ Preparing nodes
- ✓ Writing configuration
- ✓ Starting control-plane
- ✓ Installing CNI
- ✓ Installing StorageClass
-Set kubectl context to "kind-cloudops"
-</pre>
-
-<h3>Step 4.2: Verify Cluster</h3>
-<pre>
-kubectl cluster-info
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-Kubernetes control plane is running at https://127.0.0.1:XXXXX
-</pre>
-
-<pre>
-kubectl get nodes
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-NAME                     STATUS   ROLES           AGE   VERSION
-cloudops-control-plane   Ready    control-plane   XXs   vX.XX.X
-</pre>
-
-<pre>
-kubectl config current-context
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-kind-cloudops
-</pre>
-
-<hr>
-
-<h2>🔧 5. Reconfigure Jenkins for KIND</h2>
-
-<p><strong>Important:</strong> Jenkins was created in Phase-3 with <code>--network bridge</code>. We need to recreate it with <code>--network kind</code> to connect to the KIND cluster.</p>
-
-<h3>Step 5.1: Stop and Remove Old Jenkins</h3>
-<pre>
-docker stop jenkins
-docker rm jenkins
-</pre>
-
-<p><strong>Note:</strong> Your Jenkins data is safe in <code>~/jenkins_home</code></p>
-
-<h3>Step 5.2: Run Jenkins with KIND Network</h3>
-<pre>
-docker run -d \
-  --name jenkins \
-  --user root \
-  --restart=unless-stopped \
-  -p 8080:8080 \
-  -p 50000:50000 \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v ~/jenkins_home:/var/jenkins_home \
-  -v ~/.kube:/var/jenkins_home/.kube \
-  --network kind \
-  jenkins/jenkins:lts
-</pre>
-
-<p><strong>Key change:</strong> <code>--network kind</code> (was <code>--network bridge</code> in Phase-3)</p>
-
-<h3>Step 5.3: Verify Jenkins is Running</h3>
-<pre>
-docker ps | grep jenkins
-</pre>
-
-<p>Access Jenkins UI:</p>
-<pre>
-http://localhost:8080
-</pre>
-
-<p><strong>Note:</strong> All your previous jobs and credentials are preserved!</p>
-
-<hr>
-
-<h2>🔨 6. Install kubectl Inside Jenkins</h2>
-
-<h3>Step 6.1: Enter Jenkins Container</h3>
-<pre>
-docker exec -u root -it jenkins bash
-</pre>
-
-<h3>Step 6.2: Download kubectl</h3>
-<pre>
-curl -LO https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
-</pre>
-
-<h3>Step 6.3: Make kubectl Executable</h3>
-<pre>
-chmod +x kubectl
-</pre>
-
-<h3>Step 6.4: Move kubectl to PATH</h3>
-<pre>
-mv kubectl /usr/local/bin/
-</pre>
-
-<h3>Step 6.5: Verify kubectl Installation</h3>
-<pre>
-kubectl version --client
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-Client Version: vX.XX.X
-</pre>
-
-<h3>Step 6.6: Exit Container</h3>
-<pre>
-exit
-</pre>
-
-<hr>
-
-<h2>🔐 7. Configure KIND Kubeconfig for Jenkins</h2>
-
-<h3>Step 7.1: Generate Internal Kubeconfig</h3>
-
-<p><strong>On your Mac (host machine):</strong></p>
-
-<pre>
-kind get kubeconfig --name cloudops --internal &gt; /tmp/kind-internal-config
-</pre>
-
-<p><strong>Why internal?</strong> Jenkins runs inside Docker and needs to use Docker DNS (<code>cloudops-control-plane</code>) instead of <code>localhost</code>.</p>
-
-<h3>Step 7.2: Verify Internal Kubeconfig</h3>
-<pre>
-cat /tmp/kind-internal-config | grep server
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-server: https://cloudops-control-plane:6443
-</pre>
-
-<h3>Step 7.3: Copy to Jenkins Container</h3>
-<pre>
-docker cp /tmp/kind-internal-config jenkins:/var/jenkins_home/.kube/config
-</pre>
-
-<h3>Step 7.4: Set Default kubectl Path in Jenkins</h3>
-
-<p>Enter Jenkins container:</p>
-<pre>
-docker exec -u root -it jenkins bash
-</pre>
-
-<p>Create .kube directory for root user:</p>
-<pre>
-mkdir -p /root/.kube
-</pre>
-
-<p>Copy config to default path:</p>
-<pre>
-cp /var/jenkins_home/.kube/config /root/.kube/config
-</pre>
-
-<p>Set proper permissions:</p>
-<pre>
-chmod 600 /root/.kube/config
-</pre>
-
-<p>Verify file exists:</p>
-<pre>
-ls -l /root/.kube/config
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
--rw------- 1 root root XXXX /root/.kube/config
-</pre>
-
-<p>Exit container:</p>
-<pre>
-exit
-</pre>
-
-<h3>Step 7.5: Verify kubectl Works in Jenkins</h3>
-<pre>
-docker exec -it jenkins kubectl get nodes
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-NAME                     STATUS   ROLES           AGE   VERSION
-cloudops-control-plane   Ready    control-plane   XXm   vX.XX.X
-</pre>
-
-<p><strong>✅ If this works, Jenkins can now deploy to Kubernetes!</strong></p>
-
-<hr>
-
-<h2>📁 8. Create Kubernetes Manifests</h2>
-
-<p>Create a <code>k8s/</code> folder in your GitHub repository with the following files:</p>
-
-<h3>Project Structure</h3>
+<h3>Step 3.2: Project Structure</h3>
 <pre>
 cloudops-automation/
 ├── app.py
 ├── requirements.txt
 ├── Dockerfile
+├── .dockerignore
+├── README.md
 └── k8s/
     ├── namespace.yaml
     ├── configmap.yaml
@@ -315,7 +88,46 @@ cloudops-automation/
     └── service.yaml
 </pre>
 
-<h3>8.1 Namespace (k8s/namespace.yaml)</h3>
+<h3>Step 3.3: Application Code (app.py)</h3>
+<pre>
+from flask import Flask
+import os
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return f"&lt;h1&gt;CloudOps Sample App&lt;/h1&gt;&lt;p&gt;Build: {os.getenv('BUILD_NUMBER', 'local')}&lt;/p&gt;"
+
+@app.route('/health')
+def health():
+    return {"status": "healthy"}, 200
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+</pre>
+
+<h3>Step 3.4: requirements.txt</h3>
+<pre>
+Flask==3.0.0
+</pre>
+
+<h3>Step 3.5: Dockerfile</h3>
+<pre>
+FROM python:3.10-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8080
+CMD ["python", "app.py"]
+</pre>
+
+<hr>
+
+<h2>📁 4. Create Kubernetes Manifests</h2>
+
+<h3>4.1 Namespace (k8s/namespace.yaml)</h3>
 <pre>
 apiVersion: v1
 kind: Namespace
@@ -325,7 +137,7 @@ metadata:
     name: cloudops
 </pre>
 
-<h3>8.2 ConfigMap (k8s/configmap.yaml)</h3>
+<h3>4.2 ConfigMap (k8s/configmap.yaml)</h3>
 <pre>
 apiVersion: v1
 kind: ConfigMap
@@ -337,7 +149,7 @@ data:
   LOG_LEVEL: "info"
 </pre>
 
-<h3>8.3 Deployment (k8s/deployment.yaml)</h3>
+<h3>4.3 Deployment (k8s/deployment.yaml)</h3>
 <pre>
 apiVersion: apps/v1
 kind: Deployment
@@ -375,7 +187,7 @@ spec:
 
 <p><strong>Replace <code>devilzz</code> with your Docker Hub username!</strong></p>
 
-<h3>8.4 Service (k8s/service.yaml)</h3>
+<h3>4.4 Service (k8s/service.yaml)</h3>
 <pre>
 apiVersion: v1
 kind: Service
@@ -393,27 +205,30 @@ spec:
     protocol: TCP
 </pre>
 
-<p>Commit and push these files to GitHub:</p>
+<h3>Step 4.5: Commit and Push to GitHub</h3>
 <pre>
-git add k8s/
-git commit -m "Add Kubernetes manifests"
-git push origin main
+git init
+git add .
+git commit -m "Initial commit with app and K8s manifests"
+git branch -M main
+git remote add origin https://github.com/&lt;your-username&gt;/cloudops-automation.git
+git push -u origin main
 </pre>
 
 <hr>
 
-<h2>🟦 9. Create Jenkins Deployment Job (cloudops-prod-deploy)</h2>
+<h2>🟦 5. Create CI Build Job (cloudops-ci-build)</h2>
 
-<h3>9.1 Create New Job</h3>
+<h3>5.1 Create New Job</h3>
 <ol>
 <li>Go to Jenkins Dashboard</li>
 <li>Click <strong>New Item</strong></li>
-<li>Enter name: <strong>cloudops-prod-deploy</strong></li>
+<li>Enter name: <strong>cloudops-ci-build</strong></li>
 <li>Select <strong>Freestyle project</strong></li>
 <li>Click <strong>OK</strong></li>
 </ol>
 
-<h3>9.2 Configure Source Code Management</h3>
+<h3>5.2 Configure Source Code Management</h3>
 <p><strong>Source Code Management → Git:</strong></p>
 
 <table border="1">
@@ -435,7 +250,121 @@ git push origin main
 </tr>
 </table>
 
-<h3>9.3 Configure Build Triggers</h3>
+<h3>5.3 Configure Build Triggers</h3>
+<p>Enable:</p>
+<ul>
+<li>☑ <strong>GitHub hook trigger for GITScm polling</strong></li>
+</ul>
+
+<h3>5.4 Configure Build Environment</h3>
+<p>Enable:</p>
+<ul>
+<li>☑ <strong>Use secret text(s) or file(s)</strong></li>
+</ul>
+
+<p>Add binding:</p>
+<table border="1">
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Binding Type</td>
+<td>Username and password (separated)</td>
+</tr>
+<tr>
+<td>Username Variable</td>
+<td><code>DOCKER_USER</code></td>
+</tr>
+<tr>
+<td>Password Variable</td>
+<td><code>DOCKER_PASS</code></td>
+</tr>
+<tr>
+<td>Credentials</td>
+<td>Select <strong>dockerhub-creds</strong></td>
+</tr>
+</table>
+
+<h3>5.5 Add Build Step (Execute Shell)</h3>
+<p>Click <strong>Add build step → Execute shell</strong> and paste:</p>
+
+<pre>
+#!/bin/bash
+set -e
+
+REGISTRY="devilzz"
+IMAGE="cloudops-sample-app"
+TAG="build-${BUILD_NUMBER}"
+FULL_IMAGE="${REGISTRY}/${IMAGE}"
+
+echo "===================================="
+echo "🔨 CI JOB – Docker Build & Push"
+echo "Image: ${FULL_IMAGE}:${TAG}"
+echo "===================================="
+
+# Docker Login
+echo "🔐 Logging into Docker Hub..."
+echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+
+# Docker Build
+echo "🐳 Building image..."
+docker build -t ${FULL_IMAGE}:${TAG} .
+
+# Tag as latest
+docker tag ${FULL_IMAGE}:${TAG} ${FULL_IMAGE}:latest
+
+# Push images
+echo "📤 Pushing images..."
+docker push ${FULL_IMAGE}:${TAG}
+docker push ${FULL_IMAGE}:latest
+
+echo "✅ CI Build completed successfully"
+echo "📦 Image: ${FULL_IMAGE}:${TAG}"
+echo "📦 Image: ${FULL_IMAGE}:latest"
+</pre>
+
+<p><strong>Replace <code>devilzz</code> with your Docker Hub username!</strong></p>
+
+<h3>5.6 Save the Job</h3>
+<p>Click <strong>Save</strong>.</p>
+
+<hr>
+
+<h2>🟩 6. Create CD Deployment Job (cloudops-prod-deploy)</h2>
+
+<h3>6.1 Create New Job</h3>
+<ol>
+<li>Go to Jenkins Dashboard</li>
+<li>Click <strong>New Item</strong></li>
+<li>Enter name: <strong>cloudops-prod-deploy</strong></li>
+<li>Select <strong>Freestyle project</strong></li>
+<li>Click <strong>OK</strong></li>
+</ol>
+
+<h3>6.2 Configure Source Code Management</h3>
+<p><strong>Source Code Management → Git:</strong></p>
+
+<table border="1">
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Repository URL</td>
+<td><code>https://github.com/&lt;your-username&gt;/cloudops-automation.git</code></td>
+</tr>
+<tr>
+<td>Credentials</td>
+<td>Select <strong>github-token</strong></td>
+</tr>
+<tr>
+<td>Branch Specifier</td>
+<td><code>*/main</code></td>
+</tr>
+</table>
+
+<h3>6.3 Configure Build Triggers</h3>
 <p>Enable:</p>
 <ul>
 <li>☑ <strong>Build after other projects are built</strong></li>
@@ -443,9 +372,7 @@ git push origin main
 <li>Trigger only if build is stable</li>
 </ul>
 
-<p>This ensures deployment happens automatically after successful Docker build.</p>
-
-<h3>9.4 Add Build Step (Execute Shell)</h3>
+<h3>6.4 Add Build Step (Execute Shell)</h3>
 <p>Click <strong>Add build step → Execute shell</strong> and paste:</p>
 
 <pre>
@@ -476,35 +403,87 @@ echo "✅ Deployment completed successfully!"
 echo "📍 Access app at: http://localhost:30080"
 </pre>
 
-<h3>9.5 Save the Job</h3>
+<h3>6.5 Save the Job</h3>
 <p>Click <strong>Save</strong>.</p>
 
 <hr>
 
-<h2>🚀 10. Deploy to Kubernetes</h2>
+<h2>🌐 7. Setup ngrok for Webhook Access</h2>
 
-<h3>Step 10.1: Manual Deployment Test</h3>
-<ol>
-<li>Go to Jenkins Dashboard</li>
-<li>Click <strong>cloudops-prod-deploy</strong></li>
-<li>Click <strong>Build Now</strong></li>
-<li>Check <strong>Console Output</strong></li>
-</ol>
+<h3>Step 7.1: Install ngrok</h3>
+<p>Download from: <code>https://ngrok.com/download</code></p>
 
-<p><strong>Expected Console Output:</strong></p>
+<p>Or install via Homebrew:</p>
 <pre>
-🚀 CD JOB – Kubernetes Deployment
-📦 Applying Kubernetes manifests...
-namespace/cloudops created
-configmap/cloudops-config created
-deployment.apps/cloudops-app created
-service/cloudops-service created
-⏳ Waiting for deployment rollout...
-deployment "cloudops-app" successfully rolled out
-✅ Deployment completed successfully!
+brew install ngrok
 </pre>
 
-<h3>Step 10.2: Verify Deployment</h3>
+<h3>Step 7.2: Start ngrok</h3>
+<pre>
+ngrok http 8080
+</pre>
+
+<h3>Step 7.3: Copy Public URL</h3>
+<p>ngrok will display a public URL like:</p>
+<pre>
+https://abc123.ngrok.io
+</pre>
+
+<p><strong>Keep this terminal window open!</strong></p>
+
+<hr>
+
+<h2>🔗 8. Configure GitHub Webhook</h2>
+
+<h3>Step 8.1: Go to GitHub Repository Settings</h3>
+<ol>
+<li>Open your <code>cloudops-automation</code> repository</li>
+<li>Click <strong>Settings → Webhooks → Add webhook</strong></li>
+</ol>
+
+<h3>Step 8.2: Configure Webhook</h3>
+<table border="1">
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Payload URL</td>
+<td><code>https://abc123.ngrok.io/github-webhook/</code></td>
+</tr>
+<tr>
+<td>Content type</td>
+<td><code>application/json</code></td>
+</tr>
+<tr>
+<td>Which events?</td>
+<td>Just the push event</td>
+</tr>
+<tr>
+<td>Active</td>
+<td>☑ Checked</td>
+</tr>
+</table>
+
+<p>Click <strong>Add webhook</strong>.</p>
+
+<h3>Step 8.3: Verify Webhook</h3>
+<p>After saving, webhook should show <strong>✓</strong> with a green checkmark.</p>
+
+<hr>
+
+<h2>🚀 9. Test CI/CD Pipeline</h2>
+
+<h3>Test 1: Manual Build</h3>
+<ol>
+<li>Go to Jenkins → <strong>cloudops-ci-build</strong></li>
+<li>Click <strong>Build Now</strong></li>
+<li>Check Console Output</li>
+<li>Verify build success</li>
+<li><strong>cloudops-prod-deploy</strong> should trigger automatically</li>
+</ol>
+
+<h3>Test 2: Verify Deployment</h3>
 <pre>
 kubectl get all -n cloudops
 </pre>
@@ -521,42 +500,36 @@ NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/cloudops-app   3/3     3            3           XXs
 </pre>
 
-<h3>Step 10.3: Access Application</h3>
+<h3>Test 3: Access Application</h3>
 <p>Open browser:</p>
 <pre>
 http://localhost:30080
 </pre>
 
-<p><strong>Expected:</strong> You should see "CloudOps Sample App" running!</p>
+<p><strong>Expected:</strong> You should see "CloudOps Sample App" with build number!</p>
 
-<hr>
-
-<h2>🔄 11. Test Complete CI/CD Pipeline</h2>
-
-<h3>Full Automation Flow</h3>
-
-<p>Make a change to your app and push:</p>
-
+<h3>Test 4: Automatic Trigger (Git Push)</h3>
+<p>Make a change and push:</p>
 <pre>
-echo "# Pipeline test" &gt;&gt; README.md
+echo "# CI/CD Test" &gt;&gt; README.md
 git add .
-git commit -m "Test full CI/CD pipeline"
+git commit -m "Test automatic CI/CD"
 git push origin main
 </pre>
 
-<h3>What Happens Automatically:</h3>
+<p><strong>What happens:</strong></p>
 <ol>
-<li>GitHub sends webhook to Jenkins</li>
+<li>GitHub sends webhook to Jenkins (via ngrok)</li>
 <li><strong>cloudops-ci-build</strong> triggers automatically</li>
-<li>Docker image built and pushed to Docker Hub</li>
+<li>Docker image built and pushed</li>
 <li><strong>cloudops-prod-deploy</strong> triggers after CI success</li>
-<li>Kubernetes pulls new image and updates pods</li>
-<li>Application updated with zero downtime!</li>
+<li>Kubernetes updates pods with new image</li>
+<li>Application updated automatically!</li>
 </ol>
 
 <hr>
 
-<h2>🏁 12. Completion Checklist</h2>
+<h2>🏁 10. Completion Checklist</h2>
 
 <table border="1">
 <tr>
@@ -565,69 +538,79 @@ git push origin main
 <th>Verification</th>
 </tr>
 <tr>
-<td>KIND installed</td>
+<td>GitHub repository created</td>
 <td>✅</td>
-<td><code>kind version</code></td>
+<td>Repository visible on GitHub</td>
 </tr>
 <tr>
-<td>KIND cluster created</td>
+<td>Application code pushed</td>
 <td>✅</td>
-<td><code>kind get clusters</code></td>
-</tr>
-<tr>
-<td>Jenkins reconnected to KIND</td>
-<td>✅</td>
-<td><code>docker inspect jenkins | grep kind</code></td>
-</tr>
-<tr>
-<td>kubectl installed in Jenkins</td>
-<td>✅</td>
-<td><code>docker exec jenkins kubectl version</code></td>
-</tr>
-<tr>
-<td>Jenkins can access KIND</td>
-<td>✅</td>
-<td><code>docker exec jenkins kubectl get nodes</code></td>
+<td>Files visible in repository</td>
 </tr>
 <tr>
 <td>K8s manifests created</td>
 <td>✅</td>
-<td>Files exist in <code>k8s/</code></td>
+<td><code>k8s/</code> folder exists</td>
 </tr>
 <tr>
-<td>CD job created</td>
+<td>CI build job created</td>
+<td>✅</td>
+<td>Job <strong>cloudops-ci-build</strong> visible</td>
+</tr>
+<tr>
+<td>CD deploy job created</td>
 <td>✅</td>
 <td>Job <strong>cloudops-prod-deploy</strong> visible</td>
 </tr>
 <tr>
-<td>Manual deployment works</td>
+<td>ngrok running</td>
+<td>✅</td>
+<td>Public URL active</td>
+</tr>
+<tr>
+<td>GitHub webhook configured</td>
+<td>✅</td>
+<td>Webhook shows ✓</td>
+</tr>
+<tr>
+<td>Manual build works</td>
 <td>✅</td>
 <td>Build Now succeeds</td>
 </tr>
 <tr>
-<td>Application accessible</td>
-<td>✅</td>
-<td><code>curl http://localhost:30080</code></td>
-</tr>
-<tr>
 <td>Auto deployment works</td>
 <td>✅</td>
-<td>Git push triggers both jobs</td>
+<td>CD job triggers after CI</td>
+</tr>
+<tr>
+<td>Application accessible</td>
+<td>✅</td>
+<td><code>http://localhost:30080</code> works</td>
+</tr>
+<tr>
+<td>Auto trigger on push works</td>
+<td>✅</td>
+<td>Git push triggers pipeline</td>
 </tr>
 </table>
 
 <hr>
 
-<h2>🎉 13. Phase 4 Complete</h2>
+<h2>🎉 11. Phase-4 Complete</h2>
 
-<p>Congratulations! You now have:</p>
+<p>Congratulations! You now have a complete CI/CD pipeline with:</p>
 <ul>
-<li>✅ Full CI/CD pipeline from code to production</li>
-<li>✅ Automated Docker builds (Phase-3)</li>
-<li>✅ Automated Kubernetes deployments (Phase-4)</li>
-<li>✅ Local Kubernetes cluster with KIND</li>
+<li>✅ Automated Docker image builds on every commit</li>
+<li>✅ Automated Kubernetes deployments</li>
+<li>✅ GitHub webhook integration</li>
+<li>✅ Zero-downtime rolling updates</li>
 <li>✅ Production-ready DevOps workflow</li>
 </ul>
+
+<p><strong>Your complete workflow:</strong></p>
+<pre>
+Code Change → Git Push → GitHub Webhook → Jenkins CI → Docker Hub → Jenkins CD → Kubernetes → Live App
+</pre>
 
 <p><strong>Next Steps:</strong></p>
 <ul>
@@ -635,11 +618,12 @@ git push origin main
 <li>Implement autoscaling</li>
 <li>Add ingress controller</li>
 <li>Set up centralized logging</li>
+<li>Add security scanning</li>
 </ul>
 
 <hr>
 
-<p><strong>— CloudOps Automation Project | Phase 4 Complete</strong></p>
+<p><strong>— CloudOps Automation Project | Complete CI/CD Pipeline Ready 🚀</strong></p>
 
 </body>
 </html>
