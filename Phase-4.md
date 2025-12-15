@@ -87,6 +87,7 @@ cloudops-automation/
 │   ├── service.yaml
 │   └── statefulset-db.yaml
 ├── screenshots/
+│   └── phase4/
 ├── .dockerignore
 ├── app.py
 ├── Dockerfile
@@ -209,6 +210,9 @@ git push -u origin main
 </tr>
 </table>
 
+<p><strong>Jenkins Job Environment Configuration:</strong></p>
+<img src="screenshots/phase4/jenkins-job-environment.png" alt="Jenkins Job Environment">
+
 <h3>4.5 Add Build Step (Execute Shell)</h3>
 <p>Click <strong>Add build step → Execute shell</strong> and paste:</p>
 
@@ -248,6 +252,9 @@ echo "📦 Image: ${FULL_IMAGE}:latest"
 </pre>
 
 <p><strong>Replace <code>devilzz</code> with your Docker Hub username!</strong></p>
+
+<p><strong>Jenkins Execute Shell Configuration:</strong></p>
+<img src="screenshots/phase4/jenkins-execute-shell.png" alt="Jenkins Execute Shell">
 
 <h3>4.6 Save the Job</h3>
 <p>Click <strong>Save</strong>.</p>
@@ -354,6 +361,9 @@ https://abc123.ngrok.io
 
 <p><strong>Keep this terminal window open!</strong></p>
 
+<p><strong>ngrok Public URL:</strong></p>
+<img src="screenshots/phase4/ngrok-success.png" alt="ngrok Success">
+
 <hr>
 
 <h2>🔗 7. Configure GitHub Webhook</h2>
@@ -393,6 +403,9 @@ https://abc123.ngrok.io
 <h3>Step 7.3: Verify Webhook</h3>
 <p>After saving, webhook should show <strong>✓</strong> with a green checkmark.</p>
 
+<p><strong>GitHub Webhook Success:</strong></p>
+<img src="screenshots/phase4/webhooks-success.png" alt="Webhooks Success">
+
 <hr>
 
 <h2>🚀 8. Test CI/CD Pipeline</h2>
@@ -405,6 +418,12 @@ https://abc123.ngrok.io
 <li>Verify build success</li>
 <li><strong>cloudops-prod-deploy</strong> should trigger automatically</li>
 </ol>
+
+<p><strong>Jenkins Console Output:</strong></p>
+<img src="screenshots/phase4/jenkins-console-output.png" alt="Jenkins Console Output">
+
+<p><strong>Jenkins Job Success:</strong></p>
+<img src="screenshots/phase4/jenkins-job-success.png" alt="Jenkins Job Success">
 
 <h3>Test 2: Verify Deployment</h3>
 <pre>
@@ -431,7 +450,12 @@ http://localhost:30080
 
 <p><strong>Expected:</strong> You should see "CloudOps Sample App" with build number!</p>
 
-<h3>Test 4: Automatic Trigger (Git Push)</h3>
+<h3>Test 4: Docker Image Build</h3>
+
+<p><strong>Docker Image Build Success:</strong></p>
+<img src="screenshots/phase4/docker-image-build.png" alt="Docker Image Build">
+
+<h3>Test 5: Automatic Trigger (Git Push)</h3>
 <p>Make a change and push:</p>
 <pre>
 echo "# CI/CD Test" &gt;&gt; README.md
