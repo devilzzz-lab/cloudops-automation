@@ -71,11 +71,15 @@ chmod 700 ~/jenkins_home
 
 <p>Run Jenkins container:</p>
 <pre>
-docker run -d --name jenkins -u 0 \
-  --restart=unless-stopped \
-  -p 8080:8080 -p 50000:50000 \
+docker run -d \
+  --name jenkins \
+  --user root \
+  -p 8080:8080 \
+  -p 50000:50000 \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v ~/jenkins_home:/var/jenkins_home \
+  -v ~/.kube:/var/jenkins_home/.kube \
+  --network kind \
   jenkins/jenkins:lts
 </pre>
 
@@ -146,23 +150,7 @@ cloudops-automation/
 </pre>
 
 <p>Sample <code>app.py</code>:</p>
-<pre>
-from flask import Flask
-import os
 
-app = Flask(__name__)
-
-@app.route('/')
-def hello():
-    return f"&lt;h1&gt;CloudOps Sample App&lt;/h1&gt;&lt;p&gt;Build: {os.getenv('BUILD_NUMBER', 'local')}&lt;/p&gt;"
-
-@app.route('/health')
-def health():
-    return {"status": "healthy"}, 200
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
-</pre>
 
 <p><strong>requirements.txt</strong></p>
 <pre>
@@ -170,15 +158,6 @@ Flask==3.0.0
 </pre>
 
 <p><strong>Dockerfile</strong></p>
-<pre>
-FROM python:3.10-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-EXPOSE 8080
-CMD ["python","app.py"]
-</pre>
 
 <hr>
 
@@ -188,7 +167,7 @@ CMD ["python","app.py"]
 <ol>
   <li>Jenkins Dashboard → New Item</li>
   <li>Select Freestyle Project</li>
-  <li>Name: <strong>cloudops-sample-app-job</strong></li>
+  <li>Name: <strong>cloudops-ci-build</strong></li>
 </ol>
 
 <h3>7.2 Configure Source Code Management</h3>
@@ -218,22 +197,35 @@ CMD ["python","app.py"]
 #!/bin/bash
 set -e
 
-REGISTRY="docker-hub-username"
+REGISTRY="devilzz"
 IMAGE="cloudops-sample-app"
 TAG="build-${BUILD_NUMBER}"
 
-echo "Building Docker image ${REGISTRY}/${IMAGE}:${TAG}"
+FULL_IMAGE="${REGISTRY}/${IMAGE}"
 
-docker build -t ${REGISTRY}/${IMAGE}:${TAG} .
+echo "===================================="
+echo "🔨 CI JOB – Docker Build & Push"
+echo "Image: ${FULL_IMAGE}:${TAG}"
+echo "===================================="
 
+# Docker Login
+echo "🔐 Logging into Docker Hub..."
 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 
-docker push ${REGISTRY}/${IMAGE}:${TAG}
+# Docker Build
+echo "🐳 Building image..."
+docker build -t ${FULL_IMAGE}:${TAG} .
 
-docker tag ${REGISTRY}/${IMAGE}:${TAG} ${REGISTRY}/${IMAGE}:latest || true
-docker push ${REGISTRY}/${IMAGE}:latest || true
+# Tag as latest
+docker tag ${FULL_IMAGE}:${TAG} ${FULL_IMAGE}:latest
 
-echo "DONE: Image pushed to Docker Hub."
+# Push images
+echo "📤 Pushing images..."
+docker push ${FULL_IMAGE}:${TAG}
+docker push ${FULL_IMAGE}:latest
+
+echo "✅ CI Build completed successfully"
+
 </pre>
 
 <p><strong>Execute Shell Screenshot:</strong></p>
