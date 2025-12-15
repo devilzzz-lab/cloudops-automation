@@ -8,28 +8,29 @@
 
   <h1>CloudOps Automation — Project</h1>
 
-  <p><strong>Status:</strong> <em>Phase 4 (Kubernetes Deployment using KIND)</em> <strong>in progress</strong>. Phases 1–3 completed. Remaining Phases 5–6 pending.</p>
+  <p><strong>Status:</strong> <em>Phase 4 (Kubernetes Deployment using KIND)</em> <strong>completed</strong>. Phases 1–4 completed. Remaining Phases 5–6 pending.</p>
 
   <p>
     I have completed CI/CD automation using <strong>Jenkins</strong>, <strong>GitHub</strong>, <strong>Docker</strong>, and <strong>Docker Hub</strong>.
-    Every commit to GitHub now triggers a fully automated build, test, containerization, and image push pipeline.
-    Currently deploying to a <strong>Kubernetes cluster created using KIND (Kubernetes IN Docker)</strong> with Kubernetes orchestration.
+    Every commit to GitHub now triggers a fully automated build, test, containerization, image push, and Kubernetes deployment pipeline.
+    Successfully deployed to a <strong>Kubernetes cluster created using KIND (Kubernetes IN Docker)</strong> with complete orchestration and automated rollout.
   </p>
 
   <hr>
 
   <h2>Highlights</h2>
   <ul>
-    <li>Jenkins running in Docker with required plugins configured</li>
-    <li>GitHub → Jenkins webhook connection established</li>
-    <li>Freestyle jobs for CI and CD automation</li>
-    <li>Automated Docker image build and push to Docker Hub</li>
+    <li>Jenkins running in Docker with Docker CLI and kubectl installed</li>
+    <li>GitHub → Jenkins webhook connection established via ngrok</li>
+    <li>Freestyle jobs for CI (build) and CD (deploy) automation</li>
+    <li>Automated Docker image build and push to Docker Hub with versioned tags</li>
     <li>Images verified successfully in Docker Hub</li>
-    <li>Local container deployment validated</li>
-    <li><strong>NEW:</strong> Kubernetes cluster created using <strong>KIND (Kubernetes IN Docker)</strong> with Kubernetes v1.34</li>
-    <li><strong>NEW:</strong> Jenkins container connected to KIND Docker network for Kubernetes access</li>
+    <li><strong>NEW:</strong> Kubernetes cluster created using <strong>KIND (Kubernetes IN Docker)</strong></li>
+    <li><strong>NEW:</strong> Jenkins container connected to KIND Docker network with full cluster access</li>
     <li><strong>NEW:</strong> Production-grade Kubernetes manifests (Deployment, Service, StatefulSet, DaemonSet, ConfigMap, Secret, PVC)</li>
-    <li><strong>NEW:</strong> Jenkins deploys applications directly to the KIND Kubernetes cluster using kubectl</li>
+    <li><strong>NEW:</strong> Jenkins deploys applications automatically to KIND Kubernetes cluster using kubectl</li>
+    <li><strong>NEW:</strong> Parameterized deployments with specific image tag selection</li>
+    <li><strong>NEW:</strong> Zero-downtime rolling updates with automated rollout verification</li>
   </ul>
 
   <hr>
@@ -57,28 +58,63 @@
   </ul>
   <p><strong>Deliverable:</strong> ✅ Automated event-driven workflow deployed</p>
 
-  <h3>🟦 PHASE 3 – CI/CD Pipeline (Jenkins + GitHub + Docker) Setup </h3>
-  <p><strong>Objective:</strong> Build CI/CD pipeline for automated containerization.</p>
+  <h3>🟦 PHASE 3 – Complete Development Environment Setup</h3>
+  <p><strong>Objective:</strong> Build complete local CI/CD development environment with Docker, Kubernetes, and Jenkins.</p>
   <ul>
-    <li>Setup Jenkins inside Docker container</li>
-    <li>Integrate GitHub with Jenkins using webhooks</li>
-    <li>Automate Docker image build and push to Docker Hub</li>
-    <li>End-to-end CI pipeline triggered on every GitHub commit</li>
+    <li>Install Docker Desktop on macOS</li>
+    <li>Install and configure KIND (Kubernetes IN Docker)</li>
+    <li>Create local Kubernetes cluster using KIND</li>
+    <li>Setup Jenkins container with proper volume mounts and network configuration</li>
+    <li>Install Docker CLI inside Jenkins container for image building</li>
+    <li>Install kubectl inside Jenkins container for Kubernetes management</li>
+    <li>Configure Jenkins access to KIND cluster via internal kubeconfig</li>
+    <li>Connect Jenkins to KIND Docker network for cluster communication</li>
+    <li>Configure GitHub and Docker Hub credentials in Jenkins</li>
+    <li>Install required Jenkins plugins (Git, GitHub, Credentials, Pipeline)</li>
   </ul>
-  <p><strong>Deliverable:</strong> ✅ Fully automated CI pipeline for container build and push</p>
+  <p><strong>Deliverable:</strong> ✅ Fully configured development environment with Docker + KIND + Jenkins integration</p>
 
-  <h3>🟧 PHASE 4 – Kubernetes Deployment using KIND</h3>
-  <p><strong>Objective:</strong> Deploy the Dockerized CloudOps application to a local Kubernetes cluster created using <strong>KIND (Kubernetes IN Docker)</strong>, with automated rollout from Jenkins.</p>
+  <h3>🟧 PHASE 4 – CI/CD Pipeline &amp; Kubernetes Deployment Automation</h3>
+  <p><strong>Objective:</strong> Build end-to-end CI/CD pipeline with automated Docker builds and Kubernetes deployments.</p>
   <ul>
-    <li>Create Kubernetes cluster using KIND</li>
-    <li>Configure Jenkins container with kubectl and Docker CLI</li>
-    <li>Connect Jenkins container to KIND Docker network</li>
-    <li>Generate and use KIND internal kubeconfig for Jenkins access</li>
-    <li>Create Kubernetes manifests inside <code>/k8s</code> directory</li>
-    <li>Automate deployments from Jenkins (CI → CD → Kubernetes)</li>
-    <li>Perform rolling updates and rollout verification using kubectl</li>
+    <li>Create GitHub repository with application code and Kubernetes manifests</li>
+    <li>Create CI build job (<code>cloudops-ci-build</code>) in Jenkins:
+      <ul>
+        <li>Checkout code from GitHub</li>
+        <li>Build Docker image with versioned tags (build-${BUILD_NUMBER})</li>
+        <li>Push images to Docker Hub (versioned + latest)</li>
+        <li>Triggered automatically via GitHub webhook</li>
+      </ul>
+    </li>
+    <li>Create CD deployment job (<code>cloudops-prod-deploy</code>) in Jenkins:
+      <ul>
+        <li>Parameterized build with IMAGE_TAG selection</li>
+        <li>Apply Kubernetes manifests to KIND cluster</li>
+        <li>Update deployment with specific image version</li>
+        <li>Wait for rollout completion with timeout</li>
+        <li>Verify pod status and service endpoints</li>
+        <li>Triggered automatically after successful CI build</li>
+      </ul>
+    </li>
+    <li>Setup ngrok for GitHub webhook access to local Jenkins</li>
+    <li>Configure GitHub webhook for automatic pipeline triggering</li>
+    <li>Implement production-grade Kubernetes manifests:
+      <ul>
+        <li>Namespace isolation</li>
+        <li>Deployment with multiple replicas</li>
+        <li>NodePort Service for external access</li>
+        <li>StatefulSet for database with persistent storage</li>
+        <li>DaemonSet for log collection</li>
+        <li>ConfigMap for configuration management</li>
+        <li>Secret for sensitive data</li>
+        <li>PersistentVolumeClaim for storage</li>
+      </ul>
+    </li>
+    <li>Test complete workflow: Git Push → Webhook → CI Build → CD Deploy → Live App</li>
+    <li>Verify zero-downtime rolling updates</li>
+    <li>Debug and troubleshoot using kubectl commands via Jenkins container</li>
   </ul>
-  <p><strong>Deliverable:</strong> ⏳ Automated deployment of the containerized CloudOps application to KIND Kubernetes via Jenkins CI/CD pipeline.</p>
+  <p><strong>Deliverable:</strong> ✅ Production-ready CI/CD pipeline with automated Kubernetes deployment to KIND cluster</p>
 
   <h3>🟥 PHASE 5 – Monitoring &amp; Observability</h3>
   <p><strong>Objective:</strong> Implement monitoring, metrics, and alerting.</p>
@@ -127,15 +163,15 @@
       </tr>
       <tr>
         <td><strong>Phase 3</strong></td>
-        <td>CI/CD Pipeline</td>
-        <td>Jenkins, GitHub, Docker, Docker Hub</td>
+        <td>Development Environment Setup</td>
+        <td>Docker Desktop, KIND, Jenkins, kubectl</td>
         <td>✅ Complete</td>
       </tr>
       <tr>
         <td><strong>Phase 4</strong></td>
-        <td>Kubernetes Deployment (KIND)</td>
-        <td>KIND, kubectl, Kubernetes manifests</td>
-        <td>⏳ In Progress (80%)</td>
+        <td>CI/CD Pipeline &amp; Kubernetes Deployment</td>
+        <td>Jenkins, GitHub, Docker Hub, Kubernetes, ngrok</td>
+        <td>✅ Complete</td>
       </tr>
       <tr>
         <td><strong>Phase 5</strong></td>
@@ -158,13 +194,39 @@
   <ul>
     <li><strong>Cloud:</strong> AWS (S3, Lambda, DynamoDB, SNS, SQS, CloudWatch, IAM)</li>
     <li><strong>Containerization:</strong> Docker, Docker Hub</li>
-    <li><strong>Orchestration:</strong> Kubernetes 1.34 using KIND</li>
-    <li><strong>CI/CD:</strong> Jenkins (Dockerized), GitHub Webhooks</li>
-    <li><strong>Storage:</strong> PersistentVolumeClaims (PVCs)</li>
-    <li><strong>Networking:</strong> NodePort / Port-forward (local KIND cluster)</li>
+    <li><strong>Orchestration:</strong> Kubernetes (KIND - Kubernetes IN Docker)</li>
+    <li><strong>CI/CD:</strong> Jenkins (Dockerized), GitHub Webhooks, ngrok</li>
+    <li><strong>Storage:</strong> PersistentVolumeClaims (PVCs), StatefulSets</li>
+    <li><strong>Networking:</strong> NodePort Services, Docker Networks</li>
+    <li><strong>Configuration:</strong> ConfigMaps, Secrets</li>
     <li><strong>Monitoring:</strong> Prometheus, Grafana (Planned)</li>
     <li><strong>Languages:</strong> Python, Bash, YAML</li>
+    <li><strong>Tools:</strong> kubectl, Docker CLI, Git</li>
   </ul>
+
+  <hr>
+
+  <h2>CI/CD Pipeline Flow</h2>
+  <pre>
+Developer → Git Push → GitHub
+                        ↓
+                   Webhook (ngrok)
+                        ↓
+                     Jenkins
+                        ↓
+            ┌───────────┴───────────┐
+            ↓                       ↓
+    CI Job (Build)          CD Job (Deploy)
+    - Checkout code         - Apply K8s manifests
+    - Build Docker image    - Update deployment
+    - Tag: build-X          - Rolling update
+    - Push to Docker Hub    - Verify rollout
+            ↓                       ↓
+        Docker Hub          KIND Kubernetes Cluster
+                                    ↓
+                            Running Application
+                            (http://localhost:30080)
+  </pre>
 
   <hr>
 
