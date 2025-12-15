@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
 
@@ -17,23 +17,25 @@
 <h2>📌 1. Overview</h2>
 <p>Phase-3 focuses on building a Continuous Integration (CI) pipeline that automates Docker image builds and pushes to Docker Hub using:</p>
 <ul>
-  <li>Jenkins (CI Orchestrator)</li>
-  <li>GitHub (Source Repository)</li>
-  <li>Docker (Containerization)</li>
-  <li>Docker Hub (Container Registry)</li>
-  <li>Webhooks (Trigger Builds Automatically)</li>
+<li>Jenkins (CI Orchestrator)</li>
+<li>GitHub (Source Repository)</li>
+<li>Docker (Containerization)</li>
+<li>Docker Hub (Container Registry)</li>
+<li>Webhooks (Trigger Builds Automatically)</li>
 </ul>
 
 <p>This pipeline ensures:</p>
 <ul>
-  <li>✔ Every GitHub commit triggers Jenkins automatically</li>
-  <li>✔ Jenkins checks out source code</li>
-  <li>✔ Jenkins builds Docker images with unique tags</li>
-  <li>✔ Jenkins pushes images to Docker Hub</li>
-  <li>✔ Full build → containerize → push sequence (CI only)</li>
+<li>✔ Every GitHub commit triggers Jenkins automatically</li>
+<li>✔ Jenkins checks out source code</li>
+<li>✔ Jenkins builds Docker images with unique tags</li>
+<li>✔ Jenkins pushes images to Docker Hub</li>
+<li>✔ Full build → containerize → push sequence (CI only)</li>
 </ul>
 
-<p><strong>Note:</strong> Deployment to Kubernetes will be covered in Phase-4.</p>
+<p><strong>Important:</strong> Phase-3 focuses strictly on <strong>Continuous Integration (CI)</strong>.
+No Kubernetes cluster (KIND / Minikube / EKS) is installed or used in this phase.
+All Kubernetes setup and deployments are intentionally deferred to <strong>Phase-4</strong>.</p>
 
 <hr>
 
@@ -42,11 +44,11 @@
 <pre>
 Developer (Local Machine)
         |
-        |  git push
+        | git push
         v
   GitHub Repository
         |
-        |  Webhook (push event)
+        | Webhook (push event)
         v
       Jenkins
   ---------------------------------
@@ -56,9 +58,9 @@ Developer (Local Machine)
         v
     Docker Hub
         |
-        | (Ready for Phase-4 Deployment)
+        | (Images stored, ready for Phase-4)
         v
-    Kubernetes (Phase-4)
+   [Deployment in Phase-4]
 </pre>
 
 <hr>
@@ -94,26 +96,30 @@ docker run -d \
 
 <p><strong>What each flag does:</strong></p>
 <table border="1">
-  <tr>
-    <th>Flag</th>
-    <th>Purpose</th>
-  </tr>
-  <tr>
-    <td><code>--user root</code></td>
-    <td>Runs Jenkins as root (required for Docker socket access on macOS)</td>
-  </tr>
-  <tr>
-    <td><code>-p 8080:8080</code></td>
-    <td>Exposes Jenkins web UI</td>
-  </tr>
-  <tr>
-    <td><code>-v /var/run/docker.sock</code></td>
-    <td>Mounts Docker socket for Docker CLI access</td>
-  </tr>
-  <tr>
-    <td><code>-v ~/jenkins_home</code></td>
-    <td>Persists Jenkins data and configuration</td>
-  </tr>
+<tr>
+<th>Flag</th>
+<th>Purpose</th>
+</tr>
+<tr>
+<td><code>--user root</code></td>
+<td>Runs Jenkins as root (required for Docker socket access on macOS)</td>
+</tr>
+<tr>
+<td><code>-p 8080:8080</code></td>
+<td>Exposes Jenkins web UI</td>
+</tr>
+<tr>
+<td><code>-v /var/run/docker.sock</code></td>
+<td>Mounts Docker socket for Docker CLI access</td>
+</tr>
+<tr>
+<td><code>-v ~/jenkins_home</code></td>
+<td>Persists Jenkins data and configuration</td>
+</tr>
+<tr>
+<td><code>--network bridge</code></td>
+<td>Default Docker network (changed to KIND in Phase-4)</td>
+</tr>
 </table>
 
 <h3>3.4 Install Docker CLI Inside Jenkins</h3>
@@ -147,20 +153,17 @@ http://localhost:8080
 
 <p>Enter the password and click <strong>Install Suggested Plugins</strong>.</p>
 
-<p><strong>Jenkins Environment Screenshot:</strong></p>
-<img src="screenshots/jenkins-job-environment.png" alt="Jenkins Job Environment">
-
 <hr>
 
 <h2>🔌 4. Required Plugins</h2>
 <p>After initial setup, verify these plugins are installed (Manage Jenkins → Plugins):</p>
 <ul>
-  <li>Git</li>
-  <li>GitHub Integration</li>
-  <li>GitHub Branch Source</li>
-  <li>Credentials</li>
-  <li>Credentials Binding</li>
-  <li>Pipeline (optional for future)</li>
+<li>Git</li>
+<li>GitHub Integration</li>
+<li>GitHub Branch Source</li>
+<li>Credentials</li>
+<li>Credentials Binding</li>
+<li>Pipeline (optional for future)</li>
 </ul>
 
 <hr>
@@ -171,64 +174,64 @@ http://localhost:8080
 <p>Navigate: <strong>Manage Jenkins → Credentials → System → Global credentials → Add Credentials</strong></p>
 
 <table border="1">
-  <tr>
-    <th>Field</th>
-    <th>Value</th>
-  </tr>
-  <tr>
-    <td>Kind</td>
-    <td>Secret text</td>
-  </tr>
-  <tr>
-    <td>Scope</td>
-    <td>Global</td>
-  </tr>
-  <tr>
-    <td>Secret</td>
-    <td>Your GitHub Personal Access Token</td>
-  </tr>
-  <tr>
-    <td>ID</td>
-    <td><strong>github-token</strong></td>
-  </tr>
-  <tr>
-    <td>Description</td>
-    <td>GitHub Access Token</td>
-  </tr>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Kind</td>
+<td>Secret text</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>Global</td>
+</tr>
+<tr>
+<td>Secret</td>
+<td>Your GitHub Personal Access Token</td>
+</tr>
+<tr>
+<td>ID</td>
+<td><strong>github-token</strong></td>
+</tr>
+<tr>
+<td>Description</td>
+<td>GitHub Access Token</td>
+</tr>
 </table>
 
 <h3>5.2 Docker Hub Credentials</h3>
 <p>Navigate: <strong>Manage Jenkins → Credentials → System → Global credentials → Add Credentials</strong></p>
 
 <table border="1">
-  <tr>
-    <th>Field</th>
-    <th>Value</th>
-  </tr>
-  <tr>
-    <td>Kind</td>
-    <td>Username with password</td>
-  </tr>
-  <tr>
-    <td>Scope</td>
-    <td>Global</td>
-  </tr>
-  <tr>
-    <td>Username</td>
-    <td>Your Docker Hub Username (e.g., devilzz)</td>
-  </tr>
-  <tr>
-    <td>Password</td>
-    <td>Your Docker Hub Password or Access Token</td>
-  </tr>
-  <tr>
-    <td>ID</td>
-    <td><strong>dockerhub-creds</strong></td>
-  </tr>
-  <tr>
-    <td>Description</td>
-    <td>Docker Hub Credentials</td>
-  </tr>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Kind</td>
+<td>Username with password</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>Global</td>
+</tr>
+<tr>
+<td>Username</td>
+<td>Your Docker Hub Username (e.g., devilzz)</td>
+</tr>
+<tr>
+<td>Password</td>
+<td>Your Docker Hub Password or Access Token</td>
+</tr>
+<tr>
+<td>ID</td>
+<td><strong>dockerhub-creds</strong></td>
+</tr>
+<tr>
+<td>Description</td>
+<td>Docker Hub Credentials</td>
+</tr>
 </table>
 
 <hr>
@@ -238,12 +241,12 @@ http://localhost:8080
 <p>Your GitHub repository structure should look like this:</p>
 <pre>
 cloudops-automation/
- ├── app.py
- ├── requirements.txt
- ├── Dockerfile
- ├── README.md
- ├── .dockerignore
- └── k8s/   (for Phase-4)
+├── app.py
+├── requirements.txt
+├── Dockerfile
+├── README.md
+├── .dockerignore
+└── k8s/   (Created in Phase-4, not used in Phase-3)
 </pre>
 
 <p><strong>Sample app.py:</strong></p>
@@ -287,11 +290,11 @@ CMD ["python", "app.py"]
 
 <h3>7.1 Create New Job</h3>
 <ol>
-  <li>Go to Jenkins Dashboard</li>
-  <li>Click <strong>New Item</strong></li>
-  <li>Enter name: <strong>cloudops-ci-build</strong></li>
-  <li>Select <strong>Freestyle project</strong></li>
-  <li>Click <strong>OK</strong></li>
+<li>Go to Jenkins Dashboard</li>
+<li>Click <strong>New Item</strong></li>
+<li>Enter name: <strong>cloudops-ci-build</strong></li>
+<li>Select <strong>Freestyle project</strong></li>
+<li>Click <strong>OK</strong></li>
 </ol>
 
 <h3>7.2 Configure Source Code Management</h3>
@@ -299,58 +302,58 @@ CMD ["python", "app.py"]
 
 <p><strong>Source Code Management → Git:</strong></p>
 <table border="1">
-  <tr>
-    <th>Field</th>
-    <th>Value</th>
-  </tr>
-  <tr>
-    <td>Repository URL</td>
-    <td><code>https://github.com/&lt;your-username&gt;/cloudops-automation.git</code></td>
-  </tr>
-  <tr>
-    <td>Credentials</td>
-    <td>Select <strong>github-token</strong></td>
-  </tr>
-  <tr>
-    <td>Branch Specifier</td>
-    <td><code>*/main</code></td>
-  </tr>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Repository URL</td>
+<td><code>https://github.com/&lt;your-username&gt;/cloudops-automation.git</code></td>
+</tr>
+<tr>
+<td>Credentials</td>
+<td>Select <strong>github-token</strong></td>
+</tr>
+<tr>
+<td>Branch Specifier</td>
+<td><code>*/main</code></td>
+</tr>
 </table>
 
 <h3>7.3 Configure Build Triggers</h3>
 <p>Enable:</p>
 <ul>
-  <li>☑ <strong>GitHub hook trigger for GITScm polling</strong></li>
+<li>☑ <strong>GitHub hook trigger for GITScm polling</strong></li>
 </ul>
 
 <h3>7.4 Configure Build Environment</h3>
 <p>Enable:</p>
 <ul>
-  <li>☑ <strong>Use secret text(s) or file(s)</strong></li>
+<li>☑ <strong>Use secret text(s) or file(s)</strong></li>
 </ul>
 
 <p>Add binding:</p>
 <table border="1">
-  <tr>
-    <th>Field</th>
-    <th>Value</th>
-  </tr>
-  <tr>
-    <td>Binding Type</td>
-    <td>Username and password (separated)</td>
-  </tr>
-  <tr>
-    <td>Username Variable</td>
-    <td><code>DOCKER_USER</code></td>
-  </tr>
-  <tr>
-    <td>Password Variable</td>
-    <td><code>DOCKER_PASS</code></td>
-  </tr>
-  <tr>
-    <td>Credentials</td>
-    <td>Select <strong>dockerhub-creds</strong></td>
-  </tr>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Binding Type</td>
+<td>Username and password (separated)</td>
+</tr>
+<tr>
+<td>Username Variable</td>
+<td><code>DOCKER_USER</code></td>
+</tr>
+<tr>
+<td>Password Variable</td>
+<td><code>DOCKER_PASS</code></td>
+</tr>
+<tr>
+<td>Credentials</td>
+<td>Select <strong>dockerhub-creds</strong></td>
+</tr>
 </table>
 
 <h3>7.5 Add Build Step (Execute Shell)</h3>
@@ -396,9 +399,6 @@ echo "📦 Image: ${FULL_IMAGE}:latest"
 <h3>7.6 Save the Job</h3>
 <p>Click <strong>Save</strong> at the bottom.</p>
 
-<p><strong>Execute Shell Screenshot:</strong></p>
-<img src="screenshots/jenkins-execute-shell.png" alt="Jenkins Execute Shell">
-
 <hr>
 
 <h2>🌐 8. Configure GitHub Webhook (Auto Trigger)</h2>
@@ -415,42 +415,36 @@ ngrok http 8080
 https://abc123.ngrok.io
 </pre>
 
-<p><strong>ngrok Public URL Screenshot:</strong></p>
-<img src="screenshots/ngrok-success.png" alt="ngrok Success">
-
 <h3>8.2 Add Webhook in GitHub</h3>
 <ol>
-  <li>Go to your GitHub repository</li>
-  <li>Click <strong>Settings → Webhooks → Add webhook</strong></li>
+<li>Go to your GitHub repository</li>
+<li>Click <strong>Settings → Webhooks → Add webhook</strong></li>
 </ol>
 
 <table border="1">
-  <tr>
-    <th>Field</th>
-    <th>Value</th>
-  </tr>
-  <tr>
-    <td>Payload URL</td>
-    <td><code>https://abc123.ngrok.io/github-webhook/</code></td>
-  </tr>
-  <tr>
-    <td>Content type</td>
-    <td><code>application/json</code></td>
-  </tr>
-  <tr>
-    <td>Which events?</td>
-    <td>Just the push event</td>
-  </tr>
-  <tr>
-    <td>Active</td>
-    <td>☑ Checked</td>
-  </tr>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+<tr>
+<td>Payload URL</td>
+<td><code>https://abc123.ngrok.io/github-webhook/</code></td>
+</tr>
+<tr>
+<td>Content type</td>
+<td><code>application/json</code></td>
+</tr>
+<tr>
+<td>Which events?</td>
+<td>Just the push event</td>
+</tr>
+<tr>
+<td>Active</td>
+<td>☑ Checked</td>
+</tr>
 </table>
 
 <p>Click <strong>Add webhook</strong>.</p>
-
-<p><strong>Webhooks Success Screenshot:</strong></p>
-<img src="screenshots/webhooks-success.png" alt="Webhooks Success">
 
 <p>After pushing code, webhook should show <strong>✓ 200 OK</strong>.</p>
 
@@ -460,17 +454,11 @@ https://abc123.ngrok.io
 
 <h3>Step 1: Test Manual Build</h3>
 <ol>
-  <li>Go to Jenkins Dashboard</li>
-  <li>Click on <strong>cloudops-ci-build</strong></li>
-  <li>Click <strong>Build Now</strong></li>
-  <li>Check <strong>Console Output</strong> for logs</li>
+<li>Go to Jenkins Dashboard</li>
+<li>Click on <strong>cloudops-ci-build</strong></li>
+<li>Click <strong>Build Now</strong></li>
+<li>Check <strong>Console Output</strong> for logs</li>
 </ol>
-
-<p><strong>Console Output Screenshot:</strong></p>
-<img src="screenshots/jenkins-console-output.png" alt="Jenkins Console Output">
-
-<p><strong>Job Success Screenshot:</strong></p>
-<img src="screenshots/jenkins-job-success.png" alt="Jenkins Job Success">
 
 <h3>Step 2: Test Automatic Build (Git Push)</h3>
 <p>Make a change and push:</p>
@@ -489,8 +477,8 @@ https://hub.docker.com/r/devilzz/cloudops-sample-app/tags
 
 <p>You should see:</p>
 <ul>
-  <li><code>build-1</code>, <code>build-2</code>, etc.</li>
-  <li><code>latest</code> tag</li>
+<li><code>build-1</code>, <code>build-2</code>, etc.</li>
+<li><code>latest</code> tag</li>
 </ul>
 
 <h3>Step 4: Test the Image Locally</h3>
@@ -511,85 +499,101 @@ http://localhost:9090
 <h2>🏁 10. Completion Checklist</h2>
 
 <table border="1">
-  <tr>
-    <th>Step</th>
-    <th>Status</th>
-    <th>Verification</th>
-  </tr>
-  <tr>
-    <td>Jenkins server running</td>
-    <td>✅</td>
-    <td><code>docker ps | grep jenkins</code></td>
-  </tr>
-  <tr>
-    <td>Docker CLI installed in Jenkins</td>
-    <td>✅</td>
-    <td><code>docker exec jenkins docker --version</code></td>
-  </tr>
-  <tr>
-    <td>Jenkins plugins installed</td>
-    <td>✅</td>
-    <td>Manage Jenkins → Plugins</td>
-  </tr>
-  <tr>
-    <td>GitHub credentials configured</td>
-    <td>✅</td>
-    <td>Credentials page shows github-token</td>
-  </tr>
-  <tr>
-    <td>Docker Hub credentials configured</td>
-    <td>✅</td>
-    <td>Credentials page shows dockerhub-creds</td>
-  </tr>
-  <tr>
-    <td>CI build job created</td>
-    <td>✅</td>
-    <td>Job <strong>cloudops-ci-build</strong> visible</td>
-  </tr>
-  <tr>
-    <td>GitHub webhook configured</td>
-    <td>✅</td>
-    <td>Webhook shows ✓ 200</td>
-  </tr>
-  <tr>
-    <td>Manual build successful</td>
-    <td>✅</td>
-    <td>Build #1 shows success</td>
-  </tr>
-  <tr>
-    <td>Automatic build on push works</td>
-    <td>✅</td>
-    <td>Build triggered after git push</td>
-  </tr>
-  <tr>
-    <td>Docker images pushed to Hub</td>
-    <td>✅</td>
-    <td>Tags visible on Docker Hub</td>
-  </tr>
-  <tr>
-    <td>Image runs locally</td>
-    <td>✅</td>
-    <td><code>docker run</code> works</td>
-  </tr>
+<tr>
+<th>Step</th>
+<th>Status</th>
+<th>Verification</th>
+</tr>
+<tr>
+<td>Jenkins server running</td>
+<td>✅</td>
+<td><code>docker ps | grep jenkins</code></td>
+</tr>
+<tr>
+<td>Docker CLI installed in Jenkins</td>
+<td>✅</td>
+<td><code>docker exec jenkins docker --version</code></td>
+</tr>
+<tr>
+<td>Jenkins plugins installed</td>
+<td>✅</td>
+<td>Manage Jenkins → Plugins</td>
+</tr>
+<tr>
+<td>GitHub credentials configured</td>
+<td>✅</td>
+<td>Credentials page shows github-token</td>
+</tr>
+<tr>
+<td>Docker Hub credentials configured</td>
+<td>✅</td>
+<td>Credentials page shows dockerhub-creds</td>
+</tr>
+<tr>
+<td>CI build job created</td>
+<td>✅</td>
+<td>Job <strong>cloudops-ci-build</strong> visible</td>
+</tr>
+<tr>
+<td>GitHub webhook configured</td>
+<td>✅</td>
+<td>Webhook shows ✓ 200</td>
+</tr>
+<tr>
+<td>Manual build successful</td>
+<td>✅</td>
+<td>Build #1 shows success</td>
+</tr>
+<tr>
+<td>Automatic build on push works</td>
+<td>✅</td>
+<td>Build triggered after git push</td>
+</tr>
+<tr>
+<td>Docker images pushed to Hub</td>
+<td>✅</td>
+<td>Tags visible on Docker Hub</td>
+</tr>
+<tr>
+<td>Image runs locally</td>
+<td>✅</td>
+<td><code>docker run</code> works</td>
+</tr>
 </table>
 
 <hr>
 
-<h2>🎯 11. What's Next?</h2>
+<h2>📝 11. Phase-3 Summary</h2>
+
+<p>At the end of Phase-3:</p>
+<ul>
+<li>✅ Jenkins produces Docker images automatically on every commit</li>
+<li>✅ Images are tagged with unique build numbers</li>
+<li>✅ Images are pushed to Docker Hub registry</li>
+<li>❌ No Kubernetes cluster exists at this stage</li>
+<li>❌ No deployment happens yet (Phase-4)</li>
+</ul>
+
+<hr>
+
+<h2>🎯 12. What's Next?</h2>
 
 <p>Phase-3 is complete! You now have a fully automated CI pipeline that:</p>
 <ul>
-  <li>✅ Builds Docker images on every commit</li>
-  <li>✅ Pushes images to Docker Hub with unique tags</li>
-  <li>✅ Works automatically via GitHub webhooks</li>
+<li>✅ Builds Docker images on every commit</li>
+<li>✅ Pushes images to Docker Hub with unique tags</li>
+<li>✅ Works automatically via GitHub webhooks</li>
 </ul>
 
 <p><strong>In Phase-4, you will:</strong></p>
 <ul>
-  <li>Create a Kubernetes cluster using KIND</li>
-  <li>Deploy these Docker images to Kubernetes</li>
-  <li>Create a <strong>cloudops-prod-deploy</strong> Jenkins job</li>
-  <li>Automate deployment using kubectl</li>
+<li>Install KIND (Kubernetes IN Docker)</li>
+<li>Create a local Kubernetes cluster</li>
+<li>Reconfigure Jenkins to connect to KIND</li>
+<li>Install kubectl inside Jenkins</li>
+<li>Create Kubernetes manifests</li>
+<li>Create <strong>cloudops-prod-deploy</strong> Jenkins job</li>
+<li>Automate deployment using kubectl</li>
 </ul>
 
 <hr>
