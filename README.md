@@ -81,14 +81,19 @@
   <p><strong>Deliverable:</strong> ✅ Production-ready CI/CD pipeline with automated Kubernetes deployment to KIND cluster</p>
 
   <h3>🟥 PHASE 5 – Monitoring &amp; Observability</h3>
-  <p><strong>Objective:</strong> Implement monitoring, metrics, and alerting.</p>
-  <ul>
-    <li>Deploy Prometheus inside Kubernetes</li>
-    <li>Configure exporters (Node Exporter, cAdvisor)</li>
-    <li>Setup Grafana dashboards for Kubernetes and application metrics</li>
-    <li>Integrate CloudWatch alarms and SNS alerts (future cloud migration)</li>
-  </ul>
-  <p><strong>Deliverable:</strong> ⏳ Pending</p>
+<p><strong>Objective:</strong> Implement real-time monitoring, metrics, dashboards, and alerting for Kubernetes workloads and applications.</p>
+
+<ul>
+  <li>Deploy Prometheus inside KIND Kubernetes cluster</li>
+  <li>Configure exporters: Node Exporter, cAdvisor, kube-state-metrics</li>
+  <li>Expose application metrics endpoint and scrape via Prometheus</li>
+  <li>Setup Grafana with Prometheus as data source</li>
+  <li>Create dashboards for cluster health, pod metrics, and application performance</li>
+  <li>Configure Prometheus alerts for pod failures and resource saturation</li>
+</ul>
+
+<p><strong>Deliverable:</strong> ✅ End-to-end monitoring and observability stack operational using Prometheus and Grafana</p>
+
 
   <h3>🟪 PHASE 6 – Documentation, Dashboard &amp; Demo</h3>
   <p><strong>Objective:</strong> Finalize documentation and demo materials.</p>
