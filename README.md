@@ -235,6 +235,18 @@ KIND Kubernetes Cluster
 
   <hr>
 
+  <h2>📚 Detailed Phase Documentation</h2>
+  <p>For detailed step-by-step instructions and configurations for each phase, refer to the following documentation files:</p>
+  <ul>
+    <li><a href="Phase-1.md">Phase 1: Project Setup &amp; Cloud Foundation</a></li>
+    <li><a href="Phase-2.md">Phase 2: AWS Lambda Event Automation</a></li>
+    <li><a href="Phase-3.md">Phase 3: Complete Development Environment Setup</a></li>
+    <li><a href="Phase-4.md">Phase 4: CI/CD Pipeline &amp; Kubernetes Deployment Automation</a></li>
+    <li><a href="Phase-5.md">Phase 5: Monitoring &amp; Observability</a></li>
+  </ul>
+
+  <hr>
+
   <p><strong>— CloudOps Automation Project</strong></p>
 
 </body>
