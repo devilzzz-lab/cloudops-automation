@@ -371,7 +371,7 @@ echo "🌐 Service endpoint:"
 kubectl get svc cloudops-service -n cloudops
 
 echo "✅ Deployment completed successfully!"
-echo "📍 Access app at: http://localhost:30080"
+echo "📍 Access app using port-forward (see Phase-4 README section 10)"
 </pre>
 
 <p><strong>Replace <code>devilzz</code> with your Docker Hub username!</strong></p>
@@ -510,20 +510,12 @@ cloudops-app-xxxxxxxxxx-xxxxx   1/1     Running   0          XXs
 cloudops-app-xxxxxxxxxx-xxxxx   1/1     Running   0          XXs
 </pre>
 
-<h3>Test 5: Access Application</h3>
-<p>Open browser:</p>
-<pre>
-http://localhost:30080
-</pre>
-
-<p><strong>Expected:</strong> You should see "CloudOps Sample App" with build number!</p>
-
-<h3>Test 6: Docker Image Build</h3>
+<h3>Test 5: Docker Image Build</h3>
 
 <p><strong>Docker Image Build Success:</strong></p>
 <img src="screenshots/phase4/docker-image-build.png" alt="Docker Image Build">
 
-<h3>Test 7: Automatic Trigger (Git Push)</h3>
+<h3>Test 6: Automatic Trigger (Git Push)</h3>
 <p>Make a change and push:</p>
 <pre>
 echo "# CI/CD Test" &gt;&gt; README.md
@@ -542,7 +534,7 @@ git push origin main
 <li>Application updated automatically!</li>
 </ol>
 
-<h3>Test 8: Verify Rollout Status</h3>
+<h3>Test 7: Verify Rollout Status</h3>
 <pre>
 docker exec -it jenkins kubectl rollout status deployment/cloudops-app -n cloudops
 </pre>
@@ -552,7 +544,7 @@ docker exec -it jenkins kubectl rollout status deployment/cloudops-app -n cloudo
 deployment "cloudops-app" successfully rolled out
 </pre>
 
-<h3>Test 9: Check Service Endpoint</h3>
+<h3>Test 8: Check Service Endpoint</h3>
 <pre>
 docker exec -it jenkins kubectl get svc cloudops-service -n cloudops
 </pre>
@@ -629,9 +621,9 @@ cloudops-service   NodePort   10.XX.XXX.XXX   &lt;none&gt;        80:30080/TCP  
 <td>CD job triggers after CI</td>
 </tr>
 <tr>
-<td>Application accessible</td>
+<td>Application accessible via port-forward</td>
 <td>✅</td>
-<td><code>http://localhost:30080</code> works</td>
+<td>See Section 10 below</td>
 </tr>
 <tr>
 <td>Auto trigger on push works</td>
@@ -642,7 +634,125 @@ cloudops-service   NodePort   10.XX.XXX.XXX   &lt;none&gt;        80:30080/TCP  
 
 <hr>
 
-<h2>🎉 10. Phase-4 Complete</h2>
+<h2>🔧 10. Accessing Application on macOS with KIND</h2>
+
+<h3>⚠️ Important: NodePort Limitation on macOS</h3>
+
+<p><strong>Why <code>localhost:30080</code> does NOT work on macOS:</strong></p>
+
+<p>NodePort <strong>does not work</strong> on macOS with KIND by default. This is expected behavior, not a bug.</p>
+
+<h3>🧩 Understanding KIND Architecture on macOS</h3>
+
+<pre>
+macOS (Host)
+ └── Docker Desktop (Linux VM)
+     └── kind-control-plane (container)
+         └── kube-proxy + iptables
+             └── NodePort :30080
+</pre>
+
+<p><strong>Why it fails:</strong></p>
+<ul>
+<li>NodePort opens the port <strong>inside</strong> the KIND node container</li>
+<li>macOS cannot directly reach container ports</li>
+<li>Docker Desktop does NOT forward NodePort traffic to the host automatically</li>
+<li>iptables port forwarding hacks only work on Linux, not macOS</li>
+</ul>
+
+<p><strong>Result:</strong></p>
+<pre>
+macOS ❌ → localhost:30080 ❌ → kind-control-plane
+</pre>
+
+<h3>🧪 Proof that NodePort IS Working (Inside KIND)</h3>
+
+<p>Run this command to verify NodePort works inside the cluster:</p>
+<pre>
+docker exec -it cloudops-control-plane curl http://localhost:30080
+</pre>
+
+<p><strong>✅ You will get a response!</strong></p>
+
+<p>This proves:</p>
+<ul>
+<li>✅ NodePort is working correctly inside KIND</li>
+<li>❌ macOS just cannot access it directly</li>
+</ul>
+
+<h3>✅ Solution: Use Port-Forward (Best Practice)</h3>
+
+<p><strong>OPTION 1: Port-Forward to Service (Recommended)</strong></p>
+
+<p>This is what most DevOps engineers do on macOS:</p>
+<pre>
+kubectl port-forward -n cloudops svc/cloudops-service 9090:80
+</pre>
+
+<p>Then access your application at:</p>
+<pre>
+http://localhost:9090
+</pre>
+
+<p><strong>Why this works:</strong></p>
+<ul>
+<li>kubectl creates a direct tunnel from macOS → Kubernetes API → Pod</li>
+<li>Bypasses Docker networking limitations</li>
+<li>Works on all platforms (macOS, Linux, Windows)</li>
+<li>Standard practice for local Kubernetes development</li>
+</ul>
+
+<p><strong>OPTION 2: Port-Forward to Specific Pod</strong></p>
+
+<pre>
+kubectl port-forward -n cloudops pod/&lt;pod-name&gt; 9090:80
+</pre>
+
+<p><strong>OPTION 3: Port-Forward via Jenkins Container</strong></p>
+
+<pre>
+docker exec -it jenkins kubectl port-forward -n cloudops svc/cloudops-service 9090:80
+</pre>
+
+<h3>🔑 Key Takeaways</h3>
+
+<table border="1">
+<tr>
+<th>Access Method</th>
+<th>Works on macOS?</th>
+<th>Use Case</th>
+</tr>
+<tr>
+<td>NodePort (<code>localhost:30080</code>)</td>
+<td>❌ No</td>
+<td>Linux only, production cloud environments</td>
+</tr>
+<tr>
+<td>Port-Forward (<code>localhost:9090</code>)</td>
+<td>✅ Yes</td>
+<td>Local development on macOS/Windows</td>
+</tr>
+<tr>
+<td>LoadBalancer</td>
+<td>❌ No (requires cloud provider)</td>
+<td>Production cloud environments</td>
+</tr>
+<tr>
+<td>Ingress</td>
+<td>⚠️ Complex setup required</td>
+<td>Production-like local setup</td>
+</tr>
+</table>
+
+<h3>📝 Interview Answer</h3>
+
+<p><strong>Q: Why doesn't NodePort work on macOS with KIND?</strong></p>
+
+<p><strong>A:</strong> "NodePort works inside the KIND cluster, but macOS cannot access it because KIND runs in a Docker container inside Docker Desktop's Linux VM. The NodePort is bound to the container's network namespace, not the host. On macOS, we use <code>kubectl port-forward</code> instead, which creates a direct tunnel through the Kubernetes API. In production cloud environments, NodePort works directly because the cluster nodes have routable IPs."</p>
+
+<hr>
+
+<h2>🎉 11. Phase-4 Complete</h2>
 
 <p>Congratulations! You now have a complete CI/CD pipeline with:</p>
 <ul>
@@ -652,11 +762,12 @@ cloudops-service   NodePort   10.XX.XXX.XXX   &lt;none&gt;        80:30080/TCP  
 <li>✅ GitHub webhook integration</li>
 <li>✅ Zero-downtime rolling updates</li>
 <li>✅ Production-ready DevOps workflow</li>
+<li>✅ Understanding of Kubernetes networking on macOS</li>
 </ul>
 
 <p><strong>Your complete workflow:</strong></p>
 <pre>
-Code Change → Git Push → GitHub Webhook → Jenkins CI → Docker Hub → Jenkins CD → Kubernetes → Live App
+Code Change → Git Push → GitHub Webhook → Jenkins CI → Docker Hub → Jenkins CD → Kubernetes → Live App (via port-forward)
 </pre>
 
 <p><strong>Next Steps:</strong></p>
