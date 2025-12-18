@@ -630,70 +630,15 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 
 <hr>
 
-<h3>🟥 STEP 15 – Configure Prometheus Alert Rules</h3>
+<h3>🟥 STEP 15 – Configure Prometheus Alert Rules &amp; Grafana Persistence</h3>
 
 <h4>🎯 Objective</h4>
-<p>Create Prometheus alert rules to automatically detect pod failures, high CPU usage, high memory usage, and container restarts.</p>
-
-<h4>🧠 Architecture Reminder</h4>
-
-<pre>
-Prometheus
-   ├── Scrapes metrics
-   ├── Evaluates alert rules  ← (Step 15)
-   └── Sends alerts to Alertmanager (Step 16)
-</pre>
-
-<p><strong>Note:</strong> Step 15 = rules only, no notifications yet.</p>
+<p>Create Prometheus alert rules to automatically detect pod failures, high CPU usage, high memory usage, and container restarts. Also configure Grafana persistent storage to prevent data loss.</p>
 
 <h4>15.1: Create Alert Rules ConfigMap</h4>
 
 <p>📄 File: <code>monitoring/prometheus/alert-rules-configmap.yaml</code></p>
-
-<pre>
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: alert-rules
-  namespace: monitoring
-data:
-  alert-rules.yaml: |
-    groups:
-    - name: kubernetes-alerts
-      rules:
-      - alert: PodDown
-        expr: kube_pod_status_phase{phase="Running"} == 0
-        for: 1m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Pod down"
-          description: "A pod is not running for more than 1 minute."
-
-      - alert: HighCPUUsage
-        expr: rate(container_cpu_usage_seconds_total[2m]) &gt; 0.8
-        for: 2m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High CPU usage"
-
-      - alert: HighMemoryUsage
-        expr: container_memory_usage_bytes &gt; 500000000
-        for: 2m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High Memory usage"
-
-      - alert: ContainerRestarting
-        expr: increase(kube_pod_container_status_restarts_total[5m]) &gt; 0
-        for: 1m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Container restarting"
-</pre>
+<p><strong>Note:</strong> Alert rules ConfigMap already configured in repository.</p>
 
 <p><strong>Apply:</strong></p>
 <pre>
@@ -702,18 +647,9 @@ kubectl apply -f monitoring/prometheus/alert-rules-configmap.yaml
 
 <h4>15.2: Update Prometheus Deployment</h4>
 
-<p>
-Use your existing file: <code>monitoring/prometheus/prometheus-deployment.yaml</code>
-</p>
+<p>📄 File: <code>monitoring/prometheus/prometheus-deployment.yaml</code></p>
+<p><strong>Note:</strong> Deployment already configured with alert rules mount. Just apply and restart.</p>
 
-<p><strong>Ensure it includes:</strong></p>
-<ul>
-  <li>✅ <code>serviceAccountName: prometheus</code></li>
-  <li>✅ Mount for <code>prometheus-config</code> ConfigMap</li>
-  <li>✅ Mount for <code>alert-rules</code> ConfigMap</li>
-</ul>
-
-<p><strong>Apply:</strong></p>
 <pre>
 kubectl apply -f monitoring/prometheus/prometheus-deployment.yaml
 kubectl rollout restart deployment prometheus -n monitoring
@@ -741,13 +677,6 @@ kubectl port-forward -n monitoring svc/prometheus 9090:9090
 
 <p>Open browser: <code>http://localhost:9090</code></p>
 
-<p><strong>Navigate to: Status → Configuration</strong></p>
-<p>Verify <code>rule_files</code> section shows:</p>
-<pre>
-rule_files:
-  - /etc/prometheus/alert-rules.yaml
-</pre>
-
 <p><strong>Navigate to: Alerts tab</strong></p>
 
 <p><strong>Expected alerts:</strong></p>
@@ -762,9 +691,9 @@ rule_files:
 
 <hr>
 
-<h3>🔧 GRAFANA PERSISTENT STORAGE FIX</h3>
+<h3>🔧 GRAFANA PERSISTENT STORAGE CONFIGURATION</h3>
 
-<h4>🔴 Issue: Grafana Keeps Asking for Password</h4>
+<h4>🔴 Issue: Grafana Data Loss on Restart</h4>
 
 <p><strong>Problem:</strong></p>
 <ul>
@@ -775,32 +704,14 @@ rule_files:
 
 <h4>🔥 ROOT CAUSE</h4>
 
-<p>Grafana has <strong>NO persistent storage</strong>:</p>
-<ul>
-  <li>Grafana stores users, passwords, dashboards in <code>/var/lib/grafana</code></li>
-  <li>No Persistent Volume (PVC) is attached</li>
-  <li>When pod restarts → ALL DATA IS LOST</li>
-</ul>
+<p>Grafana without persistent storage loses all data (users, passwords, dashboards) when pod restarts.</p>
 
-<p><strong>✅ This is 100% NORMAL without persistence.</strong></p>
+<p><strong>✅ This is expected behavior without PersistentVolumeClaim.</strong></p>
 
 <h4>15.5: Create Grafana PVC</h4>
 
 <p>📄 File: <code>monitoring/grafana/grafana-pvc.yaml</code></p>
-
-<pre>
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: grafana-pvc
-  namespace: monitoring
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-</pre>
+<p><strong>Note:</strong> PVC configuration already present in repository.</p>
 
 <p><strong>Apply:</strong></p>
 <pre>
@@ -810,43 +721,7 @@ kubectl apply -f monitoring/grafana/grafana-pvc.yaml
 <h4>15.6: Update Grafana Deployment</h4>
 
 <p>📄 File: <code>monitoring/grafana/grafana-deployment.yaml</code></p>
-
-<pre>
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: grafana
-  namespace: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: grafana
-  template:
-    metadata:
-      labels:
-        app: grafana
-    spec:
-      containers:
-        - name: grafana
-          image: grafana/grafana:latest
-          ports:
-            - containerPort: 3000
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
-          volumeMounts:
-            - name: grafana-storage
-              mountPath: /var/lib/grafana
-      volumes:
-        - name: grafana-storage
-          persistentVolumeClaim:
-            claimName: grafana-pvc
-</pre>
+<p><strong>Note:</strong> Deployment already configured with PVC mount. Just apply and restart.</p>
 
 <p><strong>Apply:</strong></p>
 <pre>
@@ -873,34 +748,6 @@ kubectl rollout restart deployment grafana -n monitoring
   <li>✅ Dashboards are still there</li>
   <li>✅ Datasources preserved</li>
 </ul>
-
-<hr>
-
-<h2>🧠 Interview-Ready Answers</h2>
-
-<h3>Prometheus Alert Rules</h3>
-
-<p>
-<strong>Q:</strong> <em>How do you configure alerting in Prometheus?</em>
-</p>
-
-<p>
-<strong>A:</strong> "I define Prometheus alert rules in a ConfigMap, mount them into the Prometheus container, and configure <code>rule_files</code> in <code>prometheus.yml</code>. Alerts are then routed via Alertmanager for notifications."
-</p>
-
-<h3>Grafana Persistence</h3>
-
-<p>
-<strong>Q:</strong> <em>Why does Grafana lose data on pod restart?</em>
-</p>
-
-<p>
-<strong>A:</strong> "Initially Grafana had no persistent volume, so dashboards and credentials were lost on pod restarts. I fixed it by attaching a PVC to <code>/var/lib/grafana</code>."
-</p>
-
-<p>
-🔥 <strong>These are senior-level DevOps answers.</strong>
-</p>
 
 <hr>
 
