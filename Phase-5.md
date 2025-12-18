@@ -192,10 +192,10 @@ monitoring        Active   XXs
 
 <hr>
 
-<h3>🟥 STEP 2 – Deploy Prometheus in Kubernetes</h3>
+<h3>🟥 STEP 2 – Deploy Prometheus with RBAC</h3>
 
 <h4>🎯 Objective</h4>
-<p>Deploy Prometheus server inside the monitoring namespace to collect Kubernetes, node, and container metrics.</p>
+<p>Deploy Prometheus server with proper RBAC permissions to enable Kubernetes service discovery for metrics collection.</p>
 
 <p><strong>2.1: Create directory structure</strong></p>
 <pre>
@@ -203,21 +203,31 @@ mkdir -p monitoring/prometheus
 cd monitoring/prometheus
 </pre>
 
-<p><strong>2.2: Create Prometheus ConfigMap</strong></p>
+<p><strong>2.2: Create Prometheus RBAC</strong></p>
+<p>📄 File: <code>monitoring/prometheus/prometheus-rbac.yaml</code></p>
+<p>This file contains ServiceAccount, ClusterRole, and ClusterRoleBinding for Prometheus.</p>
+
+<p><strong>2.3: Apply Prometheus RBAC</strong></p>
+<pre>
+kubectl apply -f monitoring/prometheus/prometheus-rbac.yaml
+</pre>
+
+<p><strong>2.4: Create Prometheus ConfigMap</strong></p>
 <p>📄 File: <code>monitoring/prometheus/prometheus-config.yaml</code></p>
 
-<p><strong>2.3: Create Prometheus Deployment</strong></p>
+<p><strong>2.5: Create Prometheus Deployment</strong></p>
 <p>📄 File: <code>monitoring/prometheus/prometheus-deployment.yaml</code></p>
+<p><strong>Note:</strong> Ensure <code>serviceAccountName: prometheus</code> is added under <code>spec.template.spec</code></p>
 
-<p><strong>2.4: Create Prometheus Service</strong></p>
+<p><strong>2.6: Create Prometheus Service</strong></p>
 <p>📄 File: <code>monitoring/prometheus/prometheus-service.yaml</code></p>
 
-<p><strong>2.5: Apply Prometheus manifests</strong></p>
+<p><strong>2.7: Apply Prometheus manifests</strong></p>
 <pre>
 kubectl apply -f monitoring/prometheus/
 </pre>
 
-<p><strong>2.6: Verify Prometheus Deployment</strong></p>
+<p><strong>2.8: Verify Prometheus Deployment</strong></p>
 <pre>
 kubectl get pods -n monitoring
 kubectl get svc -n monitoring
@@ -322,54 +332,26 @@ prometheus-xxxxx           1/1   Running
 
 <hr>
 
-<h3>🟥 STEP 7 – Configure Prometheus to Scrape All Exporters</h3>
+<h3>🟥 STEP 7 – Update Prometheus Configuration for All Exporters</h3>
 
 <h4>🎯 Objective</h4>
-<p>Update Prometheus scrape configuration to collect metrics from Node Exporter, cAdvisor, kube-state-metrics, and Prometheus itself.</p>
+<p>Update Prometheus scrape configuration to collect metrics from all exporters deployed in previous steps.</p>
 
 <p><strong>7.1: Update Prometheus ConfigMap</strong></p>
 <p>📄 File: <code>monitoring/prometheus/prometheus-config.yaml</code></p>
-<p>Update the file to include scrape configs for all exporters using Kubernetes service discovery.</p>
+<p>Update the file to include scrape configs for Node Exporter, cAdvisor, and kube-state-metrics using Kubernetes service discovery.</p>
 
-<p><strong>7.2: Create Prometheus RBAC</strong></p>
-<p>📄 File: <code>monitoring/prometheus/prometheus-rbac.yaml</code></p>
-<p>Create ServiceAccount, ClusterRole, and ClusterRoleBinding to allow Prometheus to discover pods via Kubernetes API.</p>
-
-<p><strong>Contents:</strong></p>
-<ul>
-<li>ServiceAccount: <code>prometheus</code></li>
-<li>ClusterRole with permissions to list/watch pods, services, endpoints</li>
-<li>ClusterRoleBinding to bind the role to the ServiceAccount</li>
-</ul>
-
-<p><strong>7.3: Update Prometheus Deployment</strong></p>
-<p>📄 File: <code>monitoring/prometheus/prometheus-deployment.yaml</code></p>
-<p>Add <code>serviceAccountName: prometheus</code> under <code>spec.template.spec</code> to attach RBAC permissions.</p>
-
-<p><strong>Key addition:</strong></p>
-<pre>
-spec:
-  template:
-    spec:
-      serviceAccountName: prometheus
-      containers:
-        - name: prometheus
-          ...
-</pre>
-
-<p><strong>7.4: Apply Updated Configuration</strong></p>
+<p><strong>7.2: Apply Updated ConfigMap</strong></p>
 <pre>
 kubectl apply -f monitoring/prometheus/prometheus-config.yaml
-kubectl apply -f monitoring/prometheus/prometheus-rbac.yaml
-kubectl apply -f monitoring/prometheus/prometheus-deployment.yaml
 </pre>
 
-<p><strong>7.5: Restart Prometheus</strong></p>
+<p><strong>7.3: Restart Prometheus</strong></p>
 <pre>
 kubectl rollout restart deployment prometheus -n monitoring
 </pre>
 
-<p><strong>7.6: Verify Prometheus Targets</strong></p>
+<p><strong>7.4: Verify Prometheus Targets</strong></p>
 <p>Port-forward Prometheus service:</p>
 <pre>
 kubectl port-forward -n monitoring svc/prometheus 9090:9090
@@ -386,7 +368,7 @@ kubectl port-forward -n monitoring svc/prometheus 9090:9090
 <li>kube-state-metrics → <strong>UP</strong> (green)</li>
 </ul>
 
-<p><strong>7.7: Quick PromQL Tests (Optional)</strong></p>
+<p><strong>7.5: Quick PromQL Tests (Optional)</strong></p>
 <p>In Prometheus UI → Graph, test these queries:</p>
 <pre>
 up
