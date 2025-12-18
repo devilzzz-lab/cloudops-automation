@@ -163,7 +163,343 @@ as a future enhancement when migrating from KIND to EKS.
 
 <hr>
 
-<h2>✅ 7. Deliverable</h2>
+<h2>🛠 7. Step-by-Step Implementation</h2>
+
+<h3>🟥 STEP 1 – Create Monitoring Namespace</h3>
+
+<h4>🎯 Objective</h4>
+<p>Create a dedicated Kubernetes namespace for all monitoring components (Prometheus, Grafana, Alertmanager, exporters).</p>
+
+<h4>Why This Step</h4>
+<ul>
+<li>Logical separation from application workloads</li>
+<li>Cleaner RBAC &amp; resource management</li>
+<li>Matches real production cluster architecture</li>
+<li>Easier cleanup / migration to EKS later</li>
+</ul>
+
+<h4>Commands</h4>
+
+<p><strong>1.1: Create monitoring namespace</strong></p>
+<pre>
+kubectl create namespace monitoring
+</pre>
+
+<p><strong>1.2: Verify namespace creation</strong></p>
+<pre>
+kubectl get namespaces
+</pre>
+
+<p><strong>Expected output:</strong></p>
+<pre>
+NAME              STATUS   AGE
+default           Active   XXd
+kube-system       Active   XXd
+monitoring        Active   XXs
+</pre>
+
+<hr>
+
+<h3>🟥 STEP 2 – Deploy Prometheus in Kubernetes</h3>
+
+<h4>🎯 Objective</h4>
+<p>Deploy Prometheus server inside the monitoring namespace to collect Kubernetes, node, and container metrics.</p>
+
+<p><strong>2.1: Create directory structure</strong></p>
+<pre>
+mkdir -p monitoring/prometheus
+cd monitoring/prometheus
+</pre>
+
+<p><strong>2.2: Create Prometheus ConfigMap</strong></p>
+<p>File: <code>prometheus-config.yaml</code></p>
+<pre>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+</pre>
+
+<p><strong>2.3: Create Prometheus Deployment</strong></p>
+<p>File: <code>prometheus-deployment.yaml</code></p>
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:latest
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/prometheus
+      volumes:
+        - name: config-volume
+          configMap:
+            name: prometheus-config
+</pre>
+
+<p><strong>2.4: Create Prometheus Service</strong></p>
+<p>File: <code>prometheus-service.yaml</code></p>
+<pre>
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  type: ClusterIP
+  selector:
+    app: prometheus
+  ports:
+    - port: 9090
+      targetPort: 9090
+</pre>
+
+<p><strong>2.5: Apply Prometheus manifests</strong></p>
+<pre>
+kubectl apply -f monitoring/prometheus/
+</pre>
+
+<p><strong>2.6: Verify Prometheus Deployment</strong></p>
+<pre>
+kubectl get pods -n monitoring
+kubectl get svc -n monitoring
+</pre>
+
+<hr>
+
+<h3>🟥 STEP 3 – Verify Prometheus Service &amp; UI</h3>
+
+<h4>🎯 Objective</h4>
+<p>Confirm that Prometheus service is reachable, UI loads correctly, and Prometheus is scraping itself successfully.</p>
+
+<p><strong>3.1: Port-forward Prometheus service</strong></p>
+<pre>
+kubectl port-forward -n monitoring svc/prometheus 9090:9090
+</pre>
+
+<p><strong>3.2: Access Prometheus UI</strong></p>
+<p>Open browser: <code>http://localhost:9090</code></p>
+
+<p><strong>3.3: Verify Prometheus Targets</strong></p>
+<p>In Prometheus UI: Click <strong>Status → Targets</strong></p>
+<p>Expected: Target <code>localhost:9090</code> shows Status: <strong>UP</strong> (green)</p>
+
+<p><strong>3.4: Quick Metrics Test</strong></p>
+<p>In Prometheus UI → Graph, run query: <code>up</code></p>
+<p>Expected result: Value = 1 for Prometheus target</p>
+
+<hr>
+
+<h3>🟥 STEP 4 – Deploy Node Exporter</h3>
+
+<h4>🎯 Objective</h4>
+<p>Deploy Node Exporter to collect node-level metrics: CPU, memory, disk, and network I/O.</p>
+
+<p><strong>4.1: Create Node Exporter manifest</strong></p>
+<p>File: <code>monitoring/node-exporter.yaml</code></p>
+<pre>
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+        - name: node-exporter
+          image: prom/node-exporter:latest
+          ports:
+            - containerPort: 9100
+              hostPort: 9100
+              name: metrics
+          args:
+            - '--path.rootfs=/host'
+          volumeMounts:
+            - name: root
+              mountPath: /host
+              readOnly: true
+      volumes:
+        - name: root
+          hostPath:
+            path: /
+</pre>
+
+<p><strong>4.2: Apply Node Exporter</strong></p>
+<pre>
+kubectl apply -f monitoring/node-exporter.yaml
+</pre>
+
+<p><strong>4.3: Verify Node Exporter Pods</strong></p>
+<pre>
+kubectl get pods -n monitoring
+</pre>
+
+<hr>
+
+<h3>🟥 STEP 5 – Deploy cAdvisor</h3>
+
+<h4>🎯 Objective</h4>
+<p>Deploy cAdvisor to collect container-level metrics: container CPU, memory usage, and resource limits per pod.</p>
+
+<p><strong>5.1: Create cAdvisor manifest</strong></p>
+<p>File: <code>monitoring/cadvisor.yaml</code></p>
+<pre>
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cadvisor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: cadvisor
+  template:
+    metadata:
+      labels:
+        app: cadvisor
+    spec:
+      hostNetwork: true
+      containers:
+        - name: cadvisor
+          image: gcr.io/cadvisor/cadvisor:latest
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+              name: http
+          volumeMounts:
+            - name: rootfs
+              mountPath: /rootfs
+              readOnly: true
+            - name: var-run
+              mountPath: /var/run
+              readOnly: true
+            - name: sys
+              mountPath: /sys
+              readOnly: true
+            - name: docker
+              mountPath: /var/lib/docker
+              readOnly: true
+      volumes:
+        - name: rootfs
+          hostPath:
+            path: /
+        - name: var-run
+          hostPath:
+            path: /var/run
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: docker
+          hostPath:
+            path: /var/lib/docker
+</pre>
+
+<p><strong>5.2: Apply cAdvisor</strong></p>
+<pre>
+kubectl apply -f monitoring/cadvisor.yaml
+</pre>
+
+<p><strong>5.3: Verify cAdvisor Pods</strong></p>
+<pre>
+kubectl get pods -n monitoring
+</pre>
+
+<p><strong>5.4: (Optional) Verify cAdvisor UI</strong></p>
+<pre>
+kubectl port-forward -n monitoring pod/cadvisor-xxxxx 18080:8080
+</pre>
+<p>Open browser: <code>http://localhost:18080</code></p>
+
+<hr>
+
+<h3>🟥 STEP 6 – Deploy kube-state-metrics</h3>
+
+<h4>🎯 Objective</h4>
+<p>Deploy kube-state-metrics to collect Kubernetes object-level metrics: pod status, deployment health, replica counts, and restart counts.</p>
+
+<p><strong>6.1: Create kube-state-metrics manifest</strong></p>
+<p>File: <code>monitoring/kube-state-metrics.yaml</code></p>
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-state-metrics
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-state-metrics
+  template:
+    metadata:
+      labels:
+        app: kube-state-metrics
+    spec:
+      containers:
+        - name: kube-state-metrics
+          image: k8s.gcr.io/kube-state-metrics/kube-state-metrics:v2.9.2
+          ports:
+            - containerPort: 8080
+              name: http-metrics
+</pre>
+
+<p><strong>6.2: Apply kube-state-metrics</strong></p>
+<pre>
+kubectl apply -f monitoring/kube-state-metrics.yaml
+</pre>
+
+<p><strong>6.3: Verify kube-state-metrics Pod</strong></p>
+<pre>
+kubectl get pods -n monitoring
+</pre>
+
+<p><strong>Expected output:</strong></p>
+<pre>
+kube-state-metrics-xxxxx   1/1   Running
+cadvisor-xxxxx             1/1   Running
+node-exporter-xxxxx        1/1   Running
+prometheus-xxxxx           1/1   Running
+</pre>
+
+<hr>
+
+<h2>✅ 8. Deliverable</h2>
 
 <p>
 <strong>Deliverable:</strong><br>
@@ -171,9 +507,18 @@ as a future enhancement when migrating from KIND to EKS.
 Prometheus and Grafana in a KIND Kubernetes environment
 </p>
 
+<p>Successfully deployed components:</p>
+<ul>
+<li>✅ Monitoring namespace</li>
+<li>✅ Prometheus server</li>
+<li>✅ Node Exporter (node-level metrics)</li>
+<li>✅ cAdvisor (container-level metrics)</li>
+<li>✅ kube-state-metrics (Kubernetes object metrics)</li>
+</ul>
+
 <hr>
 
-<h2>🏁 8. Phase-5 Status</h2>
+<h2>🏁 9. Phase-5 Status</h2>
 
 <p>
 🟥 <strong>Phase-5 Completed</strong><br>
@@ -183,6 +528,10 @@ Monitoring &amp; Observability successfully implemented and validated.
 <p>
 <strong>Next:</strong> Proceed to <strong>Phase-6 – Documentation, Dashboards &amp; Demo</strong>
 </p>
+
+<hr>
+
+<p><strong>— CloudOps Automation Project | Phase 5: Monitoring &amp; Observability</strong></p>
 
 </body>
 </html>
