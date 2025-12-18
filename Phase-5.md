@@ -165,7 +165,7 @@ as a future enhancement when migrating from KIND to EKS.
 
 <h2>🛠 7. Step-by-Step Implementation</h2>
 
-<h3>🟥 STEP 1 – Create Monitoring Namespace</h3>
+<h3>🟥 STEP 1 – Create monitoring namespace</h3>
 
 <h4>🎯 Objective</h4>
 <p>Create a dedicated Kubernetes namespace for all monitoring components (Prometheus, Grafana, Alertmanager, exporters).</p>
@@ -192,7 +192,7 @@ monitoring        Active   XXs
 
 <hr>
 
-<h3>🟥 STEP 2 – Deploy Prometheus with RBAC</h3>
+<h3>🟥 STEP 2 – Deploy Prometheus manifests</h3>
 
 <h4>🎯 Objective</h4>
 <p>Deploy Prometheus server with proper RBAC permissions to enable Kubernetes service discovery for metrics collection.</p>
@@ -235,7 +235,7 @@ kubectl get svc -n monitoring
 
 <hr>
 
-<h3>🟥 STEP 3 – Verify Prometheus Service &amp; UI</h3>
+<h3>🟥 STEP 3 – Verify Prometheus service</h3>
 
 <h4>🎯 Objective</h4>
 <p>Confirm that Prometheus service is reachable, UI loads correctly, and Prometheus is scraping itself successfully.</p>
@@ -332,7 +332,7 @@ prometheus-xxxxx           1/1   Running
 
 <hr>
 
-<h3>🟥 STEP 7 – Verify Prometheus Targets</h3>
+<h3>🟥 STEP 7 – Verify Prometheus targets</h3>
 
 <h4>🎯 Objective</h4>
 <p>Update Prometheus scrape configuration to collect metrics from all exporters deployed in previous steps.</p>
@@ -427,7 +427,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 
 <hr>
 
-<h3>🟥 STEP 9 – Expose Grafana Service</h3>
+<h3>🟥 STEP 9 – Expose Grafana service</h3>
 
 <h4>🎯 Objective</h4>
 <p>Connect Grafana to Prometheus to enable metrics querying and dashboard visualization.</p>
@@ -453,7 +453,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 
 <hr>
 
-<h3>🟥 STEP 10 – Add Prometheus Datasource in Grafana</h3>
+<h3>🟥 STEP 10 – Add Prometheus datasource in Grafana</h3>
 
 <h4>🎯 Objective</h4>
 <p>Import a pre-built Grafana dashboard to visualize Kubernetes cluster metrics including node CPU, memory, disk, and network usage.</p>
@@ -487,7 +487,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 
 <hr>
 
-<h3>🟥 STEP 11 – Import Cluster Overview Dashboard</h3>
+<h3>🟥 STEP 11 – Import Cluster Overview dashboard</h3>
 
 <h4>🎯 Objective</h4>
 <p>Visualize pod-level metrics including CPU, memory, network, and Kubernetes workload health.</p>
@@ -521,12 +521,39 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 
 <hr>
 
-<h3>🟥 STEP 12 – Import Workloads Dashboard</h3>
+<h3>🟥 STEP 12 – Import Workloads dashboard</h3>
+
+<h4>🎯 Objective</h4>
+<p>Import additional Kubernetes workload monitoring dashboard for comprehensive pod and container visibility.</p>
+
+<p><strong>12.1: Open Dashboard Import</strong></p>
+<p>In Grafana UI:</p>
+<ol>
+<li>Click ➕ <strong>Create</strong></li>
+<li>Click <strong>Import</strong></li>
+</ol>
+
+<p><strong>12.2: Import Dashboard by ID</strong></p>
+<p>Enter appropriate dashboard ID for workloads monitoring</p>
+<p>Click <strong>Load</strong></p>
+
+<p><strong>12.3: Configure Import</strong></p>
+<ul>
+<li>Data Source: Select <strong>Prometheus</strong></li>
+</ul>
+<p>Click <strong>Import</strong></p>
+
+<p><strong>12.4: Verify Dashboard</strong></p>
+<p>Confirm workload metrics are visible.</p>
+
+<hr>
+
+<h3>🟥 STEP 13 – Create Application Health dashboard</h3>
 
 <h4>🎯 Objective</h4>
 <p>Prepare a future-ready application health dashboard to monitor HTTP metrics, error rates, latency, and availability.</p>
 
-<p><strong>12.1: Create New Dashboard</strong></p>
+<p><strong>13.1: Create New Dashboard</strong></p>
 <p>In Grafana UI:</p>
 <ol>
 <li>Go to <strong>Dashboards → New → New Dashboard</strong></li>
@@ -534,7 +561,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <li>Select Datasource: <strong>Prometheus</strong></li>
 </ol>
 
-<p><strong>12.2: Add Application Health Panels</strong></p>
+<p><strong>13.2: Add Application Health Panels</strong></p>
 
 <p><strong>Panel 1 – Application Availability</strong></p>
 <pre>up</pre>
@@ -548,7 +575,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <p><strong>Panel 4 – Application Latency (Template)</strong></p>
 <pre>histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))</pre>
 
-<p><strong>12.3: Save Dashboard</strong></p>
+<p><strong>13.3: Save Dashboard</strong></p>
 <ul>
 <li>Name: <code>Application Health – Prometheus</code></li>
 <li>Folder: <code>Monitoring</code></li>
@@ -559,12 +586,12 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 
 <hr>
 
-<h3>🟥 STEP 13 – Create Application Health Dashboard</h3>
+<h3>🟥 STEP 14 – Create Deployment Impact dashboard</h3>
 
 <h4>🎯 Objective</h4>
 <p>Create a dashboard to visualize Kubernetes deployment behavior during rollouts, including pod availability, restarts, and resource usage.</p>
 
-<p><strong>13.1: Create New Dashboard</strong></p>
+<p><strong>14.1: Create New Dashboard</strong></p>
 <p>In Grafana UI:</p>
 <ol>
 <li>Go to <strong>Dashboards → New → New Dashboard</strong></li>
@@ -572,7 +599,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <li>Datasource: <strong>Prometheus</strong></li>
 </ol>
 
-<p><strong>13.2: Add Deployment Impact Panels</strong></p>
+<p><strong>14.2: Add Deployment Impact Panels</strong></p>
 
 <p><strong>Panel 1 – Available vs Desired Replicas</strong></p>
 <pre>kube_deployment_status_replicas_available</pre>
@@ -589,7 +616,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <p><strong>Panel 5 – Memory Usage Spike</strong></p>
 <pre>sum(container_memory_usage_bytes) by (pod)</pre>
 
-<p><strong>13.3: Save Dashboard</strong></p>
+<p><strong>14.3: Save Dashboard</strong></p>
 <ul>
 <li>Name: <code>Deployment Impact – Kubernetes</code></li>
 <li>Folder: <code>Monitoring</code></li>
@@ -599,173 +626,6 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <p>Click <strong>Save</strong></p>
 
 <p><strong>Note:</strong> Panels populate with data during actual deployment rollouts from CI/CD pipeline.</p>
-
-<hr>
-
-<h3>🟥 STEP 14 – Create Deployment Impact Dashboard</h3>
-
-<h4>🎯 Objective</h4>
-<p>Configure Prometheus alert rules to detect infrastructure and workload anomalies.</p>
-
-<p><strong>14.1: Create Prometheus Alert Rules</strong></p>
-<p>📄 File: <code>monitoring/prometheus/prometheus-alerts.yaml</code></p>
-<p>Define alert rules for pod availability, CPU usage, memory usage, and container restarts.</p>
-
-<p><strong>14.2: Apply Alert Rules</strong></p>
-<pre>
-kubectl create configmap prometheus-alerts \
-  --from-file=monitoring/prometheus/prometheus-alerts.yaml \
-  -n monitoring
-</pre>
-
-<p><strong>14.3: Update Prometheus ConfigMap</strong></p>
-<p>Add <code>rule_files</code> section to <code>prometheus-config.yaml</code> to load alert rules.</p>
-
-<p><strong>14.4: Restart Prometheus</strong></p>
-<pre>
-kubectl rollout restart deployment prometheus -n monitoring
-</pre>
-
-<p><strong>14.5: Verify Alerts</strong></p>
-<p>Access Prometheus UI:</p>
-<pre>
-kubectl port-forward -n monitoring svc/prometheus 9090:9090
-</pre>
-<p>Navigate to: <code>http://localhost:9090/alerts</code></p>
-<p><strong>Expected:</strong> Alert rules loaded and visible.</p>
-
-<hr>
-
-<h3>🟥 STEP 15 – Configure Prometheus Alert Rules</h3>
-
-<h4>🎯 Objective</h4>
-<p>Deploy Alertmanager to handle alert routing and notifications.</p>
-
-<p><strong>15.1: Create Alertmanager ConfigMap</strong></p>
-<p>📄 File: <code>monitoring/alertmanager/alertmanager-config.yaml</code></p>
-
-<p><strong>15.2: Create Alertmanager Deployment</strong></p>
-<p>📄 File: <code>monitoring/alertmanager/alertmanager-deployment.yaml</code></p>
-
-<p><strong>15.3: Create Alertmanager Service</strong></p>
-<p>📄 File: <code>monitoring/alertmanager/alertmanager-service.yaml</code></p>
-
-<p><strong>15.4: Apply Alertmanager Manifests</strong></p>
-<pre>
-kubectl apply -f monitoring/alertmanager/
-</pre>
-
-<p><strong>15.5: Verify Alertmanager Deployment</strong></p>
-<pre>
-kubectl get pods -n monitoring
-</pre>
-
-<p><strong>Expected output:</strong></p>
-<pre>
-alertmanager-xxxxx   1/1   Running
-</pre>
-
-<hr>
-
-<h3>🟥 STEP 16 – Deploy Alertmanager</h3>
-
-<h4>🎯 Objective</h4>
-<p>Test alert functionality by simulating a pod failure or resource spike.</p>
-
-<p><strong>16.1: Simulate Pod Down</strong></p>
-<pre>
-kubectl scale deployment grafana --replicas=0 -n monitoring
-</pre>
-
-<p><strong>16.2: Check Prometheus Alerts</strong></p>
-<p>Access Prometheus UI and verify alert is firing:</p>
-<pre>
-kubectl port-forward -n monitoring svc/prometheus 9090:9090
-</pre>
-<p>Navigate to: <code>http://localhost:9090/alerts</code></p>
-
-<p><strong>16.3: Restore Pod</strong></p>
-<pre>
-kubectl scale deployment grafana --replicas=1 -n monitoring
-</pre>
-
-<p><strong>16.4: Verify Alert Resolved</strong></p>
-<p>Check that alert status changes to resolved in Prometheus UI.</p>
-
-<hr>
-
-<h3>🟥 STEP 17 – Test Alerts (CPU / Pod Down)</h3>
-
-<h4>🎯 Objective</h4>
-<p>Document all monitoring components, dashboards, and alert configurations for Phase 5.</p>
-
-<p><strong>17.1: Update PHASE-5.md</strong></p>
-<p>Document all steps, configurations, and verification procedures in the Phase 5 markdown file.</p>
-
-<p><strong>17.2: Export Grafana Dashboards</strong></p>
-<p>Export dashboard JSON files for version control:</p>
-<ul>
-<li>Node Exporter Full</li>
-<li>Kubernetes Pods</li>
-<li>Application Health</li>
-<li>Deployment Impact</li>
-</ul>
-
-<p><strong>17.3: Document Alert Rules</strong></p>
-<p>Include all Prometheus alert rule definitions and expected behavior in documentation.</p>
-
-<p><strong>17.4: Commit to Repository</strong></p>
-<pre>
-git add monitoring/
-git commit -m "Phase 5: Complete monitoring & observability stack"
-git push origin main
-</pre>
-
-<hr>
-
-<h3>🟥 STEP 18 – Document Dashboards & Alerts</h3>
-
-<h4>🎯 Objective</h4>
-<p>Perform end-to-end validation of the entire Phase 5 monitoring stack.</p>
-
-<p><strong>18.1: Verify All Components Running</strong></p>
-<pre>
-kubectl get pods -n monitoring
-</pre>
-<p><strong>Expected:</strong> All pods in <code>Running</code> state.</p>
-
-<p><strong>18.2: Verify Prometheus Targets</strong></p>
-<p>All targets should be <strong>UP</strong> in Prometheus UI.</p>
-
-<p><strong>18.3: Verify Grafana Dashboards</strong></p>
-<p>Access all dashboards and confirm metrics are populating.</p>
-
-<p><strong>18.4: Verify Alerts</strong></p>
-<p>Confirm alert rules are loaded and can be triggered.</p>
-
-<p><strong>18.5: Update Phase 5 Status</strong></p>
-<p>Mark Phase 5 as <strong>Completed</strong> in project documentation.</p>
-
-<hr>
-
-<h3>🟥 STEP 19 – Phase 5 Validation Complete</h3>
-
-<h4>🎯 Objective</h4>
-<p>Final validation and sign-off for Phase 5 completion.</p>
-
-<p><strong>19.1: Final Component Check</strong></p>
-<pre>
-kubectl get all -n monitoring
-</pre>
-
-<p><strong>19.2: Verify All Metrics & Dashboards</strong></p>
-<p>Ensure all metrics are collecting and all dashboards are functional.</p>
-
-<p><strong>19.3: Documentation Complete</strong></p>
-<p>Confirm PHASE-5.md is updated with all steps and verification procedures.</p>
-
-<p><strong>19.4: Phase 5 Sign-Off</strong></p>
-<p>Phase 5 is now complete and ready for demo or migration to production (EKS).</p>
 
 <hr>
 
@@ -785,9 +645,7 @@ Prometheus and Grafana in a KIND Kubernetes environment
 <li>✅ cAdvisor (container-level metrics)</li>
 <li>✅ kube-state-metrics (Kubernetes object metrics)</li>
 <li>✅ Grafana with multiple dashboards</li>
-<li>✅ Alertmanager with configured alert rules</li>
 <li>✅ All exporters configured and scraped by Prometheus</li>
-<li>✅ Complete documentation and validation</li>
 </ul>
 
 <hr>
@@ -795,12 +653,12 @@ Prometheus and Grafana in a KIND Kubernetes environment
 <h2>🏁 9. Phase-5 Status</h2>
 
 <p>
-🟥 <strong>Phase-5 Completed</strong><br>
-Monitoring &amp; Observability successfully implemented and validated.
+🟥 <strong>Phase-5 In Progress</strong><br>
+Steps 1-14 completed. Alerting and validation steps (15-19) in progress.
 </p>
 
 <p>
-<strong>Next:</strong> Proceed to <strong>Phase-6 – Documentation, Dashboards &amp; Demo</strong>
+<strong>Next:</strong> Complete Steps 15-19 for alerting configuration and final validation.
 </p>
 
 <hr>
