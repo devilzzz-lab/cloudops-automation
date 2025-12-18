@@ -8,6 +8,9 @@ data:
     global:
       scrape_interval: 15s
 
+    rule_files:
+      - /etc/prometheus/alert-rules.yaml
+
     scrape_configs:
       # Prometheus itself
       - job_name: 'prometheus'

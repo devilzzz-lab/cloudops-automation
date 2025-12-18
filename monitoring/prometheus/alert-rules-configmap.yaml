@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alert-rules
+  namespace: monitoring
+data:
+  alert-rules.yaml: |
+    groups:
+    - name: kubernetes-alerts
+      rules:
+
+      - alert: PodDown
+        expr: kube_pod_status_phase{phase="Running"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod down"
+          description: "A pod is not running for more than 1 minute."
+
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total[2m]) > 0.8
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80% for more than 2 minutes."
+
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes > 500000000
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Memory usage"
+          description: "Memory usage is above threshold."
+
+      - alert: ContainerRestarting
+        expr: increase(kube_pod_container_status_restarts_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Container restarting"
+          description: "A container has restarted in the last 5 minutes."

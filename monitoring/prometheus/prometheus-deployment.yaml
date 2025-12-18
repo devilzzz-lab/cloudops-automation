@@ -13,7 +13,7 @@ spec:
       labels:
         app: prometheus
     spec:
-      serviceAccountName: prometheus   # 🔴 THIS WAS MISSING
+      serviceAccountName: prometheus
       containers:
         - name: prometheus
           image: prom/prometheus:latest
@@ -29,9 +29,21 @@ spec:
               cpu: "500m"
               memory: "512Mi"
           volumeMounts:
+            # Prometheus main config
             - name: config-volume
-              mountPath: /etc/prometheus
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+
+            # Alert rules
+            - name: alert-rules
+              mountPath: /etc/prometheus/alert-rules.yaml
+              subPath: alert-rules.yaml
+
       volumes:
         - name: config-volume
           configMap:
             name: prometheus-config
+
+        - name: alert-rules
+          configMap:
+            name: prometheus-alert-rules

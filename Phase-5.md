@@ -534,7 +534,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 </ol>
 
 <p><strong>12.2: Import Dashboard by ID</strong></p>
-<p>Enter appropriate dashboard ID for workloads monitoring</p>
+<p>15757</p>
 <p>Click <strong>Load</strong></p>
 
 <p><strong>12.3: Configure Import</strong></p>
