@@ -381,6 +381,227 @@ kube_pod_status_phase
 
 <hr>
 
+<h3>🟥 STEP 8 – Deploy Grafana in Kubernetes</h3>
+
+<h4>🎯 Objective</h4>
+<p>Deploy Grafana inside the monitoring namespace for metrics visualization and dashboard creation.</p>
+
+<p><strong>8.1: Create Grafana Deployment</strong></p>
+<p>📄 File: <code>monitoring/grafana/grafana-deployment.yaml</code></p>
+
+<p><strong>8.2: Create Grafana Service</strong></p>
+<p>📄 File: <code>monitoring/grafana/grafana-service.yaml</code></p>
+
+<p><strong>8.3: Apply Grafana Manifests</strong></p>
+<pre>
+kubectl apply -f monitoring/grafana/
+</pre>
+
+<p><strong>8.4: Verify Grafana Deployment</strong></p>
+<pre>
+kubectl get pods -n monitoring
+kubectl get svc -n monitoring
+</pre>
+
+<p><strong>Expected output:</strong></p>
+<pre>
+grafana-xxxxx   1/1   Running
+grafana         NodePort   3000:32000/TCP
+</pre>
+
+<p><strong>8.5: Access Grafana UI</strong></p>
+<p>Due to KIND networking on macOS, use port-forward to access Grafana:</p>
+<pre>
+kubectl port-forward -n monitoring svc/grafana 3000:3000
+</pre>
+
+<p>Open browser: <code>http://localhost:3000</code></p>
+
+<p><strong>Default Login:</strong></p>
+<ul>
+<li>Username: <code>admin</code></li>
+<li>Password: <code>admin</code></li>
+</ul>
+
+<p><strong>Note:</strong> Change the password when prompted.</p>
+
+<hr>
+
+<h3>🟥 STEP 9 – Add Prometheus as Grafana Data Source</h3>
+
+<h4>🎯 Objective</h4>
+<p>Connect Grafana to Prometheus to enable metrics querying and dashboard visualization.</p>
+
+<p><strong>9.1: Navigate to Data Sources</strong></p>
+<p>In Grafana UI:</p>
+<ol>
+<li>Click ⚙️ <strong>Configuration</strong></li>
+<li>Click <strong>Data sources</strong></li>
+<li>Click <strong>Add data source</strong></li>
+<li>Select <strong>Prometheus</strong></li>
+</ol>
+
+<p><strong>9.2: Configure Prometheus Data Source</strong></p>
+<ul>
+<li>Name: <code>Prometheus</code></li>
+<li>URL: <code>http://prometheus.monitoring.svc.cluster.local:9090</code></li>
+</ul>
+
+<p><strong>9.3: Save & Test</strong></p>
+<p>Click <strong>Save & test</strong></p>
+<p><strong>Expected message:</strong> "Data source is working"</p>
+
+<hr>
+
+<h3>🟥 STEP 10 – Import Kubernetes Cluster Overview Dashboard</h3>
+
+<h4>🎯 Objective</h4>
+<p>Import a pre-built Grafana dashboard to visualize Kubernetes cluster metrics including node CPU, memory, disk, and network usage.</p>
+
+<p><strong>10.1: Open Dashboard Import</strong></p>
+<p>In Grafana UI:</p>
+<ol>
+<li>Click ➕ <strong>Create</strong></li>
+<li>Click <strong>Import</strong></li>
+</ol>
+
+<p><strong>10.2: Import Dashboard by ID</strong></p>
+<p>Enter Dashboard ID: <code>1860</code></p>
+<p>Click <strong>Load</strong></p>
+
+<p><strong>10.3: Configure Import</strong></p>
+<ul>
+<li>Name: <code>Node Exporter Full</code> (or keep default)</li>
+<li>Data Source: Select <strong>Prometheus</strong></li>
+</ul>
+<p>Click <strong>Import</strong></p>
+
+<p><strong>10.4: Verify Dashboard</strong></p>
+<p>Dashboard should display live metrics for:</p>
+<ul>
+<li>Node CPU usage</li>
+<li>Node memory usage</li>
+<li>Filesystem usage</li>
+<li>Network I/O</li>
+</ul>
+
+<hr>
+
+<h3>🟥 STEP 11 – Import Kubernetes Workloads / Pods Dashboard</h3>
+
+<h4>🎯 Objective</h4>
+<p>Visualize pod-level metrics including CPU, memory, network, and Kubernetes workload health.</p>
+
+<p><strong>11.1: Open Dashboard Import</strong></p>
+<p>In Grafana UI:</p>
+<ol>
+<li>Click ➕ <strong>Create</strong></li>
+<li>Click <strong>Import</strong></li>
+</ol>
+
+<p><strong>11.2: Import Dashboard by ID</strong></p>
+<p>Enter Dashboard ID: <code>15760</code></p>
+<p>Click <strong>Load</strong></p>
+
+<p><strong>11.3: Configure Import</strong></p>
+<ul>
+<li>Name: <code>Kubernetes / Pods</code> (or keep default)</li>
+<li>Data Source: Select <strong>Prometheus</strong></li>
+</ul>
+<p>Click <strong>Import</strong></p>
+
+<p><strong>11.4: Verify Dashboard</strong></p>
+<p>Dashboard filters:</p>
+<ul>
+<li>Namespace: <code>monitoring</code></li>
+<li>Pod: Select any pod or <code>All</code></li>
+</ul>
+
+<p><strong>Expected:</strong> Pod list visible, network metrics visible. Some resource panels may show limited data in infrastructure-only setups (this is normal).</p>
+
+<hr>
+
+<h3>🟥 STEP 12 – Create Application Health Dashboard</h3>
+
+<h4>🎯 Objective</h4>
+<p>Prepare a future-ready application health dashboard to monitor HTTP metrics, error rates, latency, and availability.</p>
+
+<p><strong>12.1: Create New Dashboard</strong></p>
+<p>In Grafana UI:</p>
+<ol>
+<li>Go to <strong>Dashboards → New → New Dashboard</strong></li>
+<li>Click <strong>Add a new panel</strong></li>
+<li>Select Datasource: <strong>Prometheus</strong></li>
+</ol>
+
+<p><strong>12.2: Add Application Health Panels</strong></p>
+
+<p><strong>Panel 1 – Application Availability</strong></p>
+<pre>up</pre>
+
+<p><strong>Panel 2 – HTTP Request Rate (Template)</strong></p>
+<pre>sum(rate(http_requests_total[1m]))</pre>
+
+<p><strong>Panel 3 – HTTP Error Rate (Template)</strong></p>
+<pre>sum(rate(http_requests_total{status=~"5.."}[1m]))</pre>
+
+<p><strong>Panel 4 – Application Latency (Template)</strong></p>
+<pre>histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))</pre>
+
+<p><strong>12.3: Save Dashboard</strong></p>
+<ul>
+<li>Name: <code>Application Health – Prometheus</code></li>
+<li>Folder: <code>Monitoring</code></li>
+</ul>
+<p>Click <strong>Save</strong></p>
+
+<p><strong>Note:</strong> Panels may show "No data" until applications expose Prometheus metrics endpoints.</p>
+
+<hr>
+
+<h3>🟥 STEP 13 – Create Deployment Impact Dashboard</h3>
+
+<h4>🎯 Objective</h4>
+<p>Create a dashboard to visualize Kubernetes deployment behavior during rollouts, including pod availability, restarts, and resource usage.</p>
+
+<p><strong>13.1: Create New Dashboard</strong></p>
+<p>In Grafana UI:</p>
+<ol>
+<li>Go to <strong>Dashboards → New → New Dashboard</strong></li>
+<li>Click <strong>Add a new panel</strong></li>
+<li>Datasource: <strong>Prometheus</strong></li>
+</ol>
+
+<p><strong>13.2: Add Deployment Impact Panels</strong></p>
+
+<p><strong>Panel 1 – Available vs Desired Replicas</strong></p>
+<pre>kube_deployment_status_replicas_available</pre>
+
+<p><strong>Panel 2 – Desired Replicas</strong></p>
+<pre>kube_deployment_spec_replicas</pre>
+
+<p><strong>Panel 3 – Pod Restart Count</strong></p>
+<pre>increase(kube_pod_container_status_restarts_total[5m])</pre>
+
+<p><strong>Panel 4 – CPU Usage Spike After Deployment</strong></p>
+<pre>sum(rate(container_cpu_usage_seconds_total[2m])) by (pod)</pre>
+
+<p><strong>Panel 5 – Memory Usage Spike</strong></p>
+<pre>sum(container_memory_usage_bytes) by (pod)</pre>
+
+<p><strong>13.3: Save Dashboard</strong></p>
+<ul>
+<li>Name: <code>Deployment Impact – Kubernetes</code></li>
+<li>Folder: <code>Monitoring</code></li>
+<li>Time range: <code>Last 1 hour</code></li>
+<li>Refresh: <code>10s</code></li>
+</ul>
+<p>Click <strong>Save</strong></p>
+
+<p><strong>Note:</strong> Panels populate with data during actual deployment rollouts from CI/CD pipeline.</p>
+
+<hr>
+
 <h2>✅ 8. Deliverable</h2>
 
 <p>
@@ -396,6 +617,7 @@ Prometheus and Grafana in a KIND Kubernetes environment
 <li>✅ Node Exporter (node-level metrics)</li>
 <li>✅ cAdvisor (container-level metrics)</li>
 <li>✅ kube-state-metrics (Kubernetes object metrics)</li>
+<li>✅ Grafana with multiple dashboards</li>
 <li>✅ All exporters configured and scraped by Prometheus</li>
 </ul>
 
