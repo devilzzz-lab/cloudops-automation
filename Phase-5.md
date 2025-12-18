@@ -170,14 +170,6 @@ as a future enhancement when migrating from KIND to EKS.
 <h4>🎯 Objective</h4>
 <p>Create a dedicated Kubernetes namespace for all monitoring components (Prometheus, Grafana, Alertmanager, exporters).</p>
 
-<h4>Why This Step</h4>
-<ul>
-<li>Logical separation from application workloads</li>
-<li>Cleaner RBAC &amp; resource management</li>
-<li>Matches real production cluster architecture</li>
-<li>Easier cleanup / migration to EKS later</li>
-</ul>
-
 <h4>Commands</h4>
 
 <p><strong>1.1: Create monitoring namespace</strong></p>
@@ -212,74 +204,13 @@ cd monitoring/prometheus
 </pre>
 
 <p><strong>2.2: Create Prometheus ConfigMap</strong></p>
-<p>File: <code>prometheus-config.yaml</code></p>
-<pre>
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prometheus-config
-  namespace: monitoring
-data:
-  prometheus.yml: |
-    global:
-      scrape_interval: 15s
-
-    scrape_configs:
-      - job_name: 'prometheus'
-        static_configs:
-          - targets: ['localhost:9090']
-</pre>
+<p>📄 File: <code>monitoring/prometheus/prometheus-config.yaml</code></p>
 
 <p><strong>2.3: Create Prometheus Deployment</strong></p>
-<p>File: <code>prometheus-deployment.yaml</code></p>
-<pre>
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: prometheus
-  namespace: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: prometheus
-  template:
-    metadata:
-      labels:
-        app: prometheus
-    spec:
-      containers:
-        - name: prometheus
-          image: prom/prometheus:latest
-          args:
-            - "--config.file=/etc/prometheus/prometheus.yml"
-          ports:
-            - containerPort: 9090
-          volumeMounts:
-            - name: config-volume
-              mountPath: /etc/prometheus
-      volumes:
-        - name: config-volume
-          configMap:
-            name: prometheus-config
-</pre>
+<p>📄 File: <code>monitoring/prometheus/prometheus-deployment.yaml</code></p>
 
 <p><strong>2.4: Create Prometheus Service</strong></p>
-<p>File: <code>prometheus-service.yaml</code></p>
-<pre>
-apiVersion: v1
-kind: Service
-metadata:
-  name: prometheus
-  namespace: monitoring
-spec:
-  type: ClusterIP
-  selector:
-    app: prometheus
-  ports:
-    - port: 9090
-      targetPort: 9090
-</pre>
+<p>📄 File: <code>monitoring/prometheus/prometheus-service.yaml</code></p>
 
 <p><strong>2.5: Apply Prometheus manifests</strong></p>
 <pre>
@@ -323,42 +254,7 @@ kubectl port-forward -n monitoring svc/prometheus 9090:9090
 <p>Deploy Node Exporter to collect node-level metrics: CPU, memory, disk, and network I/O.</p>
 
 <p><strong>4.1: Create Node Exporter manifest</strong></p>
-<p>File: <code>monitoring/node-exporter.yaml</code></p>
-<pre>
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: node-exporter
-  namespace: monitoring
-spec:
-  selector:
-    matchLabels:
-      app: node-exporter
-  template:
-    metadata:
-      labels:
-        app: node-exporter
-    spec:
-      hostNetwork: true
-      hostPID: true
-      containers:
-        - name: node-exporter
-          image: prom/node-exporter:latest
-          ports:
-            - containerPort: 9100
-              hostPort: 9100
-              name: metrics
-          args:
-            - '--path.rootfs=/host'
-          volumeMounts:
-            - name: root
-              mountPath: /host
-              readOnly: true
-      volumes:
-        - name: root
-          hostPath:
-            path: /
-</pre>
+<p>📄 File: <code>monitoring/node-exporter.yaml</code></p>
 
 <p><strong>4.2: Apply Node Exporter</strong></p>
 <pre>
@@ -378,57 +274,7 @@ kubectl get pods -n monitoring
 <p>Deploy cAdvisor to collect container-level metrics: container CPU, memory usage, and resource limits per pod.</p>
 
 <p><strong>5.1: Create cAdvisor manifest</strong></p>
-<p>File: <code>monitoring/cadvisor.yaml</code></p>
-<pre>
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: cadvisor
-  namespace: monitoring
-spec:
-  selector:
-    matchLabels:
-      app: cadvisor
-  template:
-    metadata:
-      labels:
-        app: cadvisor
-    spec:
-      hostNetwork: true
-      containers:
-        - name: cadvisor
-          image: gcr.io/cadvisor/cadvisor:latest
-          ports:
-            - containerPort: 8080
-              hostPort: 8080
-              name: http
-          volumeMounts:
-            - name: rootfs
-              mountPath: /rootfs
-              readOnly: true
-            - name: var-run
-              mountPath: /var/run
-              readOnly: true
-            - name: sys
-              mountPath: /sys
-              readOnly: true
-            - name: docker
-              mountPath: /var/lib/docker
-              readOnly: true
-      volumes:
-        - name: rootfs
-          hostPath:
-            path: /
-        - name: var-run
-          hostPath:
-            path: /var/run
-        - name: sys
-          hostPath:
-            path: /sys
-        - name: docker
-          hostPath:
-            path: /var/lib/docker
-</pre>
+<p>📄 File: <code>monitoring/cadvisor.yaml</code></p>
 
 <p><strong>5.2: Apply cAdvisor</strong></p>
 <pre>
@@ -454,30 +300,7 @@ kubectl port-forward -n monitoring pod/cadvisor-xxxxx 18080:8080
 <p>Deploy kube-state-metrics to collect Kubernetes object-level metrics: pod status, deployment health, replica counts, and restart counts.</p>
 
 <p><strong>6.1: Create kube-state-metrics manifest</strong></p>
-<p>File: <code>monitoring/kube-state-metrics.yaml</code></p>
-<pre>
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: kube-state-metrics
-  namespace: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: kube-state-metrics
-  template:
-    metadata:
-      labels:
-        app: kube-state-metrics
-    spec:
-      containers:
-        - name: kube-state-metrics
-          image: k8s.gcr.io/kube-state-metrics/kube-state-metrics:v2.9.2
-          ports:
-            - containerPort: 8080
-              name: http-metrics
-</pre>
+<p>📄 File: <code>monitoring/kube-state-metrics.yaml</code></p>
 
 <p><strong>6.2: Apply kube-state-metrics</strong></p>
 <pre>
