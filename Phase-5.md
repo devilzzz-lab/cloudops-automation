@@ -322,6 +322,83 @@ prometheus-xxxxx           1/1   Running
 
 <hr>
 
+<h3>🟥 STEP 7 – Configure Prometheus to Scrape All Exporters</h3>
+
+<h4>🎯 Objective</h4>
+<p>Update Prometheus scrape configuration to collect metrics from Node Exporter, cAdvisor, kube-state-metrics, and Prometheus itself.</p>
+
+<p><strong>7.1: Update Prometheus ConfigMap</strong></p>
+<p>📄 File: <code>monitoring/prometheus/prometheus-config.yaml</code></p>
+<p>Update the file to include scrape configs for all exporters using Kubernetes service discovery.</p>
+
+<p><strong>7.2: Create Prometheus RBAC</strong></p>
+<p>📄 File: <code>monitoring/prometheus/prometheus-rbac.yaml</code></p>
+<p>Create ServiceAccount, ClusterRole, and ClusterRoleBinding to allow Prometheus to discover pods via Kubernetes API.</p>
+
+<p><strong>Contents:</strong></p>
+<ul>
+<li>ServiceAccount: <code>prometheus</code></li>
+<li>ClusterRole with permissions to list/watch pods, services, endpoints</li>
+<li>ClusterRoleBinding to bind the role to the ServiceAccount</li>
+</ul>
+
+<p><strong>7.3: Update Prometheus Deployment</strong></p>
+<p>📄 File: <code>monitoring/prometheus/prometheus-deployment.yaml</code></p>
+<p>Add <code>serviceAccountName: prometheus</code> under <code>spec.template.spec</code> to attach RBAC permissions.</p>
+
+<p><strong>Key addition:</strong></p>
+<pre>
+spec:
+  template:
+    spec:
+      serviceAccountName: prometheus
+      containers:
+        - name: prometheus
+          ...
+</pre>
+
+<p><strong>7.4: Apply Updated Configuration</strong></p>
+<pre>
+kubectl apply -f monitoring/prometheus/prometheus-config.yaml
+kubectl apply -f monitoring/prometheus/prometheus-rbac.yaml
+kubectl apply -f monitoring/prometheus/prometheus-deployment.yaml
+</pre>
+
+<p><strong>7.5: Restart Prometheus</strong></p>
+<pre>
+kubectl rollout restart deployment prometheus -n monitoring
+</pre>
+
+<p><strong>7.6: Verify Prometheus Targets</strong></p>
+<p>Port-forward Prometheus service:</p>
+<pre>
+kubectl port-forward -n monitoring svc/prometheus 9090:9090
+</pre>
+
+<p>Open browser: <code>http://localhost:9090</code></p>
+<p>Navigate to: <strong>Status → Targets</strong></p>
+
+<p><strong>Expected result:</strong></p>
+<ul>
+<li>prometheus → <strong>UP</strong> (green)</li>
+<li>node-exporter → <strong>UP</strong> (green)</li>
+<li>cadvisor → <strong>UP</strong> (green)</li>
+<li>kube-state-metrics → <strong>UP</strong> (green)</li>
+</ul>
+
+<p><strong>7.7: Quick PromQL Tests (Optional)</strong></p>
+<p>In Prometheus UI → Graph, test these queries:</p>
+<pre>
+up
+node_cpu_seconds_total
+container_cpu_usage_seconds_total
+kube_pod_status_phase
+</pre>
+
+<p><strong>Expected:</strong> Data appears for all queries, confirming metrics collection is working.</p>
+
+<hr>
+
 <h2>✅ 8. Deliverable</h2>
 
 <p>
@@ -333,10 +410,11 @@ Prometheus and Grafana in a KIND Kubernetes environment
 <p>Successfully deployed components:</p>
 <ul>
 <li>✅ Monitoring namespace</li>
-<li>✅ Prometheus server</li>
+<li>✅ Prometheus server with RBAC</li>
 <li>✅ Node Exporter (node-level metrics)</li>
 <li>✅ cAdvisor (container-level metrics)</li>
 <li>✅ kube-state-metrics (Kubernetes object metrics)</li>
+<li>✅ All exporters configured and scraped by Prometheus</li>
 </ul>
 
 <hr>
