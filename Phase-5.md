@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase 5 - Monitoring & Observability</title>
 </head>
 <body>
 
@@ -750,12 +751,252 @@ kubectl rollout restart deployment grafana -n monitoring
 
 <hr>
 
-<h2>✅ 8. Deliverable (Steps 1-15 Complete)</h2>
+<h3>🟥 STEP 16 – Deploy Alertmanager</h3>
+
+<h4>🎯 Objective</h4>
+<p>Deploy Alertmanager to receive alerts from Prometheus and manage notifications (Slack / Email integration added later).</p>
+
+<p><strong>Current scope:</strong></p>
+<ul>
+  <li>Alertmanager running</li>
+  <li>Prometheus connected to Alertmanager</li>
+  <li>Alerts visible in Alertmanager UI</li>
+</ul>
+
+<h4>🧩 Architecture</h4>
+
+<pre>
+Prometheus ───► Alertmanager ───► (future: Slack / Email)
+</pre>
+
+<h4>16.1: Create Alertmanager ConfigMap</h4>
+
+<p>📄 File: <code>monitoring/alertmanager/alertmanager-config.yaml</code></p>
+
+<pre>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: "default-receiver"
+
+    receivers:
+      - name: "default-receiver"
+</pre>
+
+<p><strong>Apply:</strong></p>
+<pre>
+kubectl apply -f monitoring/alertmanager/alertmanager-config.yaml
+</pre>
+
+<h4>16.2: Create Alertmanager Deployment</h4>
+
+<p>📄 File: <code>monitoring/alertmanager/alertmanager-deployment.yaml</code></p>
+
+<pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      containers:
+        - name: alertmanager
+          image: prom/alertmanager:latest
+          args:
+            - "--config.file=/etc/alertmanager/alertmanager.yml"
+          ports:
+            - containerPort: 9093
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/alertmanager
+      volumes:
+        - name: config-volume
+          configMap:
+            name: alertmanager-config
+</pre>
+
+<p><strong>Apply:</strong></p>
+<pre>
+kubectl apply -f monitoring/alertmanager/alertmanager-deployment.yaml
+</pre>
+
+<h4>16.3: Create Alertmanager Service</h4>
+
+<p>📄 File: <code>monitoring/alertmanager/alertmanager-service.yaml</code></p>
+
+<pre>
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  namespace: monitoring
+spec:
+  type: NodePort
+  selector:
+    app: alertmanager
+  ports:
+    - port: 9093
+      targetPort: 9093
+      nodePort: 30903
+</pre>
+
+<p><strong>Apply:</strong></p>
+<pre>
+kubectl apply -f monitoring/alertmanager/alertmanager-service.yaml
+</pre>
+
+<h4>16.4: Verify Alertmanager Pod</h4>
+
+<pre>
+kubectl get pods -n monitoring
+</pre>
+
+<p><strong>Expected output:</strong></p>
+<pre>
+alertmanager-xxxxx   1/1   Running
+</pre>
+
+<h4>16.5: Access Alertmanager UI</h4>
+
+<p><strong>⚠️ Important Note for KIND Users:</strong></p>
+
+<p>In KIND (Kubernetes IN Docker), NodePort does <strong>NOT</strong> automatically bind to localhost. Ports are exposed inside the Docker node, not directly on your Mac.</p>
+
+<p><strong>❌ This will NOT work:</strong></p>
+<pre>
+http://localhost:30903
+</pre>
+
+<p><strong>✅ Correct approach - Use port-forward:</strong></p>
+<pre>
+kubectl port-forward -n monitoring deploy/alertmanager 9093:9093
+</pre>
+
+<p>Open browser: <code>http://localhost:9093</code></p>
+
+<p><strong>Expected result:</strong></p>
+<ul>
+  <li>✅ Alertmanager UI opens</li>
+  <li>✅ Status page visible</li>
+  <li>✅ No alerts firing (for now - this is correct)</li>
+</ul>
+
+<h4>16.6: Connect Prometheus to Alertmanager</h4>
+
+<p><strong>⚠️ VERY IMPORTANT:</strong> Update Prometheus configuration to send alerts to Alertmanager.</p>
+
+<p>📄 Edit file: <code>monitoring/prometheus/prometheus-config.yaml</code></p>
+
+<p>Add this block under <code>global:</code> or after <code>rule_files:</code></p>
+
+<pre>
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager.monitoring.svc.cluster.local:9093
+</pre>
+
+<p><strong>Apply updated configuration:</strong></p>
+<pre>
+kubectl apply -f monitoring/prometheus/prometheus-config.yaml
+kubectl rollout restart deployment prometheus -n monitoring
+</pre>
+
+<h4>16.7: Verify Prometheus-Alertmanager Connection</h4>
+
+<p><strong>Port-forward Prometheus:</strong></p>
+<pre>
+kubectl port-forward -n monitoring svc/prometheus 9090:9090
+</pre>
+
+<p>Open browser: <code>http://localhost:9090</code></p>
+
+<p><strong>Navigate to: Status → Alertmanagers</strong></p>
+
+<p><strong>Expected result:</strong></p>
+<pre>
+alertmanager.monitoring.svc.cluster.local:9093   ✔️ UP
+</pre>
+
+<hr>
+
+<h3>🧠 Interview-Ready Explanation</h3>
+
+<p><strong>Q: Why didn't NodePort work on localhost in KIND?</strong></p>
+
+<p><strong>A:</strong> "In KIND, NodePort is exposed on the Docker node network, not directly on localhost. For local development with KIND, kubectl port-forward is the correct approach to access services. In production or cloud environments like EKS, NodePort or LoadBalancer services work as expected."</p>
+
+<p>🔥 This is a senior-level DevOps answer.</p>
+
+<hr>
+
+<h2>📌 Step 16 Completion Checklist</h2>
+
+<table border="1" cellpadding="8" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Task</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Alertmanager ConfigMap created</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Alertmanager Deployment created</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Alertmanager Service created</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Alertmanager pod running</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Alertmanager UI accessible via port-forward</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Prometheus connected to Alertmanager</td>
+      <td>✅</td>
+    </tr>
+    <tr>
+      <td>Connection verified in Prometheus UI</td>
+      <td>✅</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>✅ 8. Deliverable (Steps 1-16 Complete)</h2>
 
 <p>
 <strong>Deliverable:</strong><br>
 ✅ End-to-end monitoring, visualization, and alerting system operational using
-Prometheus and Grafana in a KIND Kubernetes environment
+Prometheus, Grafana, and Alertmanager in a KIND Kubernetes environment
 </p>
 
 <p>Successfully deployed components:</p>
@@ -767,56 +1008,10 @@ Prometheus and Grafana in a KIND Kubernetes environment
 <li>✅ kube-state-metrics (Kubernetes object metrics)</li>
 <li>✅ Grafana with persistent storage</li>
 <li>✅ Prometheus alert rules configured</li>
+<li>✅ Alertmanager deployed and connected to Prometheus</li>
 <li>✅ All exporters configured and scraped by Prometheus</li>
 <li>✅ 4 Grafana dashboards imported and functional</li>
 </ul>
-
-<hr>
-
-<h2>📌 Step 15 Completion Checklist</h2>
-
-<table border="1" cellpadding="8" cellspacing="0">
-  <thead>
-    <tr>
-      <th>Task</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Alert rules ConfigMap created</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Prometheus Deployment updated</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Alert rules mounted correctly</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Alerts visible in Prometheus UI</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Grafana PVC created</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Grafana persistent storage configured</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Grafana password persists after restart</td>
-      <td>✅</td>
-    </tr>
-    <tr>
-      <td>Grafana dashboards persist after restart</td>
-      <td>✅</td>
-    </tr>
-  </tbody>
-</table>
 
 <hr>
 
@@ -824,11 +1019,11 @@ Prometheus and Grafana in a KIND Kubernetes environment
 
 <p>
 🟥 <strong>Phase-5 In Progress</strong><br>
-Steps 1-15 completed. Alerting routing and final validation steps (16-19) pending.
+Steps 1-16 completed. Alert testing and validation steps (17-19) pending.
 </p>
 
 <p>
-<strong>Next:</strong> Proceed to Step 16 – Deploy Alertmanager for alert routing and notifications.
+<strong>Next:</strong> Proceed to Step 17 – Test alert firing by intentionally breaking a pod or generating high CPU load.
 </p>
 
 <hr>
