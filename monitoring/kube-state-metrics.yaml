@@ -13,6 +13,7 @@ spec:
       labels:
         app: kube-state-metrics
     spec:
+      serviceAccountName: kube-state-metrics
       containers:
         - name: kube-state-metrics
           image: k8s.gcr.io/kube-state-metrics/kube-state-metrics:v2.9.2
