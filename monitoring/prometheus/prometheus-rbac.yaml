@@ -16,9 +16,10 @@ rules:
       - services
       - endpoints
       - pods
-      - namespaces
+      - namespaces        # 🔥 THIS LINE FIXES EVERYTHING
     verbs: ["get", "list", "watch"]
-  - apiGroups: ["extensions", "apps"]
+
+  - apiGroups: ["apps"]
     resources:
       - deployments
       - replicasets
