@@ -773,23 +773,6 @@ Prometheus ───► Alertmanager ───► (future: Slack / Email)
 
 <p>📄 File: <code>monitoring/alertmanager/alertmanager-config.yaml</code></p>
 
-<pre>
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: alertmanager-config
-  namespace: monitoring
-data:
-  alertmanager.yml: |
-    global:
-      resolve_timeout: 5m
-
-    route:
-      receiver: "default-receiver"
-
-    receivers:
-      - name: "default-receiver"
-</pre>
 
 <p><strong>Apply:</strong></p>
 <pre>
@@ -800,37 +783,7 @@ kubectl apply -f monitoring/alertmanager/alertmanager-config.yaml
 
 <p>📄 File: <code>monitoring/alertmanager/alertmanager-deployment.yaml</code></p>
 
-<pre>
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: alertmanager
-  namespace: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: alertmanager
-  template:
-    metadata:
-      labels:
-        app: alertmanager
-    spec:
-      containers:
-        - name: alertmanager
-          image: prom/alertmanager:latest
-          args:
-            - "--config.file=/etc/alertmanager/alertmanager.yml"
-          ports:
-            - containerPort: 9093
-          volumeMounts:
-            - name: config-volume
-              mountPath: /etc/alertmanager
-      volumes:
-        - name: config-volume
-          configMap:
-            name: alertmanager-config
-</pre>
+
 
 <p><strong>Apply:</strong></p>
 <pre>
@@ -841,21 +794,6 @@ kubectl apply -f monitoring/alertmanager/alertmanager-deployment.yaml
 
 <p>📄 File: <code>monitoring/alertmanager/alertmanager-service.yaml</code></p>
 
-<pre>
-apiVersion: v1
-kind: Service
-metadata:
-  name: alertmanager
-  namespace: monitoring
-spec:
-  type: NodePort
-  selector:
-    app: alertmanager
-  ports:
-    - port: 9093
-      targetPort: 9093
-      nodePort: 30903
-</pre>
 
 <p><strong>Apply:</strong></p>
 <pre>
