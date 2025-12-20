@@ -20,9 +20,9 @@ data:
           severity: critical
         annotations:
           summary: CloudOps deployment unavailable
-          description: Deployment exists but has zero available replicas for 30 seconds.
+          description: "Deployment cloudops-app has desired replicas but zero available for 30+ seconds"
 
-      # 🔴 ALERT 2 — Deployment missing (deleted / not created)
+      # 🔴 ALERT 2 — Deployment missing
       - alert: CloudOpsDeploymentMissing
         expr: |
           absent(kube_deployment_spec_replicas{namespace="cloudops",deployment="cloudops-app"})
@@ -31,31 +31,45 @@ data:
           severity: critical
         annotations:
           summary: CloudOps deployment missing
-          description: cloudops-app deployment does not exist in the cluster.
+          description: "cloudops-app deployment does not exist in the cluster"
 
-      # 🟠 CPU alert
+      # 🔴 ALERT 3 — ImagePullBackOff / ErrImagePull
+      - alert: CloudOpsImagePullFailure
+        expr: |
+          kube_pod_container_status_waiting_reason{
+            namespace="cloudops",
+            reason=~"ImagePullBackOff|ErrImagePull"
+          } == 1
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: Image pull failure
+          description: "Pod container in cloudops namespace is failing to pull image"
+
+      # 🟠 ALERT 4 — High CPU Usage (FIXED - with namespace filter)
       - alert: HighCPUUsage
         expr: |
-          sum(rate(container_cpu_usage_seconds_total{container!="",pod!=""}[2m])) by (pod) > 0.8
+          sum(rate(container_cpu_usage_seconds_total{container!="",pod!="",namespace="cloudops"}[2m])) by (pod, namespace) > 0.8
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: High CPU usage
-          description: CPU usage is above 80 percent for more than 2 minutes.
+          description: "Pod {{ $labels.pod }} has CPU usage above 80%"
 
-      # 🟠 Memory alert
+      # 🟠 ALERT 5 — High Memory Usage (FIXED - with container and namespace)
       - alert: HighMemoryUsage
         expr: |
-          container_memory_usage_bytes > 500000000
+          container_memory_usage_bytes{container!="",namespace="cloudops"} > 500000000
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: High memory usage
-          description: Memory usage is above threshold.
+          description: "Container {{ $labels.container }} in pod {{ $labels.pod }} using more than 500MB"
 
-      # 🟠 Restart alert
+      # 🟠 ALERT 6 — Container Restarting
       - alert: ContainerRestarting
         expr: |
           increase(kube_pod_container_status_restarts_total[5m]) > 0
@@ -64,4 +78,4 @@ data:
           severity: warning
         annotations:
           summary: Container restarting
-          description: A container restarted in the last 5 minutes.
+          description: "Pod {{ $labels.pod }} container {{ $labels.container }} restarted in last 5 minutes"
