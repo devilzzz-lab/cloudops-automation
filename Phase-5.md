@@ -756,18 +756,7 @@ kubectl rollout restart deployment grafana -n monitoring
 <h4>🎯 Objective</h4>
 <p>Deploy Alertmanager to receive alerts from Prometheus and manage notifications (Slack / Email integration added later).</p>
 
-<p><strong>Current scope:</strong></p>
-<ul>
-  <li>Alertmanager running</li>
-  <li>Prometheus connected to Alertmanager</li>
-  <li>Alerts visible in Alertmanager UI</li>
-</ul>
-
 <h4>🧩 Architecture</h4>
-
-<pre>
-Prometheus ───► Alertmanager ───► (future: Slack / Email)
-</pre>
 
 <h4>16.1: Create Alertmanager ConfigMap</h4>
 
@@ -782,8 +771,6 @@ kubectl apply -f monitoring/alertmanager/alertmanager-config.yaml
 <h4>16.2: Create Alertmanager Deployment</h4>
 
 <p>📄 File: <code>monitoring/alertmanager/alertmanager-deployment.yaml</code></p>
-
-
 
 <p><strong>Apply:</strong></p>
 <pre>
@@ -840,21 +827,8 @@ kubectl port-forward -n monitoring deploy/alertmanager 9093:9093
 
 <p><strong>⚠️ VERY IMPORTANT:</strong> Update Prometheus configuration to send alerts to Alertmanager.</p>
 
-<p>📄 Edit file: <code>monitoring/prometheus/prometheus-config.yaml</code></p>
-
-<p>Add this block under <code>global:</code> or after <code>rule_files:</code></p>
-
-<pre>
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets:
-            - alertmanager.monitoring.svc.cluster.local:9093
-</pre>
 
 <p><strong>Apply updated configuration:</strong></p>
-<pre>
-kubectl apply -f monitoring/prometheus/prometheus-config.yaml
 kubectl rollout restart deployment prometheus -n monitoring
 </pre>
 
@@ -876,15 +850,6 @@ alertmanager.monitoring.svc.cluster.local:9093   ✔️ UP
 
 <hr>
 
-<h3>🧠 Interview-Ready Explanation</h3>
-
-<p><strong>Q: Why didn't NodePort work on localhost in KIND?</strong></p>
-
-<p><strong>A:</strong> "In KIND, NodePort is exposed on the Docker node network, not directly on localhost. For local development with KIND, kubectl port-forward is the correct approach to access services. In production or cloud environments like EKS, NodePort or LoadBalancer services work as expected."</p>
-
-<p>🔥 This is a senior-level DevOps answer.</p>
-
-<hr>
 
 <h2>📌 Step 16 Completion Checklist</h2>
 
