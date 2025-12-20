@@ -828,6 +828,7 @@ kubectl port-forward -n monitoring deploy/alertmanager 9093:9093
 
 
 <p><strong>Apply updated configuration:</strong></p>
+<pre>
 kubectl rollout restart deployment prometheus -n monitoring
 </pre>
 
