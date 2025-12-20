@@ -6,43 +6,47 @@ metadata:
 data:
   alert-rules.yaml: |
     groups:
-    - name: kubernetes-alerts
-      rules:
-      - alert: CloudOpsDeploymentDown
-        expr: |
-          kube_deployment_spec_replicas{namespace="cloudops",deployment="cloudops-app"} > 0
-          and
-          kube_deployment_status_replicas_available{namespace="cloudops",deployment="cloudops-app"} == 0
-        for: 5s
-        labels:
-          severity: critical
-        annotations:
-          summary: CloudOps deployment unhealthy
-          description: Deployment has desired replicas but zero available pods.
+      - name: kubernetes-alerts
+        rules:
+          - alert: CloudOpsDeploymentDown
+            expr: |
+              kube_deployment_spec_replicas{namespace="cloudops",deployment="cloudops-app"} > 0
+              AND
+              (
+                kube_deployment_status_replicas_available{namespace="cloudops",deployment="cloudops-app"} == 0
+                OR
+                absent(kube_deployment_status_replicas_available{namespace="cloudops",deployment="cloudops-app"})
+              )
+            for: 10s
+            labels:
+              severity: critical
+            annotations:
+              summary: CloudOps deployment unhealthy
+              description: Deployment has desired replicas but zero available pods or metrics are missing.
 
-      - alert: HighCPUUsage
-        expr: sum(rate(container_cpu_usage_seconds_total{container!="",pod!=""}[2m])) by (pod) > 0.8
-        for: 2m
-        labels:
-          severity: warning
-        annotations:
-          summary: High CPU usage
-          description: CPU usage is above 80 percent for more than 2 minutes.
+          - alert: HighCPUUsage
+            expr: sum(rate(container_cpu_usage_seconds_total{container!="",pod!=""}[2m])) by (pod) > 0.8
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: High CPU usage
+              description: CPU usage is above 80 percent for more than 2 minutes.
 
-      - alert: HighMemoryUsage
-        expr: container_memory_usage_bytes > 500000000
-        for: 2m
-        labels:
-          severity: warning
-        annotations:
-          summary: High memory usage
-          description: Memory usage is above threshold.
+          - alert: HighMemoryUsage
+            expr: container_memory_usage_bytes > 500000000
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: High memory usage
+              description: Memory usage is above threshold.
 
-      - alert: ContainerRestarting
-        expr: increase(kube_pod_container_status_restarts_total[5m]) > 0
-        for: 1m
-        labels:
-          severity: warning
-        annotations:
-          summary: Container restarting
-          description: A container restarted in the last 5 minutes.
+          - alert: ContainerRestarting
+            expr: increase(kube_pod_container_status_restarts_total[5m]) > 0
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              summary: Container restarting
+              description: A container restarted in the last 5 minutes.
