@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: cloudops-app
-          image: devilzz/cloudops-sample-app:latest
+          image: devilzz/cloudops-sample-app:build-34
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
