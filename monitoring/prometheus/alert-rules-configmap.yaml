@@ -47,27 +47,41 @@ data:
           summary: Image pull failure
           description: "Pod container in cloudops namespace is failing to pull image"
 
-      # 🟠 ALERT 4 — High CPU Usage (FIXED - with namespace filter)
+      # 🟠 ALERT 4 — High CPU Usage (per pod, in cloudops)
       - alert: HighCPUUsage
         expr: |
-          sum(rate(container_cpu_usage_seconds_total{container!="",pod!="",namespace="cloudops"}[2m])) by (pod, namespace) > 0.8
+         sum by (namespace, pod) (
+            rate(container_cpu_usage_seconds_total{
+              namespace="cloudops",
+              container!="",
+              image!=""
+            }[2m])
+          ) > 0.8
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: High CPU usage
-          description: "Pod {{ $labels.pod }} has CPU usage above 80%"
+          description: Pod {{ $labels.pod }} CPU > 0.8 cores for 2 minutes
 
-      # 🟠 ALERT 5 — High Memory Usage (FIXED - with container and namespace)
+
+      # 🟠 ALERT 5 — High Memory Usage (working set, per pod, in cloudops)
       - alert: HighMemoryUsage
         expr: |
-          container_memory_usage_bytes{container!="",namespace="cloudops"} > 500000000
+          sum by (namespace, pod) (
+            container_memory_working_set_bytes{
+              namespace="cloudops",
+              container!="",
+              image!=""
+            }
+          ) > 500000000
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: High memory usage
-          description: "Container {{ $labels.container }} in pod {{ $labels.pod }} using more than 500MB"
+          description: Pod {{ $labels.pod }} using > 500MB memory
+
 
       # 🟠 ALERT 6 — Container Restarting
       - alert: ContainerRestarting
@@ -78,4 +92,4 @@ data:
           severity: warning
         annotations:
           summary: Container restarting
-          description: "Pod {{ $labels.pod }} container {{ $labels.container }} restarted in last 5 minutes"
+          description: "Pod {{ $labels.pod }} container {{ $labels.container }} restarted in the last 5 minutes"
