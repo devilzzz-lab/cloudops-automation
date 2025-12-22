@@ -1132,7 +1132,7 @@ alertmanager.monitoring.svc.cluster.local:9093   ✔️ UP
   <li>Go to: <strong>Status → Rules</strong></li>
 </ol>
 
-<p><strong>Expected:</strong> You should see alert rules such as <code>CloudOpsDeploymentUnavailable</code>, <code>CloudOpsDeploymentMissing</code>, <code>CloudOpsImagePullFailure</code>, <code>HighCPUUsage</code>, <code>HighMemoryUsage</code>, <code>ContainerRestarting</code> with <strong>Inactive / green</strong> status.</p>
+<p><strong>Expected:</strong> You should see alert rules such as <code>PodDown</code>, <code>HighCPUUsage</code>, <code>HighMemoryUsage</code>, <code>ContainerRestarting</code> with <strong>Inactive / green</strong> status.</p>
 
 <hr>
 
@@ -1315,44 +1315,3 @@ kubectl delete pod crash-test -n cloudops
     </tr>
   </tbody>
 </table>
-
-<hr>
-
-<h2>✅ 8. Deliverable (Steps 1-17 Complete)</h2>
-
-<p>
-<strong>Deliverable:</strong><br>
-✅ End-to-end monitoring, visualization, and alerting system operational using
-Prometheus, Grafana, and Alertmanager in a KIND Kubernetes environment
-</p>
-
-<p>Successfully deployed components:</p>
-<ul>
-<li>✅ Monitoring namespace</li>
-<li>✅ Prometheus server with RBAC</li>
-<li>✅ Node Exporter (node-level metrics)</li>
-<li>✅ cAdvisor (container-level metrics)</li>
-<li>✅ kube-state-metrics (Kubernetes object metrics)</li>
-<li>✅ Grafana with persistent storage</li>
-<li>✅ Prometheus alert rules configured</li>
-<li>✅ Alertmanager deployed and connected to Prometheus</li>
-<li>✅ All exporters configured and scraped by Prometheus</li>
-<li>✅ 4 Grafana dashboards imported and functional</li>
-<li>✅ Alert testing completed and validated</li>
-</ul>
-
-<hr>
-
-<h2>🏁 9. Phase-5 Status</h2>
-
-<p>
-🟢 <strong>Phase-5 Complete</strong><br>
-Steps 1-17 completed successfully. All monitoring, visualization, and alerting components are operational and validated.
-</p>
-
-<hr>
-
-<p><strong>— CloudOps Automation Project | Phase 5: Monitoring &amp; Observability</strong></p>
-
-</body>
-</html>
