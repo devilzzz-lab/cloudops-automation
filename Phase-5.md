@@ -1132,20 +1132,22 @@ alertmanager.monitoring.svc.cluster.local:9093   ✔️ UP
   <li>Go to: <strong>Status → Rules</strong></li>
 </ol>
 
-<p><strong>Expected:</strong> You should see alert rules such as <code>PodDown</code>, <code>HighCPUUsage</code>, <code>HighMemoryUsage</code>, <code>ContainerRestarting</code> with <strong>Inactive / green</strong> status.</p>
+<p>
+<strong>Expected:</strong> Alert rules such as <code>PodDown</code>, <code>HighCPUUsage</code>,
+<code>HighMemoryUsage</code>, <code>ContainerRestarting</code> should appear as
+<strong>Inactive (green)</strong>.
+</p>
 
 <hr>
 
 <h4>🔴 1️⃣ Test: CloudOpsDeploymentUnavailable</h4>
 
-<p><strong>What it checks:</strong> Deployment exists but has zero available pods.</p>
-
-<p><strong>Trigger (recommended method):</strong></p>
+<p><strong>Trigger:</strong></p>
 <pre>
 kubectl scale deployment cloudops-app -n cloudops --replicas=0
 </pre>
 
-<p><strong>Expected (after ~30 seconds):</strong></p>
+<p><strong>Expected:</strong></p>
 <ul>
   <li><code>CloudOpsDeploymentUnavailable</code> → <strong>FIRING</strong></li>
 </ul>
@@ -1159,15 +1161,14 @@ kubectl scale deployment cloudops-app -n cloudops --replicas=3
 
 <h4>🔴 2️⃣ Test: CloudOpsImagePullFailure</h4>
 
-<p><strong>Direct trigger:</strong></p>
 <pre>
 kubectl set image deployment/cloudops-app -n cloudops cloudops-app=nginx:doesnotexist
 </pre>
 
 <p><strong>Expected:</strong></p>
 <ul>
-  <li>Pods show <code>ErrImagePull</code> / <code>ImagePullBackOff</code> in <code>kubectl get pods -n cloudops</code>.</li>
-  <li>After ~30 seconds, <code>CloudOpsImagePullFailure</code> → <strong>FIRING</strong>.</li>
+  <li>Pods enter <code>ErrImagePull</code> / <code>ImagePullBackOff</code></li>
+  <li><code>CloudOpsImagePullFailure</code> → <strong>FIRING</strong></li>
 </ul>
 
 <p><strong>Restore:</strong></p>
@@ -1179,16 +1180,16 @@ kubectl rollout undo deployment/cloudops-app -n cloudops
 
 <h4>🟠 3️⃣ Test: HighCPUUsage</h4>
 
-<p><strong>Create CPU burner pod:</strong></p>
+<p><strong>Create CPU stress pod:</strong></p>
 <pre>
 kubectl run cpu-test \
-  --image=busybox \
-  -n cloudops \
-  --restart=Never \
-  -- sh -c "while true; do :; done"
+--image=busybox \
+-n cloudops \
+--restart=Never \
+-- sh -c "while true; do :; done"
 </pre>
 
-<p><strong>Verify in Prometheus (confidence boost):</strong></p>
+<p><strong>Verify in Prometheus:</strong></p>
 <pre>
 topk(5,
   sum by (namespace, pod) (
@@ -1196,12 +1197,6 @@ topk(5,
   )
 )
 </pre>
-
-<p><strong>Expected:</strong></p>
-<ul>
-  <li><code>cpu-test</code> pod shows high CPU usage (≈ 0.9+ core).</li>
-  <li>After ~2 minutes, <code>HighCPUUsage</code> → <strong>FIRING</strong>.</li>
-</ul>
 
 <p><strong>Cleanup:</strong></p>
 <pre>
@@ -1213,15 +1208,17 @@ kubectl delete pod cpu-test -n cloudops
 <h4>🟠 4️⃣ Test: HighMemoryUsage</h4>
 
 <p><strong>Create memory hog pod:</strong></p>
+
 <pre>
 kubectl run mem-test \
-  --image=busybox \
-  -n cloudops \
-  --restart=Never \
-  -- sh -c "x=; while true; do x=$x$(head -c 5M </dev/zero); sleep 1; done"
+--image=busybox \
+-n cloudops \
+--restart=Never \
+-- sh -c "x=; while true; do x=$x$(head -c 5M &lt;/dev/zero); sleep 1; done"
 </pre>
 
 <p><strong>Verify in Prometheus:</strong></p>
+
 <pre>
 topk(5,
   sum by (namespace, pod) (
@@ -1232,8 +1229,8 @@ topk(5,
 
 <p><strong>Expected:</strong></p>
 <ul>
-  <li><code>mem-test</code> pod memory usage grows beyond 500MB.</li>
-  <li>After ~2 minutes, <code>HighMemoryUsage</code> → <strong>FIRING</strong>.</li>
+  <li><code>mem-test</code> exceeds 500MB memory</li>
+  <li><code>HighMemoryUsage</code> → <strong>FIRING</strong></li>
 </ul>
 
 <p><strong>Cleanup:</strong></p>
@@ -1245,19 +1242,18 @@ kubectl delete pod mem-test -n cloudops
 
 <h4>🟠 5️⃣ Test: ContainerRestarting</h4>
 
-<p><strong>Create crash-looping pod:</strong></p>
 <pre>
 kubectl run crash-test \
-  --image=busybox \
-  -n cloudops \
-  --restart=Always \
-  -- sh -c "exit 1"
+--image=busybox \
+-n cloudops \
+--restart=Always \
+-- sh -c "exit 1"
 </pre>
 
 <p><strong>Expected:</strong></p>
 <ul>
-  <li>Pod <code>crash-test</code> restarts repeatedly (check with <code>kubectl get pods -n cloudops</code>).</li>
-  <li>After ~1 minute, <code>ContainerRestarting</code> → <strong>FIRING</strong>.</li>
+  <li>Pod restarts continuously</li>
+  <li><code>ContainerRestarting</code> → <strong>FIRING</strong></li>
 </ul>
 
 <p><strong>Cleanup:</strong></p>
@@ -1267,51 +1263,50 @@ kubectl delete pod crash-test -n cloudops
 
 <hr>
 
-<h4>✅ How to Verify Alerts</h4>
+<h4>✅ Verification</h4>
 
 <ul>
-  <li><strong>Prometheus UI:</strong> Open <code>http://localhost:9090</code> → <strong>Alerts</strong> tab → check alert status:
-    <ul>
-      <li>🔴 <strong>Firing</strong></li>
-      <li>🟡 <strong>Pending</strong></li>
-      <li>🟢 <strong>Inactive</strong></li>
-    </ul>
-  </li>
-  <li><strong>Alertmanager UI:</strong>
+  <li><strong>Prometheus:</strong> <code>http://localhost:9090 → Alerts</code></li>
+  <li><strong>Alertmanager:</strong>
     <pre>kubectl port-forward svc/alertmanager 9093 -n monitoring</pre>
-    Open <code>http://localhost:9093</code> and verify alerts received.
+    <code>http://localhost:9093</code>
   </li>
 </ul>
 
-<h4>🧠 Quick Summary Table</h4>
+<hr>
+
+<h4>🧠 Alert Test Summary</h4>
 
 <table border="1" cellpadding="8" cellspacing="0">
-  <thead>
-    <tr>
-      <th>Alert</th>
-      <th>Test Method</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>CloudOpsDeploymentUnavailable</td>
-      <td>Scale to zero replicas</td>
-    </tr>
-    <tr>
-      <td>CloudOpsImagePullFailure</td>
-      <td>Invalid image</td>
-    </tr>
-    <tr>
-      <td>HighCPUUsage</td>
-      <td>Busy loop pod</td>
-    </tr>
-    <tr>
-      <td>HighMemoryUsage</td>
-      <td>Memory hog pod</td>
-    </tr>
-    <tr>
-      <td>ContainerRestarting</td>
-      <td>Crash-looping pod</td>
-    </tr>
-  </tbody>
+  <tr>
+    <th>Alert</th>
+    <th>Trigger</th>
+  </tr>
+  <tr>
+    <td>CloudOpsDeploymentUnavailable</td>
+    <td>Scale replicas to zero</td>
+  </tr>
+  <tr>
+    <td>CloudOpsImagePullFailure</td>
+    <td>Invalid image</td>
+  </tr>
+  <tr>
+    <td>HighCPUUsage</td>
+    <td>Busy loop pod</td>
+  </tr>
+  <tr>
+    <td>HighMemoryUsage</td>
+    <td>Memory hog pod</td>
+  </tr>
+  <tr>
+    <td>ContainerRestarting</td>
+    <td>Crash-loop pod</td>
+  </tr>
 </table>
+
+<hr>
+
+<h2>✅ PHASE-5 COMPLETE</h2>
+
+</body>
+</html>
