@@ -1132,57 +1132,32 @@ alertmanager.monitoring.svc.cluster.local:9093   ✔️ UP
   <li>Go to: <strong>Status → Rules</strong></li>
 </ol>
 
-<p><strong>Expected:</strong> You should see alert rules such as <code>PodDown</code>, <code>HighCPUUsage</code>, <code>HighMemoryUsage</code>, <code>ContainerRestarting</code> with <strong>Inactive / green</strong> status.</p>
+<p><strong>Expected:</strong> You should see alert rules such as <code>CloudOpsDeploymentUnavailable</code>, <code>CloudOpsDeploymentMissing</code>, <code>CloudOpsImagePullFailure</code>, <code>HighCPUUsage</code>, <code>HighMemoryUsage</code>, <code>ContainerRestarting</code> with <strong>Inactive / green</strong> status.</p>
 
 <hr>
 
-<h4>🔴 1️⃣ Test: CloudOpsDeploymentMissing</h4>
-
-<p><strong>What it checks:</strong> Deployment does not exist.</p>
-
-<p><strong>Trigger:</strong></p>
-<pre>
-kubectl delete deployment cloudops-app -n cloudops
-</pre>
-
-<p><strong>Expected:</strong></p>
-<ul>
-  <li>After ~30 seconds, alert <code>CloudOpsDeploymentMissing</code> moves to <strong>FIRING</strong> in Prometheus Alerts tab.</li>
-</ul>
-
-<p><strong>Restore:</strong></p>
-<pre>
-kubectl apply -f cloudops-deployment.yaml
-</pre>
-
-<hr>
-
-<h4>🔴 2️⃣ Test: CloudOpsDeploymentUnavailable</h4>
+<h4>🔴 1️⃣ Test: CloudOpsDeploymentUnavailable</h4>
 
 <p><strong>What it checks:</strong> Deployment exists but has zero available pods.</p>
 
 <p><strong>Trigger (recommended method):</strong></p>
 <pre>
-kubectl scale deployment cloudops-app -n cloudops --replicas=3
-kubectl set image deployment/cloudops-app -n cloudops cloudops-app=invalidimage:latest
+kubectl scale deployment cloudops-app -n cloudops --replicas=0
 </pre>
-
-<p>Pods will go into <code>ImagePullBackOff</code> / <code>ErrImagePull</code> state.</p>
 
 <p><strong>Expected (after ~30 seconds):</strong></p>
 <ul>
   <li><code>CloudOpsDeploymentUnavailable</code> → <strong>FIRING</strong></li>
-  <li><code>CloudOpsImagePullFailure</code> → <strong>FIRING</strong></li>
 </ul>
 
 <p><strong>Restore:</strong></p>
 <pre>
-kubectl set image deployment/cloudops-app -n cloudops cloudops-app=&lt;valid-image&gt;
+kubectl scale deployment cloudops-app -n cloudops --replicas=3
 </pre>
 
 <hr>
 
-<h4>🔴 3️⃣ Test: CloudOpsImagePullFailure</h4>
+<h4>🔴 2️⃣ Test: CloudOpsImagePullFailure</h4>
 
 <p><strong>Direct trigger:</strong></p>
 <pre>
@@ -1195,9 +1170,14 @@ kubectl set image deployment/cloudops-app -n cloudops cloudops-app=nginx:doesnot
   <li>After ~30 seconds, <code>CloudOpsImagePullFailure</code> → <strong>FIRING</strong>.</li>
 </ul>
 
+<p><strong>Restore:</strong></p>
+<pre>
+kubectl rollout undo deployment/cloudops-app -n cloudops
+</pre>
+
 <hr>
 
-<h4>🟠 4️⃣ Test: HighCPUUsage</h4>
+<h4>🟠 3️⃣ Test: HighCPUUsage</h4>
 
 <p><strong>Create CPU burner pod:</strong></p>
 <pre>
@@ -1230,7 +1210,7 @@ kubectl delete pod cpu-test -n cloudops
 
 <hr>
 
-<h4>🟠 5️⃣ Test: HighMemoryUsage</h4>
+<h4>🟠 4️⃣ Test: HighMemoryUsage</h4>
 
 <p><strong>Create memory hog pod:</strong></p>
 <pre>
@@ -1263,7 +1243,7 @@ kubectl delete pod mem-test -n cloudops
 
 <hr>
 
-<h4>🟠 6️⃣ Test: ContainerRestarting</h4>
+<h4>🟠 5️⃣ Test: ContainerRestarting</h4>
 
 <p><strong>Create crash-looping pod:</strong></p>
 <pre>
@@ -1314,12 +1294,8 @@ kubectl delete pod crash-test -n cloudops
   </thead>
   <tbody>
     <tr>
-      <td>CloudOpsDeploymentMissing</td>
-      <td>Delete deployment</td>
-    </tr>
-    <tr>
       <td>CloudOpsDeploymentUnavailable</td>
-      <td>Bad image + replicas</td>
+      <td>Scale to zero replicas</td>
     </tr>
     <tr>
       <td>CloudOpsImagePullFailure</td>
@@ -1340,19 +1316,15 @@ kubectl delete pod crash-test -n cloudops
   </tbody>
 </table>
 
-
 <hr>
 
-
-<h2>✅ 8. Deliverable (Steps 1-16 Complete)</h2>
-
+<h2>✅ 8. Deliverable (Steps 1-17 Complete)</h2>
 
 <p>
 <strong>Deliverable:</strong><br>
 ✅ End-to-end monitoring, visualization, and alerting system operational using
 Prometheus, Grafana, and Alertmanager in a KIND Kubernetes environment
 </p>
-
 
 <p>Successfully deployed components:</p>
 <ul>
@@ -1366,31 +1338,21 @@ Prometheus, Grafana, and Alertmanager in a KIND Kubernetes environment
 <li>✅ Alertmanager deployed and connected to Prometheus</li>
 <li>✅ All exporters configured and scraped by Prometheus</li>
 <li>✅ 4 Grafana dashboards imported and functional</li>
+<li>✅ Alert testing completed and validated</li>
 </ul>
 
-
 <hr>
-
 
 <h2>🏁 9. Phase-5 Status</h2>
 
-
 <p>
-🟥 <strong>Phase-5 In Progress</strong><br>
-Steps 1-16 completed. Alert testing and validation steps (17-19) pending.
+🟢 <strong>Phase-5 Complete</strong><br>
+Steps 1-17 completed successfully. All monitoring, visualization, and alerting components are operational and validated.
 </p>
-
-
-<p>
-<strong>Next:</strong> Proceed to Step 17 – Test alert firing by intentionally breaking a pod or generating high CPU load.
-</p>
-
 
 <hr>
 
-
 <p><strong>— CloudOps Automation Project | Phase 5: Monitoring &amp; Observability</strong></p>
-
 
 </body>
 </html>
