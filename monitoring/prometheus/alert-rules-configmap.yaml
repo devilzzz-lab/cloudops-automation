@@ -9,20 +9,7 @@ data:
     - name: kubernetes-alerts
       rules:
 
-      # 🔴 ALERT 1 — Deployment exists but no pods available
-      - alert: CloudOpsDeploymentUnavailable
-        expr: |
-          kube_deployment_spec_replicas{namespace="cloudops",deployment="cloudops-app"} > 0
-          AND
-          kube_deployment_status_replicas_available{namespace="cloudops",deployment="cloudops-app"} == 0
-        for: 30s
-        labels:
-          severity: critical
-        annotations:
-          summary: CloudOps deployment unavailable
-          description: "Deployment cloudops-app has desired replicas but zero available for 30+ seconds"
-
-      # 🔴 ALERT 2 — Deployment missing
+      # 🔴 ALERT 1 — Deployment missing
       - alert: CloudOpsDeploymentMissing
         expr: |
           absent(kube_deployment_spec_replicas{namespace="cloudops",deployment="cloudops-app"})
@@ -33,7 +20,7 @@ data:
           summary: CloudOps deployment missing
           description: "cloudops-app deployment does not exist in the cluster"
 
-      # 🔴 ALERT 3 — ImagePullBackOff / ErrImagePull
+      # 🔴 ALERT 2 — ImagePullBackOff / ErrImagePull
       - alert: CloudOpsImagePullFailure
         expr: |
           kube_pod_container_status_waiting_reason{
@@ -47,7 +34,7 @@ data:
           summary: Image pull failure
           description: "Pod container in cloudops namespace is failing to pull image"
 
-      # 🟠 ALERT 4 — High CPU Usage (per pod, in cloudops)
+      # 🟠 ALERT 3 — High CPU Usage (per pod, in cloudops)
       - alert: HighCPUUsage
         expr: |
          sum by (namespace, pod) (
@@ -65,7 +52,7 @@ data:
           description: Pod {{ $labels.pod }} CPU > 0.8 cores for 2 minutes
 
 
-      # 🟠 ALERT 5 — High Memory Usage (working set, per pod, in cloudops)
+      # 🟠 ALERT 4 — High Memory Usage (working set, per pod, in cloudops)
       - alert: HighMemoryUsage
         expr: |
           sum by (namespace, pod) (
@@ -83,7 +70,7 @@ data:
           description: Pod {{ $labels.pod }} using > 500MB memory
 
 
-      # 🟠 ALERT 6 — Container Restarting
+      # 🟠 ALERT 5 — Container Restarting
       - alert: ContainerRestarting
         expr: |
           increase(kube_pod_container_status_restarts_total[5m]) > 0

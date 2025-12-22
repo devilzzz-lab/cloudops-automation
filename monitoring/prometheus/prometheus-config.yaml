@@ -27,7 +27,7 @@ data:
             target_label: __address__
             replacement: $1:9100
 
-      # ✅ FIXED kube-state-metrics
+      # kube-state-metrics
       - job_name: 'kube-state-metrics'
         static_configs:
           - targets:
