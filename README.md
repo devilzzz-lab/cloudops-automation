@@ -35,6 +35,7 @@
     <li><strong>NEW:</strong> Prometheus deployed for metrics collection and monitoring</li>
     <li><strong>NEW:</strong> Grafana deployed with Prometheus integration for visualization</li>
     <li><strong>NEW:</strong> Real-time cluster health and application performance monitoring</li>
+    <li><strong>NEW</strong> Alert rules configured and tested for critical failures and resource issues</li>
   </ul>
 
   <hr>
@@ -181,7 +182,7 @@
 
   <hr>
 
-  <h2>CI/CD Pipeline Flow</h2>
+   <h2>CI/CD Pipeline Flow</h2>
   <pre>
 Developer → Git Push → GitHub
                         ↓
@@ -203,10 +204,14 @@ Developer → Git Push → GitHub
                                     ↓
                          Prometheus (Metrics Collection)
                                     ↓
-                         Grafana (Visualization)
+                         Grafana (Visualization & Dashboards)
+                                    ↓
+                         AlertManager (Alert Routing)
   </pre>
 
+
   <hr>
+
 
   <h2>Monitoring Architecture</h2>
   <pre>
@@ -215,6 +220,9 @@ KIND Kubernetes Cluster
 ┌───────────────────────────────────┐
 │  Application Pods                 │
 │  - Expose /metrics endpoint       │
+│  - Node Exporter (node metrics)   │
+│  - cAdvisor (container metrics)   │
+│  - kube-state-metrics (K8s state) │
 └───────────────┬───────────────────┘
                 ↓
 ┌───────────────────────────────────┐
@@ -222,15 +230,17 @@ KIND Kubernetes Cluster
 │  - Scrapes metrics every 15s      │
 │  - Stores time-series data        │
 │  - Evaluates alert rules          │
+│  - Sends alerts to AlertManager   │
 └───────────────┬───────────────────┘
                 ↓
         ┌───────┴────────┐
         ↓                ↓
-┌───────────────┐  ┌─────────────┐
-│ Grafana       │  │ AlertManager│
-│ - Dashboards  │  │ - Alerts    │
-│ - Queries     │  │ - Routing   │
-└───────────────┘  └─────────────┘
+┌───────────────┐  ┌─────────────────┐
+│ Grafana       │  │ AlertManager    │
+│ - Dashboards  │  │ - Alert routing │
+│ - Queries     │  │ - Notifications │
+│ - Persistent  │  │ - Deduplication │
+└───────────────┘  └─────────────────┘
   </pre>
 
   <hr>
