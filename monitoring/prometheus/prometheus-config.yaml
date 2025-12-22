@@ -8,6 +8,12 @@ data:
     global:
       scrape_interval: 15s
 
+    alerting:
+      alertmanagers:
+      - static_configs:
+          - targets:
+              - alertmanager.monitoring.svc.cluster.local:9093
+
     rule_files:
       - /etc/prometheus/alert-rules.yaml
 
