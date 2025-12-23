@@ -550,7 +550,7 @@ kubectl rollout restart deployment grafana -n monitoring
 <p><strong>Test the fix:</strong></p>
 <ol>
   <li>Login to Grafana</li>
-  <li>Set password once (e.g., <code>admin / srisuji0814</code>)</li>
+  <li>Set password once (e.g., <code>admin / passz</code>)</li>
   <li>Import any dashboard</li>
   <li>Restart the pod:
     <pre>kubectl delete pod -n monitoring -l app=grafana</pre>
