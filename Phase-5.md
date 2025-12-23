@@ -172,13 +172,7 @@ Prometheus alert rules are configured to detect anomalies and operational issues
 
 
 <p>
-Alerts are routed via <strong>Alertmanager</strong> to notification channels such as email or Slack.
-</p>
-
-
-<p>
-<strong>Note:</strong> Cloud-based alerting using <strong>AWS CloudWatch + SNS</strong> is documented
-as a future enhancement when migrating from KIND to EKS.
+Alerts are routed via <strong>Alertmanager</strong> to notification channels
 </p>
 
 
