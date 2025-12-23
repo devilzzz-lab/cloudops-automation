@@ -924,8 +924,6 @@ kubectl rollout restart deployment grafana -n monitoring
 </ul>
 <p>Click <strong>Save</strong></p>
 <img src="screenshots/phase5/application-health.png" alt="application-health">
-
-
 <p><strong>Note:</strong> Panels may show "No data" until applications expose Prometheus metrics endpoints.</p>
 
 
