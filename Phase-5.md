@@ -1426,7 +1426,6 @@ kubectl delete pod crash-test -n cloudops
 
 <img src="screenshots/phase5/alertmanager-trigger.png" alt="alertmanager-trigger">
 
-
 <hr>
 
 <h3>🌐 Accessing Web Apps in Pods (kubectl port-forward)</h3>
@@ -1469,8 +1468,6 @@ kubectl port-forward pod/cloudops-app-7f4f8fc68f-6mf2c 7070:80
 <hr>
 
 <h2>📌 Phase 5 - Completion Checklist</h2>
-
-
 
 <table border="1" cellpadding="8" cellspacing="0">
   <thead>
@@ -1515,9 +1512,8 @@ kubectl port-forward pod/cloudops-app-7f4f8fc68f-6mf2c 7070:80
   </tbody>
 </table>
 
-
 <hr>
-
 
 </body>
 </html>
+
