@@ -494,6 +494,81 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 
 <hr>
 
+<h3>🔧 GRAFANA PERSISTENT STORAGE CONFIGURATION</h3>
+
+
+<h4>🔴 Issue: Grafana Data Loss on Restart</h4>
+
+
+<p><strong>Problem:</strong></p>
+<ul>
+  <li>Grafana asks for username/password every time</li>
+  <li>Password not working after restart</li>
+  <li>All dashboards disappear</li>
+</ul>
+
+
+<h4>🔥 ROOT CAUSE</h4>
+
+
+<p>Grafana without persistent storage loses all data (users, passwords, dashboards) when pod restarts.</p>
+
+
+<p><strong>✅ This is expected behavior without PersistentVolumeClaim.</strong></p>
+
+
+<h4>15.5: Create Grafana PVC</h4>
+
+
+<p>📄 File: <code>monitoring/grafana/grafana-pvc.yaml</code></p>
+<p><strong>Note:</strong> PVC configuration already present in repository.</p>
+
+
+<p><strong>Apply:</strong></p>
+<pre>
+kubectl apply -f monitoring/grafana/grafana-pvc.yaml
+</pre>
+
+
+<h4>15.6: Update Grafana Deployment</h4>
+
+
+<p>📄 File: <code>monitoring/grafana/grafana-deployment.yaml</code></p>
+<p><strong>Note:</strong> Deployment already configured with PVC mount. Just apply and restart.</p>
+
+
+<p><strong>Apply:</strong></p>
+<pre>
+kubectl apply -f monitoring/grafana/grafana-deployment.yaml
+kubectl rollout restart deployment grafana -n monitoring
+</pre>
+
+
+<h4>15.7: Verify Grafana Persistence</h4>
+
+
+<p><strong>Test the fix:</strong></p>
+<ol>
+  <li>Login to Grafana</li>
+  <li>Set password once (e.g., <code>admin / srisuji0814</code>)</li>
+  <li>Import any dashboard</li>
+  <li>Restart the pod:
+    <pre>kubectl delete pod -n monitoring -l app=grafana</pre>
+  </li>
+  <li>Open Grafana again</li>
+</ol>
+
+
+<p><strong>Expected result:</strong></p>
+<ul>
+  <li>✅ Password still works</li>
+  <li>✅ Dashboards are still there</li>
+  <li>✅ Datasources preserved</li>
+</ul>
+
+
+<hr>
+
 
 <h3>🟥 STEP 8 – Expose Grafana service</h3>
 
@@ -836,81 +911,6 @@ kubectl port-forward -n monitoring svc/prometheus 9090:9090
 
 <hr>
 
-
-<h3>🔧 GRAFANA PERSISTENT STORAGE CONFIGURATION</h3>
-
-
-<h4>🔴 Issue: Grafana Data Loss on Restart</h4>
-
-
-<p><strong>Problem:</strong></p>
-<ul>
-  <li>Grafana asks for username/password every time</li>
-  <li>Password not working after restart</li>
-  <li>All dashboards disappear</li>
-</ul>
-
-
-<h4>🔥 ROOT CAUSE</h4>
-
-
-<p>Grafana without persistent storage loses all data (users, passwords, dashboards) when pod restarts.</p>
-
-
-<p><strong>✅ This is expected behavior without PersistentVolumeClaim.</strong></p>
-
-
-<h4>15.5: Create Grafana PVC</h4>
-
-
-<p>📄 File: <code>monitoring/grafana/grafana-pvc.yaml</code></p>
-<p><strong>Note:</strong> PVC configuration already present in repository.</p>
-
-
-<p><strong>Apply:</strong></p>
-<pre>
-kubectl apply -f monitoring/grafana/grafana-pvc.yaml
-</pre>
-
-
-<h4>15.6: Update Grafana Deployment</h4>
-
-
-<p>📄 File: <code>monitoring/grafana/grafana-deployment.yaml</code></p>
-<p><strong>Note:</strong> Deployment already configured with PVC mount. Just apply and restart.</p>
-
-
-<p><strong>Apply:</strong></p>
-<pre>
-kubectl apply -f monitoring/grafana/grafana-deployment.yaml
-kubectl rollout restart deployment grafana -n monitoring
-</pre>
-
-
-<h4>15.7: Verify Grafana Persistence</h4>
-
-
-<p><strong>Test the fix:</strong></p>
-<ol>
-  <li>Login to Grafana</li>
-  <li>Set password once (e.g., <code>admin / srisuji0814</code>)</li>
-  <li>Import any dashboard</li>
-  <li>Restart the pod:
-    <pre>kubectl delete pod -n monitoring -l app=grafana</pre>
-  </li>
-  <li>Open Grafana again</li>
-</ol>
-
-
-<p><strong>Expected result:</strong></p>
-<ul>
-  <li>✅ Password still works</li>
-  <li>✅ Dashboards are still there</li>
-  <li>✅ Datasources preserved</li>
-</ul>
-
-
-<hr>
 
 
 <h3>🟥 STEP 15 – Deploy Alertmanager</h3>
