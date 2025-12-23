@@ -73,7 +73,7 @@ KIND Kubernetes Cluster
 │   └── Dashboards (Cluster, Pods, Application, Deployments)
 │
 └── Alertmanager
-    └── Email / Slack Notifications
+    └── Alert Notifications
 </pre>
 
 
