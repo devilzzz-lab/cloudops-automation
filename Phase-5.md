@@ -595,8 +595,7 @@ kubectl rollout restart deployment grafana -n monitoring
 <img src="screenshots/phase5/grafana-data-source1.png" alt="grafana-data-source1">
 
 
-<p><strong>9.3: Save & Test</strong></p>
-<p>Click <strong>Save & test</strong></p>
+<p><strong>9.3: Click Save & test</strong></p>
 
 <img src="screenshots/phase5/grafana-data-source2.png" alt="grafana-data-source2">
 <p><strong>Expected message:</strong> "Data source is working"</p>
