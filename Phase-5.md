@@ -1447,15 +1447,7 @@ kubectl port-forward pod/&lt;POD_NAME&gt; 7070:80
   <li><code>80</code> → container port inside the pod (change if your app listens on a different port)</li>
 </ul>
 
-<p><strong>Open in browser:</strong></p>
-<pre>
-http://localhost:7070
-</pre>
-
 <p><strong>Example:</strong></p>
-<pre>kubectl get pods -n cloudops</pre> 
-
-<code><p>cloudops-app-7f4f8fc68f-6mf2c</p></code>
 
 <code>kubectl port-forward pod/cloudops-app-7f4f8fc68f-6mf2c 7070:80</code>
 
