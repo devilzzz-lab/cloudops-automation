@@ -1453,7 +1453,7 @@ http://localhost:7070
 </pre>
 
 <p><strong>Example:</strong></p>
-<code>kubectl get pods -n cloudops</code> 
+<pre>kubectl get pods -n cloudops</pre> 
 
 <p>
 cloudops-app-7f4f8fc68f-6mf2c
