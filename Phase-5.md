@@ -1455,9 +1455,9 @@ http://localhost:7070
 <p><strong>Example:</strong></p>
 <code>kubectl get pods -n cloudops</code> 
 
-<pre>
+<p>
 cloudops-app-7f4f8fc68f-6mf2c
-</pre>
+</p>
 
 <code>kubectl port-forward pod/cloudops-app-7f4f8fc68f-6mf2c 7070:80</code>
 
