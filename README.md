@@ -101,17 +101,6 @@
 
   <p><strong>Deliverable:</strong> ✅ Production-ready - Prometheus and Grafana deployed, dashboards and alerting configuration ongoing</p>
 
-  <h3>🟪 PHASE 6 – Documentation, Dashboard &amp; Demo</h3>
-  <p><strong>Objective:</strong> Finalize documentation and demo materials.</p>
-  <ul>
-    <li>Architecture diagram (CI/CD + Kubernetes + Monitoring)</li>
-    <li>Detailed documentation with screenshots</li>
-    <li>Demo walkthrough recording</li>
-    <li>Final README and repository cleanup</li>
-    <li>Performance metrics and monitoring dashboard showcase</li>
-  </ul>
-  <p><strong>Deliverable:</strong> ⏳ Pending</p>
-
   <hr>
 
   <h2>Summary Table</h2>
@@ -154,12 +143,6 @@
         <td>Monitoring &amp; Observability</td>
         <td>Prometheus, Grafana, AlertManager, Exporters</td>
         <td>✅ Complete</td>
-      </tr>
-      <tr>
-        <td><strong>Phase 6</strong></td>
-        <td>Documentation &amp; Demo</td>
-        <td>Markdown, Diagrams, Screenshots</td>
-        <td>⏳ Pending</td>
       </tr>
     </tbody>
   </table>
