@@ -1453,15 +1453,13 @@ http://localhost:7070
 </pre>
 
 <p><strong>Example:</strong></p>
+<code>kubectl get pods -n cloudops</code> 
+
 <pre>
-kubectl get pods
-
-# Example pod name:
 cloudops-app-7f4f8fc68f-6mf2c
-
-# Port-forward that pod:
-kubectl port-forward pod/cloudops-app-7f4f8fc68f-6mf2c 7070:80
 </pre>
+
+<code>kubectl port-forward pod/cloudops-app-7f4f8fc68f-6mf2c 7070:80</code>
 
 <p>Then open: <code>http://localhost:7070</code> in your browser.</p>
 
