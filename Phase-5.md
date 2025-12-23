@@ -999,6 +999,8 @@ kubectl port-forward -n monitoring deploy/alertmanager 9093:9093
 
 <p>Open browser: <code>http://localhost:9093</code></p>
 
+<img src="screenshots/phase5/alertmanager-ui.png" alt="alertmanager-ui">
+
 
 <p><strong>Expected result:</strong></p>
 <ul>
@@ -1014,33 +1016,10 @@ kubectl port-forward -n monitoring deploy/alertmanager 9093:9093
 <p><strong>⚠️ VERY IMPORTANT:</strong> Update Prometheus configuration to send alerts to Alertmanager.</p>
 
 
-
 <p><strong>Apply updated configuration:</strong></p>
 <pre>
 kubectl rollout restart deployment prometheus -n monitoring
 </pre>
-
-
-<h4>16.7: Verify Prometheus-Alertmanager Connection</h4>
-
-
-<p><strong>Port-forward Prometheus:</strong></p>
-<pre>
-kubectl port-forward -n monitoring svc/prometheus 9090:9090
-</pre>
-
-
-<p>Open browser: <code>http://localhost:9090</code></p>
-
-
-<p><strong>Navigate to: Status → Alertmanagers</strong></p>
-
-
-<p><strong>Expected result:</strong></p>
-<pre>
-alertmanager.monitoring.svc.cluster.local:9093   ✔️ UP
-</pre>
-
 
 <hr>
 
