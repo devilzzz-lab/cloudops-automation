@@ -337,44 +337,10 @@ kubectl apply -f monitoring/node-exporter.yaml
 kubectl get pods -n monitoring
 </pre>
 
-
 <hr>
 
 
-<h3>🟥 STEP 5 – Deploy cAdvisor</h3>
-
-
-<h4>🎯 Objective</h4>
-<p>Deploy cAdvisor to collect container-level metrics: container CPU, memory usage, and resource limits per pod.</p>
-
-
-<p><strong>5.1: Create cAdvisor manifest</strong></p>
-<p>📄 File: <code>monitoring/cadvisor.yaml</code></p>
-
-
-<p><strong>5.2: Apply cAdvisor</strong></p>
-<pre>
-kubectl apply -f monitoring/cadvisor.yaml
-</pre>
-
-
-<p><strong>5.3: Verify cAdvisor Pods</strong></p>
-<pre>
-kubectl get pods -n monitoring
-</pre>
-
-
-<p><strong>5.4: (Optional) Verify cAdvisor UI</strong></p>
-<pre>
-kubectl port-forward -n monitoring pod/cadvisor-xxxxx 18080:8080
-</pre>
-<p>Open browser: <code>http://localhost:18080</code></p>
-
-
-<hr>
-
-
-<h3>🟥 STEP 6 – Deploy kube-state-metrics</h3>
+<h3>🟥 STEP 5 – Deploy kube-state-metrics</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -409,7 +375,7 @@ prometheus-xxxxx           1/1   Running
 <hr>
 
 
-<h3>🟥 STEP 7 – Verify Prometheus targets</h3>
+<h3>🟥 STEP 6 – Verify Prometheus targets</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -443,12 +409,13 @@ kubectl port-forward -n monitoring svc/prometheus 9090:9090
 <p>Open browser: <code>http://localhost:9090</code></p>
 <p>Navigate to: <strong>Status → Targets</strong></p>
 
+<img src="screenshots/phase5/target-health.png" alt="target-health">
+
 
 <p><strong>Expected result:</strong></p>
 <ul>
 <li>prometheus → <strong>UP</strong> (green)</li>
 <li>node-exporter → <strong>UP</strong> (green)</li>
-<li>cadvisor → <strong>UP</strong> (green)</li>
 <li>kube-state-metrics → <strong>UP</strong> (green)</li>
 </ul>
 
@@ -469,7 +436,7 @@ kube_pod_status_phase
 <hr>
 
 
-<h3>🟥 STEP 8 – Deploy Grafana</h3>
+<h3>🟥 STEP 7 – Deploy Grafana</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -513,6 +480,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 
 <p>Open browser: <code>http://localhost:3000</code></p>
 
+<img src="screenshots/phase5/grafana-login.png" alt="grafana-login">
 
 <p><strong>Default Login:</strong></p>
 <ul>
@@ -527,7 +495,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <hr>
 
 
-<h3>🟥 STEP 9 – Expose Grafana service</h3>
+<h3>🟥 STEP 8 – Expose Grafana service</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -549,17 +517,20 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <li>Name: <code>Prometheus</code></li>
 <li>URL: <code>http://prometheus.monitoring.svc.cluster.local:9090</code></li>
 </ul>
+<img src="screenshots/phase5/grafana-data-source1.png" alt="grafana-data-source1">
 
 
 <p><strong>9.3: Save & Test</strong></p>
 <p>Click <strong>Save & test</strong></p>
+
+<img src="screenshots/phase5/grafana-data-source2.png" alt="grafana-data-source2">
 <p><strong>Expected message:</strong> "Data source is working"</p>
 
 
 <hr>
 
 
-<h3>🟥 STEP 10 – Add Prometheus datasource in Grafana</h3>
+<h3>🟥 STEP 9 – Add Prometheus datasource in Grafana</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -587,6 +558,8 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <p>Click <strong>Import</strong></p>
 
 
+<img src="screenshots/phase5/grafana-node-exporter.png" alt="grafana-node-exporter">
+
 <p><strong>10.4: Verify Dashboard</strong></p>
 <p>Dashboard should display live metrics for:</p>
 <ul>
@@ -600,7 +573,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <hr>
 
 
-<h3>🟥 STEP 11 – Import Cluster Overview dashboard</h3>
+<h3>🟥 STEP 10 – Import Cluster Overview dashboard</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -627,6 +600,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 </ul>
 <p>Click <strong>Import</strong></p>
 
+<img src="screenshots/phase5/grafana-kubernetes-view-pods.png" alt="grafana-kubernetes-view-pods">
 
 <p><strong>11.4: Verify Dashboard</strong></p>
 <p>Dashboard filters:</p>
@@ -642,7 +616,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <hr>
 
 
-<h3>🟥 STEP 12 – Import Workloads dashboard</h3>
+<h3>🟥 STEP 11 – Import Workloads dashboard</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -668,6 +642,8 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 </ul>
 <p>Click <strong>Import</strong></p>
 
+<img src="screenshots/phase5/grafana-kubernetes-global.png" alt="grafana-kubernetes-global">
+
 
 <p><strong>12.4: Verify Dashboard</strong></p>
 <p>Confirm workload metrics are visible.</p>
@@ -676,7 +652,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <hr>
 
 
-<h3>🟥 STEP 13 – Create Application Health dashboard</h3>
+<h3>🟥 STEP 12 – Create Application Health dashboard</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -725,7 +701,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <hr>
 
 
-<h3>🟥 STEP 14 – Create Deployment Impact dashboard</h3>
+<h3>🟥 STEP 13 – Create Deployment Impact dashboard</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -773,6 +749,8 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 </ul>
 <p>Click <strong>Save</strong></p>
 
+<img src="screenshots/phase5/deployment-impact.png" alt="deployment-impact">
+
 
 <p><strong>Note:</strong> Panels populate with data during actual deployment rollouts from CI/CD pipeline.</p>
 
@@ -780,7 +758,7 @@ kubectl port-forward -n monitoring svc/grafana 3000:3000
 <hr>
 
 
-<h3>🟥 STEP 15 – Configure Prometheus Alert Rules &amp; Grafana Persistence</h3>
+<h3>🟥 STEP 14 – Configure Prometheus Alert Rules &amp; Grafana Persistence</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -935,7 +913,7 @@ kubectl rollout restart deployment grafana -n monitoring
 <hr>
 
 
-<h3>🟥 STEP 16 – Deploy Alertmanager</h3>
+<h3>🟥 STEP 15 – Deploy Alertmanager</h3>
 
 
 <h4>🎯 Objective</h4>
@@ -1112,7 +1090,7 @@ alertmanager.monitoring.svc.cluster.local:9093   ✔️ UP
 <hr>
 
 
-<h3>🟥 STEP 17 – Test Alerts (CPU / Pod Down)</h3>
+<h3>🟥 STEP 16 – Test Alerts (CPU / Pod Down)</h3>
 
 <h4>🎯 Objective</h4>
 <p>Intentionally trigger alerts and verify they appear in both Prometheus and Alertmanager.</p>
