@@ -826,8 +826,9 @@ kubectl rollout restart deployment grafana -n monitoring
 
 <img src="screenshots/phase5/deployment-impact.png" alt="deployment-impact">
 
-
 <p><strong>Note:</strong> Panels populate with data during actual deployment rollouts from CI/CD pipeline.</p>
+
+<hr>
 
 
 <hr>
