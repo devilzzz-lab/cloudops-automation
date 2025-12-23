@@ -896,6 +896,7 @@ kubectl port-forward -n monitoring svc/prometheus 9090:9090
 
 <p><strong>Navigate to: Alerts tab</strong></p>
 
+<img src="screenshots/phase5/prometheus-alerts.png" alt="prometheus-alert">
 
 <p><strong>Expected alerts:</strong></p>
 <ul>
