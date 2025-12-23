@@ -1070,7 +1070,7 @@ kubectl rollout restart deployment prometheus -n monitoring
 <hr>
 
 
-<h3>🟥 STEP 16 – Test Alerts (CPU / Pod Down)</h3>
+<h3>🟥 STEP 17 – Test Alerts (CPU / Pod Down)</h3>
 
 <h4>🎯 Objective</h4>
 <p>Intentionally trigger alerts and verify they appear in both Prometheus and Alertmanager.</p>
