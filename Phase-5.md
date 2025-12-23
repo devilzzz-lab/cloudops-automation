@@ -1225,6 +1225,8 @@ kubectl delete pod crash-test -n cloudops
   </li>
 </ul>
 
+<img src="screenshots/phase5/alertmanager-trigger.png" alt="alertmanager-trigger">
+
 <hr>
 
 <h4>🧠 Alert Test Summary</h4>
