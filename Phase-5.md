@@ -1466,7 +1466,7 @@ kubectl port-forward pod/cloudops-app-7f4f8fc68f-6mf2c 7070:80
 
 <p>Then open: <code>http://localhost:7070</code> in your browser.</p>
 
-
+<hr>
 
 <h2>📌 Phase 5 - Completion Checklist</h2>
 
