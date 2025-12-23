@@ -1429,8 +1429,6 @@ kubectl delete pod crash-test -n cloudops
 
 <hr>
 
-<hr>
-
 <h3>🌐 Accessing Web Apps in Pods (kubectl port-forward)</h3>
 
 <p>
