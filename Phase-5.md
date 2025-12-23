@@ -409,7 +409,7 @@ kubectl port-forward -n monitoring svc/prometheus 9090:9090
 <p>Open browser: <code>http://localhost:9090</code></p>
 <p>Navigate to: <strong>Status → Targets</strong></p>
 
-<img src="screenshots/phase5/target-health.png" alt="target-health">
+<img src="screenshots/phase5/prometheus-target-health.png" alt="target-health">
 
 
 <p><strong>Expected result:</strong></p>
