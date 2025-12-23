@@ -1,18 +1,87 @@
-<h1>🟥 PHASE-5: Monitoring &amp; Observability (PHASE-5.md)</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
 
 
 <h1>🟥 PHASE-5: Monitoring &amp; Observability (PHASE-5.md)</h1>
+
+
+<p>
+<strong>Version:</strong> Phase 5<br>
+<strong>Module:</strong> Kubernetes Monitoring &amp; Observability<br>
+<strong>Project:</strong> CloudOps Automation, CI/CD &amp; Monitoring System
+</p>
+
+
+<hr>
+
+
+<h2>📌 1. Overview</h2>
+
+
+<p>
+Phase-5 focuses on implementing <strong>production-style monitoring, metrics collection, visualization, and alerting</strong>
+for Kubernetes workloads and applications deployed through the CI/CD pipeline.
+</p>
+
+
+<p>
+This phase introduces a complete observability stack using <strong>Prometheus</strong> and <strong>Grafana</strong>,
+deployed directly inside the <strong>KIND (Kubernetes IN Docker)</strong> cluster.
+</p>
+
 
 <p>
 Monitoring ensures continuous visibility into:
+</p>
+
+
+<ul>
+  <li>Kubernetes cluster health</li>
+  <li>Pod and container resource utilization</li>
+  <li>Application performance and availability</li>
+  <li>Deployment stability after Jenkins-driven rollouts</li>
 </ul>
 
 
+<hr>
+
+
+<h2>🧩 2. Scope &amp; Architecture</h2>
+
+
 <p>
+The monitoring stack is deployed inside the existing KIND Kubernetes cluster and integrates seamlessly
+with the CI/CD pipeline built in Phase-4.
+</p>
+
+
+<pre>
+KIND Kubernetes Cluster
+│
+├── Prometheus
 │   ├── Node Exporter
 │   ├── cAdvisor
+│   ├── kube-state-metrics
+│   └── Application /metrics endpoint
+│
+├── Grafana
+│   └── Dashboards (Cluster, Pods, Application, Deployments)
+│
+└── Alertmanager
     └── Alert Notifications
+</pre>
+
+
+<p>
 This architecture enables real-time monitoring and alerting without relying on external cloud services.
+CloudWatch and SNS integration is documented as a future extension for EKS migration.
+</p>
+
 
 <hr>
 
@@ -20,8 +89,27 @@ This architecture enables real-time monitoring and alerting without relying on e
 <h2>📊 3. Monitoring Components</h2>
 
 
+<h3>🔹 Metrics Collection (Prometheus)</h3>
+
+
 <p>
+Prometheus is deployed as a Kubernetes service and configured to scrape metrics from multiple sources:
+</p>
+
+
+<ul>
+  <li><strong>Node Exporter</strong> – Node-level CPU, memory, disk, and network metrics</li>
+  <li><strong>cAdvisor</strong> – Container-level CPU and memory usage</li>
+  <li><strong>kube-state-metrics</strong> – Pod status, replicas, restarts, deployment health</li>
   <li><strong>Application Metrics Endpoint</strong> – HTTP requests, latency, error rates, uptime</li>
+</ul>
+
+
+<hr>
+
+
+<h2>📈 4. Visualization (Grafana)</h2>
+
 
 <p>
 Grafana is deployed inside Kubernetes and configured with Prometheus as the primary data source.
@@ -30,114 +118,55 @@ Grafana is deployed inside Kubernetes and configured with Prometheus as the prim
 
 <h3>📊 Dashboards Implemented</h3>
 
+
+<h4>1. Kubernetes Cluster Overview</h4>
+<ul>
+  <li>Node CPU &amp; memory utilization</li>
+  <li>Pod distribution per node</li>
+  <li>Overall cluster health indicators</li>
+</ul>
+
+
 <h4>2. Kubernetes Workloads Monitoring</h4>
+<ul>
+  <li>Pod CPU and memory usage</li>
+  <li>Pod restart counts</li>
+  <li>Replica availability vs desired state</li>
+</ul>
 
+
+<h4>3. Application Health Dashboard</h4>
+<ul>
+  <li>HTTP request rate</li>
+  <li>Error rates (4xx / 5xx)</li>
   <li>Response latency</li>
+  <li>Application uptime</li>
 </ul>
 
 
-<h3>🟥 STEP 17 – Test Alerts (CPU / Pod Down)</h3>
-
-<h4>🎯 Objective</h4>
-<p>Intentionally trigger alerts and verify they appear in both Prometheus and Alertmanager.</p>
-
-<h4>17.1 Verify Alert Rules Loaded (Prometheus)</h4>
+<h4>4. Deployment Impact Dashboard</h4>
 <ul>
-  <li><b>Port-forward Prometheus:</b><br>
-    <code>kubectl port-forward svc/prometheus 9090:9090 -n monitoring</code>
-  </li>
-  <li><b>Open:</b> <code>http://localhost:9090</code></li>
-  <li><b>Go to:</b> <b>Status → Rules</b></li>
+  <li>Pod availability during rolling updates</li>
+  <li>Resource usage spikes after deployments</li>
+  <li>Error rate comparison before and after Jenkins deployments</li>
 </ul>
-<p><b>Expected:</b> Alert rules such as <code>PodDown</code>, <code>HighCPUUsage</code>, <code>HighMemoryUsage</code>, <code>ContainerRestarting</code> should appear as <b>Inactive (green)</b>.</p>
+
+
 <hr>
 
-<h4>🔴 1️⃣ Test: CloudOpsDeploymentUnavailable</h4>
-<ul>
-  <li><b>Trigger:</b><br>
-    <code>kubectl scale deployment cloudops-app -n cloudops --replicas=0</code>
-  </li>
-  <li><b>Expected:</b><br>
-    <code>CloudOpsDeploymentUnavailable</code> → <b>FIRING</b>
-  </li>
-  <li><b>Restore:</b><br>
-    <code>kubectl scale deployment cloudops-app -n cloudops --replicas=3</code>
-  </li>
-</ul>
-<hr>
 
-<h4>🔴 2️⃣ Test: CloudOpsImagePullFailure</h4>
-<ul>
-  <li><b>Trigger:</b><br>
-    <code>kubectl set image deployment/cloudops-app -n cloudops cloudops-app=nginx:doesnotexist</code>
-  </li>
-  <li><b>Expected:</b><br>
-    Pods enter <code>ErrImagePull</code> / <code>ImagePullBackOff</code><br>
-    <code>CloudOpsImagePullFailure</code> → <b>FIRING</b>
-  </li>
-  <li><b>Restore:</b><br>
-    <code>kubectl rollout undo deployment/cloudops-app -n cloudops</code>
-  </li>
-</ul>
-<hr>
+<h2>🚨 5. Alerting</h2>
 
-<h4>🟠 3️⃣ Test: HighCPUUsage</h4>
-<ul>
-  <li><b>Create CPU stress pod:</b><br>
-    <code>kubectl run cpu-test --image=busybox -n cloudops --restart=Never -- sh -c "while true; do :; done"</code>
-  </li>
-  <li><b>Verify in Prometheus:</b><br>
-    <code>topk(5, sum by (namespace, pod) (rate(container_cpu_usage_seconds_total{namespace="cloudops"}[2m])))</code>
-  </li>
-  <li><b>Cleanup:</b><br>
-    <code>kubectl delete pod cpu-test -n cloudops</code>
-  </li>
-</ul>
-<hr>
 
-<h4>🟠 4️⃣ Test: HighMemoryUsage</h4>
-<ul>
-  <li><b>Create memory hog pod:</b><br>
-    <code>kubectl run mem-test --image=busybox -n cloudops --restart=Never -- sh -c "x=; while true; do x=$x$(head -c 5M &lt;/dev/zero); sleep 1; done"</code>
-  </li>
-  <li><b>Verify in Prometheus:</b><br>
-    <code>topk(5, sum by (namespace, pod) (container_memory_working_set_bytes{namespace="cloudops"}))</code>
-  </li>
-  <li><b>Expected:</b><br>
-    <code>mem-test</code> exceeds 500MB memory<br>
-    <code>HighMemoryUsage</code> → <b>FIRING</b>
-  </li>
-  <li><b>Cleanup:</b><br>
-    <code>kubectl delete pod mem-test -n cloudops</code>
-  </li>
-</ul>
-<hr>
+<p>
+Prometheus alert rules are configured to detect anomalies and operational issues in real time.
+</p>
 
-<h4>🟠 5️⃣ Test: ContainerRestarting</h4>
-<ul>
-  <li><b>Trigger:</b><br>
-    <code>kubectl run crash-test --image=busybox -n cloudops --restart=Always -- sh -c "exit 1"</code>
-  </li>
-  <li><b>Expected:</b><br>
-    Pod restarts continuously<br>
-    <code>ContainerRestarting</code> → <b>FIRING</b>
-  </li>
-  <li><b>Cleanup:</b><br>
-    <code>kubectl delete pod crash-test -n cloudops</code>
-  </li>
-</ul>
-<hr>
 
-<h4>✅ Verification</h4>
 <ul>
-  <li><b>Prometheus:</b> <code>http://localhost:9090 → Alerts</code></li>
-  <li><b>Alertmanager:</b><br>
-    <code>kubectl port-forward svc/alertmanager 9093 -n monitoring</code><br>
-    <code>http://localhost:9093</code>
-  </li>
-</ul>
-<img src="screenshots/phase5/alertmanager-trigger.png" alt="alertmanager-trigger">
-<hr>
+  <li>Pod down or unavailable</li>
+  <li>High CPU usage (&gt; 80%)</li>
+  <li>High memory consumption</li>
   <li>Frequent container restarts</li>
 </ul>
 
@@ -527,6 +556,9 @@ kubectl rollout restart deployment grafana -n monitoring
     <pre>kubectl delete pod -n monitoring -l app=grafana</pre>
   </li>
   <li>Open Grafana again</li>
+</ol>
+
+
 <p><strong>Expected result:</strong></p>
 <ul>
   <li>✅ Password still works</li>
