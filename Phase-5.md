@@ -1429,6 +1429,46 @@ kubectl delete pod crash-test -n cloudops
 
 <hr>
 
+<hr>
+
+<h3>🌐 Accessing Web Apps in Pods (kubectl port-forward)</h3>
+
+<p>
+If a pod is running an image that serves a web application, you can access it from your local machine using
+<code>kubectl port-forward</code>.
+</p>
+
+<p><strong>Single command (local access):</strong></p>
+<pre>
+kubectl port-forward pod/&lt;POD_NAME&gt; 7070:80
+</pre>
+
+<p><strong>What this means:</strong></p>
+<ul>
+  <li><code>pod/&lt;POD_NAME&gt;</code> → replace with your actual pod name from <code>kubectl get pods</code></li>
+  <li><code>7070</code> → local machine port (you will open this in your browser)</li>
+  <li><code>80</code> → container port inside the pod (change if your app listens on a different port)</li>
+</ul>
+
+<p><strong>Open in browser:</strong></p>
+<pre>
+http://localhost:7070
+</pre>
+
+<p><strong>Example:</strong></p>
+<pre>
+kubectl get pods
+
+# Example pod name:
+cloudops-app-7f4f8fc68f-6mf2c
+
+# Port-forward that pod:
+kubectl port-forward pod/cloudops-app-7f4f8fc68f-6mf2c 7070:80
+</pre>
+
+<p>Then open: <code>http://localhost:7070</code> in your browser.</p>
+
+
 
 <h2>📌 Phase 5 - Completion Checklist</h2>
 
