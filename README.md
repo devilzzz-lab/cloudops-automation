@@ -7,9 +7,6 @@
 <body>
 
   <h1>CloudOps Automation — Project</h1>
-
-  <p><strong>Status:</strong> <em>Phase 5 (Monitoring & Observability)</em> <strong>in progress</strong>. Phases 1–4 completed. Phase 5 started. Phase 6 pending.</p>
-
   <p>
     I have completed CI/CD automation using <strong>Jenkins</strong>, <strong>GitHub</strong>, <strong>Docker</strong>, and <strong>Docker Hub</strong>.
     Every commit to GitHub now triggers a fully automated build, test, containerization, image push, and Kubernetes deployment pipeline.
