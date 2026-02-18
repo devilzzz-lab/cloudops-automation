@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+
+# Environment files
+.env
