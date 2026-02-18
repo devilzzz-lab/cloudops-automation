@@ -86,7 +86,7 @@
 
   <ul>
     <li>Deploy Prometheus inside KIND Kubernetes cluster for metrics collection</li>
-    <li>Configure exporters: Node Exporter, cAdvisor, kube-state-metrics</li>
+    <li>Configure exporters: Node Exporter, kube-state-metrics</li>
     <li>Expose application metrics endpoint and scrape via Prometheus</li>
     <li>Setup Grafana with Prometheus as data source</li>
     <li>Create dashboards for cluster health, pod metrics, and application performance</li>
