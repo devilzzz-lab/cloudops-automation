@@ -11,7 +11,6 @@
     I have completed CI/CD automation using <strong>Jenkins</strong>, <strong>GitHub</strong>, <strong>Docker</strong>, and <strong>Docker Hub</strong>.
     Every commit to GitHub now triggers a fully automated build, test, containerization, image push, and Kubernetes deployment pipeline.
     Successfully deployed to a <strong>Kubernetes cluster created using KIND (Kubernetes IN Docker)</strong> with complete orchestration and automated rollout.
-    Currently implementing <strong>monitoring and observability</strong> using Prometheus and Grafana for comprehensive cluster and application metrics.
   </p>
 
   <hr>
@@ -25,14 +24,14 @@
     <li>Images verified successfully in Docker Hub</li>
     <li>Kubernetes cluster created using <strong>KIND (Kubernetes IN Docker)</strong></li>
     <li>Jenkins container connected to KIND Docker network with full cluster access</li>
-    <li>Production-grade Kubernetes manifests (Deployment, Service, StatefulSet, DaemonSet, ConfigMap, Secret, PVC)</li>
+    <li>Production grade Kubernetes manifests (Deployment, Service, StatefulSet, DaemonSet, ConfigMap, Secret, PVC)</li>
     <li>Jenkins deploys applications automatically to KIND Kubernetes cluster using kubectl</li>
     <li>Parameterized deployments with specific image tag selection</li>
-    <li>Zero-downtime rolling updates with automated rollout verification</li>
-    <li><strong>NEW:</strong> Prometheus deployed for metrics collection and monitoring</li>
-    <li><strong>NEW:</strong> Grafana deployed with Prometheus integration for visualization</li>
-    <li><strong>NEW:</strong> Real-time cluster health and application performance monitoring</li>
-    <li><strong>NEW</strong> Alert rules configured and tested for critical failures and resource issues</li>
+    <li>Zero downtime rolling updates with automated rollout verification</li>
+    <li>Prometheus deployed for metrics collection and monitoring</li>
+    <li>Grafana deployed with Prometheus integration for visualization</li>
+    <li>Real time cluster health and application performance monitoring</li>
+    <li>Alert rules configured and tested for critical failures and resource issues</li>
   </ul>
 
   <hr>
