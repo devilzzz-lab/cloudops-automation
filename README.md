@@ -161,7 +161,7 @@
 
   <hr>
 
-   <h2>CI/CD Pipeline Flow</h2>
+   <h2>Full Flow of CI/CD Pipeline Flow and Monitoring</h2>
    <pre>Developer (Local Machine)
         |
         | git push
@@ -236,40 +236,6 @@ Grafana              AlertManager
 - Visualization      - Failure alerts
 - Cluster insights   - Resource threshold alerts
 </pre>
-
-
-  <hr>
-
-
-  <h2>Monitoring Architecture</h2>
-  <pre>
-KIND Kubernetes Cluster
-    ↓
-┌───────────────────────────────────┐
-│  Application Pods                 │
-│  - Expose /metrics endpoint       │
-│  - Node Exporter (node metrics)   │
-│  - cAdvisor (container metrics)   │
-│  - kube-state-metrics (K8s state) │
-└───────────────┬───────────────────┘
-                ↓
-┌───────────────────────────────────┐
-│  Prometheus Server                │
-│  - Scrapes metrics every 15s      │
-│  - Stores time-series data        │
-│  - Evaluates alert rules          │
-│  - Sends alerts to AlertManager   │
-└───────────────┬───────────────────┘
-                ↓
-        ┌───────┴────────┐
-        ↓                ↓
-┌───────────────┐  ┌─────────────────┐
-│ Grafana       │  │ AlertManager    │
-│ - Dashboards  │  │ - Alert routing │
-│ - Queries     │  │ - Notifications │
-│ - Persistent  │  │ - Deduplication │
-└───────────────┘  └─────────────────┘
-  </pre>
 
   <hr>
 
