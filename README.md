@@ -162,31 +162,80 @@
   <hr>
 
    <h2>CI/CD Pipeline Flow</h2>
-  <pre>
-Developer → Git Push → GitHub
-                        ↓
-                   Webhook (ngrok)
-                        ↓
-                     Jenkins
-                        ↓
-            ┌───────────┴───────────┐
-            ↓                       ↓
-    CI Job (Build)          CD Job (Deploy)
-    - Checkout code         - Apply K8s manifests
-    - Build Docker image    - Update deployment
-    - Tag: build-X          - Rolling update
-    - Push to Docker Hub    - Verify rollout
-            ↓                       ↓
-        Docker Hub          KIND Kubernetes Cluster
-                                    ↓
-                            Running Application
-                                    ↓
-                         Prometheus (Metrics Collection)
-                                    ↓
-                         Grafana (Visualization & Dashboards)
-                                    ↓
-                         AlertManager (Alert Routing)
-  </pre>
+   <pre>Developer (Local Machine)
+        |
+        | git push
+        v
+  GitHub Repository
+        |
+        | Webhook Trigger (via ngrok tunnel)
+        v
+      Jenkins (Dockerized)
+        |
+        |--------------------------------------------------|
+        |                                                  |
+        |  Job 1: cloudops-ci-build                        |
+        |  --------------------------------------------    |
+        |  1. Checkout source code from GitHub             |
+        |  2. Build Docker image                           |
+        |  3. Tag image (build-X / versioned tag)          |
+        |  4. Push image to Docker Hub                     |
+        |--------------------------------------------------|
+        |                                                  |
+        |  Job 2: cloudops-prod-deploy                     |
+        |  --------------------------------------------    |
+        |  1. Pull updated image tag                       |
+        |  2. Apply Kubernetes manifests                   |
+        |     - Deployment                                 |
+        |     - Service (NodePort)                         |
+        |     - ConfigMap / Secret                         |
+        |     - PVC / StatefulSet (if required)            |
+        |  3. Trigger rolling update                       |
+        |  4. Wait for rollout status                      |
+        |  5. Verify pod & service health                  |
+        |--------------------------------------------------|
+        |
+        v
+     Docker Hub (Image Registry)
+        |
+        | Image Pull
+        v
+  KIND Kubernetes Cluster (Kubernetes IN Docker)
+        |
+        |-----------------------------------------------|
+        |                                               |
+        |  Running Application Pods                     |
+        |  - Zero-downtime rolling updates              |
+        |  - ConfigMap & Secret injection               |
+        |  - Persistent storage via PVC (if needed)    |
+        |-----------------------------------------------|
+        |
+        v
+  ---------------- MONITORING & OBSERVABILITY ----------------
+        |
+        |  Metrics exposed via /metrics endpoint
+        |
+        |  Exporters:
+        |    - Node Exporter (Node metrics)
+        |    - cAdvisor (Container metrics)
+        |    - kube-state-metrics (Cluster state)
+        |
+        v
+  Prometheus Server
+        |
+        |  - Scrapes metrics every 15s
+        |  - Stores time-series data
+        |  - Evaluates alert rules
+        |
+        v
+  ┌───────────────────────┬─────────────────────────┐
+  v                       v
+Grafana              AlertManager
+- Dashboards         - Alert routing
+- Query (PromQL)     - Notification handling
+- Visualization      - Failure alerts
+- Cluster insights   - Resource threshold alerts
+</pre>
 
 
   <hr>
