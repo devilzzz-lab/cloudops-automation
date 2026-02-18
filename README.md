@@ -207,7 +207,7 @@
         |  Running Application Pods                     |
         |  - Zero-downtime rolling updates              |
         |  - ConfigMap & Secret injection               |
-        |  - Persistent storage via PVC (if needed)    |
+        |  - Persistent storage via PVC (if needed)     |
         |-----------------------------------------------|
         |
         v
@@ -228,7 +228,7 @@
         |  - Evaluates alert rules
         |
         v
-  ┌───────────────────────┬─────────────────────────┐
+  ┌───────────────────────┐
   v                       v
 Grafana              AlertManager
 - Dashboards         - Alert routing
