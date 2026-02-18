@@ -156,7 +156,7 @@
     <li><strong>Configuration:</strong> ConfigMaps, Secrets</li>
     <li><strong>Monitoring:</strong> Prometheus, Grafana, AlertManager, Node Exporter, kube-state-metrics</li>
     <li><strong>Languages:</strong> Python, Bash, YAML, PromQL</li>
-    <li><strong>Tools:</strong> kubectl, Docker CLI, Git, Helm (for monitoring stack)</li>
+    <li><strong>Tools:</strong> kubectl, Docker CLI, Git (for monitoring stack)</li>
   </ul>
 
   <hr>
