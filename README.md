@@ -217,7 +217,6 @@
         |
         |  Exporters:
         |    - Node Exporter (Node metrics)
-        |    - cAdvisor (Container metrics)
         |    - kube-state-metrics (Cluster state)
         |
         v
