@@ -39,7 +39,7 @@
   <h2>📚 Detailed Phase Documentation</h2>
   <p>For detailed step-by-step instructions and configurations for each phase, refer to the following documentation files:</p>
   <ul>
-    <li><a href="https://drive.google.com/drive/folders/1282OkzIWdvFSeItA_NDhXbwAFbU1vvUK?usp=sharing">Phase 1: Project Setup &amp; Demo Videos</a></li>
+    <li><a href="https://drive.google.com/drive/folders/1282OkzIWdvFSeItA_NDhXbwAFbU1vvUK?usp=sharing">Demo Videos</a></li>
     <li><a href="Phase-1.md">Phase 1: Project Setup &amp; Cloud Foundation</a></li>
     <li><a href="Phase-2.md">Phase 2: AWS Lambda Event Automation</a></li>
     <li><a href="Phase-3.md">Phase 3: Complete Development Environment Setup</a></li>
