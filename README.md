@@ -189,15 +189,15 @@
         |--------------------------------------------------|
         |                                                  |
         |  Job 1: cloudops-ci-build                        |
-        |  --------------------------------------------    |
+        |  ----------------------------------------------  |
         |  1. Checkout source code from GitHub             |
         |  2. Build Docker image                           |
         |  3. Tag image (build-X / versioned tag)          |
         |  4. Push image to Docker Hub                     |
-        |--------------------------------------------------|
+        |  ----------------------------------------------  |
         |                                                  |
         |  Job 2: cloudops-prod-deploy                     |
-        |  --------------------------------------------    |
+        |  ----------------------------------------------  |
         |  1. Pull updated image tag                       |
         |  2. Apply Kubernetes manifests                   |
         |     - Deployment                                 |
@@ -207,7 +207,7 @@
         |  3. Trigger rolling update                       |
         |  4. Wait for rollout status                      |
         |  5. Verify pod & service health                  |
-        |--------------------------------------------------|
+        |  ----------------------------------------------  |
         |
         v
      Docker Hub (Image Registry)
