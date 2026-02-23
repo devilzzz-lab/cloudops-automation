@@ -86,14 +86,10 @@ cloudops-automation/
 │   ├── secret.yaml
 │   ├── service.yaml
 │   └── statefulset-db.yaml
-├── screenshots/
-│   └── phase4/
 ├── .dockerignore
 ├── app.py
 ├── Dockerfile
-├── jen-kub-doc-setup.md
-├── Jenkinsfile
-├── LOG-COMMANDS.md
+├── DEBUG-COMMANDS.md
 ├── Phase-1.md
 ├── Phase-2.md
 ├── Phase-3.md
