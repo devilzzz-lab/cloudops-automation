@@ -45,6 +45,7 @@
     <li><a href="Phase-3.md">Phase 3: Complete Development Environment Setup</a></li>
     <li><a href="Phase-4.md">Phase 4: CI/CD Pipeline &amp; Kubernetes Deployment Automation</a></li>
     <li><a href="Phase-5.md">Phase 5: Monitoring &amp; Observability</a></li>
+    <li><a href="DEBUG-COMMANDS.md">Debug Commands</a></li>
   </ul>
 
   <hr>

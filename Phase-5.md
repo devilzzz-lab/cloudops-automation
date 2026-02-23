@@ -1503,6 +1503,10 @@ kubectl port-forward pod/&lt;POD_NAME&gt; 7070:80
 
 <hr>
 
+<p align="center">
+    <a href="README.md"> <- Back to Readme</a>
+</p>
+
 </body>
 </html>
 

@@ -281,5 +281,9 @@ aws sns list-topics
 
 <p>You are now ready for <strong>PHASE 2 — Lambda Automation 🚀</strong></p>
 
+<p align="center">
+    <a href="Phase-2.md"> Phase 2</a>
+</p>
+
 </body>
 </html>
