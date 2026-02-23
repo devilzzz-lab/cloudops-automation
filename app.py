@@ -24,8 +24,8 @@ def home():
         <title>CloudOps Automation</title>
     </head>
     <body style="font-family: Arial; background:#0f172a; color:#e5e7eb; padding:30px;">
-        <h1>🚀 CloudOps Sample Application</h1>
-        <h3>Phase 4 – Kubernetes Deployment</h3>
+        <h1>🚀 CloudOps Version 2 Application Testing in Demo</h1>
+        <h3>Full Deployment</h3>
 
         <hr>
 
